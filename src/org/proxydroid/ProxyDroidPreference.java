@@ -43,7 +43,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class GAEProxy extends PreferenceActivity implements
+public class ProxyDroidPreference extends PreferenceActivity implements
 		OnSharedPreferenceChangeListener {
 
 	class DownloadFileAsync extends AsyncTask<String, String, String> {
@@ -55,7 +55,7 @@ public class GAEProxy extends PreferenceActivity implements
 			PowerManager.WakeLock mWakeLock;
 			PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 			mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
-					| PowerManager.ON_AFTER_RELEASE, "GAEProxy");
+					| PowerManager.ON_AFTER_RELEASE, "ProxyDroid");
 
 			mWakeLock.acquire();
 
@@ -200,9 +200,9 @@ public class GAEProxy extends PreferenceActivity implements
 
 	}
 
-	private static final String TAG = "GAEProxy";
-	public static final String PREFS_NAME = "GAEProxy";
-	private static final String SERVICE_NAME = "org.gaeproxy.GAEProxyService";
+	private static final String TAG = "ProxyDroid";
+	public static final String PREFS_NAME = "ProxyDroid";
+	private static final String SERVICE_NAME = "org.proxydroid.ProxyDroidService";
 
 	public static final int DIALOG_DOWNLOAD_PROGRESS = 0;
 	private String proxy;
@@ -284,10 +284,10 @@ public class GAEProxy extends PreferenceActivity implements
 			InputStream in = null;
 			OutputStream out = null;
 			try {
-				// if (!(new File("/data/data/org.gaeproxy/" +
+				// if (!(new File("/data/data/org.proxydroid/" +
 				// files[i])).exists()) {
 				in = assetManager.open(files[i]);
-				out = new FileOutputStream("/data/data/org.gaeproxy/"
+				out = new FileOutputStream("/data/data/org.proxydroid/"
 						+ files[i]);
 				copyFile(in, out);
 				in.close();
@@ -361,9 +361,9 @@ public class GAEProxy extends PreferenceActivity implements
 			return false;
 
 		DownloadFileAsync progress = new DownloadFileAsync();
-		progress.execute("http://gaeproxy.googlecode.com/files/python_r2.zip",
-				"/sdcard/python.zip", "/data/data/org.gaeproxy/",
-				"http://gaeproxy.googlecode.com/files/python-extras_r2.zip",
+		progress.execute("http://proxydroid.googlecode.com/files/python_r2.zip",
+				"/sdcard/python.zip", "/data/data/org.proxydroid/",
+				"http://proxydroid.googlecode.com/files/python-extras_r2.zip",
 				"/sdcard/python-extras.zip", "/sdcard/");
 
 		return true;
@@ -395,7 +395,7 @@ public class GAEProxy extends PreferenceActivity implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		addPreferencesFromResource(R.xml.gae_proxy_preference);
+		addPreferencesFromResource(R.xml.proxydroid_preference);
 
 		proxyText = (EditTextPreference) findPreference("proxy");
 		portText = (EditTextPreference) findPreference("port");
@@ -418,22 +418,6 @@ public class GAEProxy extends PreferenceActivity implements
 				recovery();
 			}
 			isRunningCheck.setChecked(false);
-		}
-
-		if (!runRootCommand("ls")) {
-			isRoot = false;
-		} else {
-			isRoot = true;
-		}
-
-		if (!isWorked(SERVICE_NAME)) {
-			CopyAssets("");
-
-			runCommand("chmod 777 /data/data/org.gaeproxy/iptables_g1");
-			runCommand("chmod 777 /data/data/org.gaeproxy/iptables_n1");
-			runCommand("chmod 777 /data/data/org.gaeproxy/redsocks");
-			runCommand("chmod 777 /data/data/org.gaeproxy/proxy.sh");
-			runCommand("chmod 777 /data/data/org.gaeproxy/localproxy.sh");
 		}
 	}
 
@@ -657,7 +641,7 @@ public class GAEProxy extends PreferenceActivity implements
 			return false;
 		}
 
-		runCommand("chmod 777 /data/data/org.gaeproxy/python/bin/python");
+		runCommand("chmod 777 /data/data/org.proxydroid/python/bin/python");
 
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(this);
@@ -728,58 +712,6 @@ public class GAEProxy extends PreferenceActivity implements
 			f.delete();
 	}
 
-	// 点击Menu时，系统调用当前Activity的onCreateOptionsMenu方法，并传一个实现了一个Menu接口的menu对象供你使用
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		/*
-		 * add()方法的四个参数，依次是： 1、组别，如果不分组的话就写Menu.NONE,
-		 * 2、Id，这个很重要，Android根据这个Id来确定不同的菜单 3、顺序，那个菜单现在在前面由这个参数的大小决定
-		 * 4、文本，菜单的显示文本
-		 */
-		menu.add(Menu.NONE, Menu.FIRST + 1, 1, getString(R.string.recovery))
-				.setIcon(android.R.drawable.ic_menu_delete);
-		menu.add(Menu.NONE, Menu.FIRST + 2, 2, getString(R.string.about))
-				.setIcon(android.R.drawable.ic_menu_info_details);
-		// return true才会起作用
-		return true;
 
-	}
-
-	// 菜单项被选择事件
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case Menu.FIRST + 1:
-			recovery();
-			break;
-		case Menu.FIRST + 2:
-			showAToast(getString(R.string.copy_rights));
-			break;
-		}
-
-		return true;
-	}
-
-	private void recovery() {
-		try {
-			stopService(new Intent(this, ProxyDroidService.class));
-		} catch (Exception e) {
-			// Nothing
-		}
-
-		if (ProxyDroidService.isARMv6()) {
-			runRootCommand(ProxyDroidService.BASE
-					+ "iptables_g1 -t nat -F OUTPUT");
-		} else {
-			runRootCommand(ProxyDroidService.BASE
-					+ "iptables_n1 -t nat -F OUTPUT");
-		}
-
-		runRootCommand(ProxyDroidService.BASE + "proxy.sh stop");
-
-		File cache = new File(ProxyDroidService.BASE + "cache/dnscache");
-		if (cache.exists())
-			cache.delete();
-	}
 
 }

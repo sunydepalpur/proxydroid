@@ -44,6 +44,8 @@
 	<string name="proxyed_apps">为应用分别设置代理</string>
 	<string name="proxyed_help">选择使用GAE代理的应用:</string>
 
+	<string name="tab_settings">设置</string>
+
 	<string name="crash_alert">检测到本程序正在从一次崩溃中恢复。\n\n请将您的情况提交到项目网站，谢谢！
 		\n\n(gaeproxy.googlecode.com) </string>
 	<string name="copy_rights">关于：\n\nGAE代理是一款开源软件，基于 GPLV3
@@ -51,18 +53,6 @@
 		\n\n(gaeproxy.googlecode.com)</string>
 	<string name="about">关于</string>
 
-	<string name="proxy_type">代理类型选择</string>
-	<array name="proxy_type_entry">
-		<item>GAppProxy</item>
-		<item>WallProxy</item>
-	</array>
-
 	<string name="connecting">正在连接</string>
-
-	<!-- settings notification category -->
-	<string name="notif_cat">通知设置</string>
-	<string name="notif_ringtone_title">选择铃声</string>
-	<string name="notif_vibrate_title">震动</string>
-	<string name="notif_vibrate_summary">在连接状态改变时震动</string>
 
 </resources>
