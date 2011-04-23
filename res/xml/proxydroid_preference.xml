@@ -10,7 +10,7 @@
 		<EditTextPreference android:key="host"
 			android:summary="@string/host_summary" android:title="@string/host"></EditTextPreference>
 		<EditTextPreference android:title="@string/port"
-			android:summary="@string/port_summary" android:key="port"></EditTextPreference>
+			android:summary="@string/port_summary" android:key="port" android:defaultValue="3128"></EditTextPreference>
 		<ListPreference android:key="proxyType" android:title="@string/proxy_type"
 			android:entries="@array/proxy_type_entry" android:defaultValue="http"
 			android:entryValues="@array/proxy_type_value"></ListPreference>
