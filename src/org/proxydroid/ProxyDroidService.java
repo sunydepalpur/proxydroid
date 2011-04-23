@@ -3,16 +3,9 @@ package org.proxydroid;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.URL;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -88,9 +81,6 @@ public class ProxyDroidService extends Service {
 			+ "iptables_n1 -t nat -A OUTPUT -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:8124\n";
 
 	private static final String TAG = "ProxyDroidService";
-
-	private Process httpProcess = null;
-	private DataOutputStream httpOS = null;
 
 	private String host;
 	private int port;
@@ -295,7 +285,7 @@ public class ProxyDroidService extends Service {
 		try {
 			Log.e(TAG, "Forward Successful");
 
-			runRootCommand(BASE + "host.sh" + " " + proxyType + " " + host
+			runRootCommand(BASE + "proxy.sh start" + " " + proxyType + " " + host
 					+ " " + port + " " + auth + " \"" + user + "\" \""
 					+ password + "\"");
 
@@ -433,19 +423,6 @@ public class ProxyDroidService extends Service {
 
 		// Make sure the connection is closed, important here
 		onDisconnect();
-
-		try {
-			if (httpOS != null) {
-				httpOS.writeBytes("\\cC");
-				httpOS.writeBytes("exit\n");
-				httpOS.flush();
-				httpOS.close();
-			}
-			if (httpProcess != null)
-				httpProcess.destroy();
-		} catch (Exception e) {
-			Log.e(TAG, "http Server close unexpected");
-		}
 
 		// for widget, maybe exception here
 		try {
