@@ -193,7 +193,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		setContentView(R.layout.main);
 		addPreferencesFromResource(R.xml.proxydroid_preference);
 		// Create the adView
-		AdView adView = new AdView(this, AdSize.BANNER, "a14d8be8a284afc");
+		AdView adView = new AdView(this, AdSize.BANNER, "a14db2c016cb9b6");
 		// Lookup your LinearLayout assuming it’s been given
 		// the attribute android:id="@+id/mainLayout"
 		LinearLayout layout = (LinearLayout) findViewById(R.id.ad);
@@ -201,7 +201,6 @@ public class ProxyDroid extends PreferenceActivity implements
 		layout.addView(adView);
 		// Initiate a generic request to load it with an ad
 		AdRequest aq = new AdRequest();
-		aq.setTesting(true);
 		adView.loadAd(aq);
 		hostText = (EditTextPreference) findPreference("host");
 		portText = (EditTextPreference) findPreference("port");
