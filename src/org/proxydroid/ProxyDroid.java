@@ -202,6 +202,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		// Initiate a generic request to load it with an ad
 		AdRequest aq = new AdRequest();
 		adView.loadAd(aq);
+		
 		hostText = (EditTextPreference) findPreference("host");
 		portText = (EditTextPreference) findPreference("port");
 		userText = (EditTextPreference) findPreference("user");
