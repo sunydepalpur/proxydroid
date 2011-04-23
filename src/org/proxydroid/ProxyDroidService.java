@@ -41,85 +41,71 @@ public class ProxyDroidService extends Service {
 	private Intent intent;
 	private PendingIntent pendIntent;
 
-	public static final String BASE = "/data/data/org.gaeproxy/";
+	public static final String BASE = "/data/data/org.proxydroid/";
 	private static final int MSG_CONNECT_START = 0;
 	private static final int MSG_CONNECT_FINISH = 1;
 	private static final int MSG_CONNECT_SUCCESS = 2;
 	private static final int MSG_CONNECT_FAIL = 3;
 
-	final static String CMD_IPTABLES_REDIRECT_DEL_G1 = BASE + "iptables_g1 -t nat -D OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 80 -j REDIRECT --to-ports 8123\n"
-			+ BASE + "iptables_g1 -t nat -D OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 443 -j REDIRECT --to-ports 8124\n";
+	final static String CMD_IPTABLES_REDIRECT_DEL_G1 = BASE
+			+ "iptables_g1 -t nat -D OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
+			+ BASE
+			+ "iptables_g1 -t nat -D OUTPUT -p tcp --dport 443 -j REDIRECT --to 8124\n";
 
-	final static String CMD_IPTABLES_REDIRECT_ADD_G1 = BASE + "iptables_g1 -t nat -A OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 80 -j REDIRECT --to-ports 8123\n"
-			+ BASE + "iptables_g1 -t nat -A OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 443 -j REDIRECT --to-ports 8124\n";
+	final static String CMD_IPTABLES_REDIRECT_ADD_G1 = BASE
+			+ "iptables_g1 -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
+			+ BASE
+			+ "iptables_g1 -t nat -A OUTPUT -p tcp --dport 443 -j REDIRECT --to 8124\n";
 
-	final static String CMD_IPTABLES_REDIRECT_DEL_N1 = BASE + "iptables_n1 -t nat -D OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 80 -j REDIRECT --to-ports 8123\n"
-			+ BASE + "iptables_n1 -t nat -D OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 443 -j REDIRECT --to-ports 8124\n";
+	final static String CMD_IPTABLES_REDIRECT_DEL_N1 = BASE
+			+ "iptables_n1 -t nat -D OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
+			+ BASE
+			+ "iptables_n1 -t nat -D OUTPUT -p tcp --dport 443 -j REDIRECT --to 8124\n";
 
-	final static String CMD_IPTABLES_REDIRECT_ADD_N1 = BASE + "iptables_n1 -t nat -A OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 80 -j REDIRECT --to-ports 8123\n"
-			+ BASE + "iptables_n1 -t nat -A OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 443 -j REDIRECT --to-ports 8124\n";
+	final static String CMD_IPTABLES_REDIRECT_ADD_N1 = BASE
+			+ "iptables_n1 -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
+			+ BASE
+			+ "iptables_n1 -t nat -A OUTPUT -p tcp --dport 443 -j REDIRECT --to 8124\n";
 
-	final static String CMD_IPTABLES_DNAT_DEL_G1 = BASE + "iptables_g1 -t nat -D OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
-			+ BASE + "iptables_g1 -t nat -D OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 443 -j DNAT --to-destination 127.0.0.1:8124\n";
+	final static String CMD_IPTABLES_DNAT_DEL_G1 = BASE
+			+ "iptables_g1 -t nat -D OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
+			+ BASE
+			+ "iptables_g1 -t nat -D OUTPUT -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:8124\n";
 
-	final static String CMD_IPTABLES_DNAT_ADD_G1 = BASE + "iptables_g1 -t nat -A OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
-			+ BASE + "iptables_g1 -t nat -A OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 443 -j DNAT --to-destination 127.0.0.1:8124\n";
+	final static String CMD_IPTABLES_DNAT_ADD_G1 = BASE
+			+ "iptables_g1 -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
+			+ BASE
+			+ "iptables_g1 -t nat -A OUTPUT -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:8124\n";
 
-	final static String CMD_IPTABLES_DNAT_DEL_N1 = BASE + "iptables_n1 -t nat -D OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
-			+ BASE + "iptables_n1 -t nat -D OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 443 -j DNAT --to-destination 127.0.0.1:8124\n";
+	final static String CMD_IPTABLES_DNAT_DEL_N1 = BASE
+			+ "iptables_n1 -t nat -D OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
+			+ BASE
+			+ "iptables_n1 -t nat -D OUTPUT -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:8124\n";
 
-	final static String CMD_IPTABLES_DNAT_ADD_N1 = BASE + "iptables_n1 -t nat -A OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
-			+ BASE + "iptables_n1 -t nat -A OUTPUT -p tcp "
-			+ "-d ! 203.208.0.0/16 "
-			+ "--dport 443 -j DNAT --to-destination 127.0.0.1:8124\n";
+	final static String CMD_IPTABLES_DNAT_ADD_N1 = BASE
+			+ "iptables_n1 -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
+			+ BASE
+			+ "iptables_n1 -t nat -A OUTPUT -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:8124\n";
 
-	private static final String TAG = "GAEProxyService";
+	private static final String TAG = "ProxyDroidService";
 
 	private Process httpProcess = null;
 	private DataOutputStream httpOS = null;
 
-	private String proxy;
-	private String appHost = "203.208.39.99";
+	private String host;
 	private int port;
-	private String proxyType = "GAppProxy";
-	private DNSServer dnsServer = null;
+	private String user;
+	private String password;
+	private String proxyType = "http";
+	private String auth = "false";
+	private Boolean isAuth = false;
 
 	private SharedPreferences settings = null;
 
 	// Flag indicating if this is an ARMv6 device (-1: unknown, 0: no, 1: yes)
 	private static int isARMv6 = -1;
 	private boolean hasRedirectSupport = true;
-	private boolean isGlobalProxy = false;
+	private boolean isAutoSetProxy = false;
 
 	private ProxyedApp apps[];
 
@@ -154,9 +140,9 @@ public class ProxyDroidService extends Service {
 		String line = null;
 
 		if (isARMv6()) {
-			command = "/data/data/org.gaeproxy/iptables_g1 -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 8153";
+			command = "/data/data/org.proxydroid/iptables_g1 -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 8153";
 		} else
-			command = "/data/data/org.gaeproxy/iptables_n1 -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 8153";
+			command = "/data/data/org.proxydroid/iptables_n1 -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 8153";
 
 		try {
 			process = Runtime.getRuntime().exec("su");
@@ -300,67 +286,22 @@ public class ProxyDroidService extends Service {
 		return true;
 	}
 
-	public boolean connect() {
-
-		try {
-
-			File conf = new File(BASE + "proxy.conf");
-			if (!conf.exists())
-				conf.createNewFile();
-			FileOutputStream is = new FileOutputStream(conf);
-			byte[] buffer = ("listen_port = " + port + "\n" + "fetch_server = "
-					+ proxy + "\n").getBytes();
-			is.write(buffer);
-			is.flush();
-			is.close();
-
-			String cmd = BASE;
-			if (proxyType.equals("GAppProxy")) {
-				cmd += "localproxy.sh gappproxy";
-			} else if (proxyType.equals("WallProxy")) {
-				cmd += "localproxy.sh wallproxy " + proxy + " " + port;
-			}
-			Log.e(TAG, cmd);
-
-			httpProcess = Runtime.getRuntime().exec("su");
-			httpOS = new DataOutputStream(httpProcess.getOutputStream());
-			httpOS.writeBytes(cmd + "\n");
-			httpOS.flush();
-
-		} catch (Exception e) {
-			Log.e(TAG, "Cannot connect");
-		}
-
-		return true;
-	}
-
 	/**
 	 * Internal method to request actual PTY terminal once we've finished
 	 * authentication. If called before authenticated, it will just fail.
 	 */
-	private void preConnection() {
+	private void enableProxy() {
 
 		try {
 			Log.e(TAG, "Forward Successful");
-			runRootCommand(BASE + "proxy.sh start " + port);
+
+			runRootCommand(BASE + "host.sh" + " " + proxyType + " " + host
+					+ " " + port + " " + auth + " \"" + user + "\" \""
+					+ password + "\"");
 
 			StringBuffer cmd = new StringBuffer();
 
-			if (hasRedirectSupport) {
-				if (isARMv6()) {
-					cmd.append(BASE + "iptables_g1 -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 8153\n");
-				} else {
-					cmd.append(BASE + "iptables_n1 -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 8153\n");
-				}
-			} else {
-				if (isARMv6()) {
-					cmd.append(BASE + "iptables_g1 -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 127.0.0.1:8153\n");
-				} else {
-					cmd.append(BASE + "iptables_n1 -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 127.0.0.1:8153\n");
-				}
-			}
-
-			if (isGlobalProxy) {
+			if (isAutoSetProxy) {
 				if (isARMv6()) {
 					cmd.append(hasRedirectSupport ? CMD_IPTABLES_REDIRECT_ADD_G1
 							: CMD_IPTABLES_DNAT_ADD_G1);
@@ -369,7 +310,7 @@ public class ProxyDroidService extends Service {
 							: CMD_IPTABLES_DNAT_ADD_N1);
 				}
 			} else {
-				// for proxy specified apps
+				// for host specified apps
 				if (apps == null || apps.length <= 0)
 					apps = AppManager.getApps(this);
 
@@ -390,7 +331,10 @@ public class ProxyDroidService extends Service {
 				}
 			}
 
-			runRootCommand(cmd.toString());
+			if (proxyType.equals("http"))
+				runRootCommand(cmd.toString());
+			else
+				runRootCommand(cmd.toString().replace("8124", "8123"));
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting up port forward during connect", e);
@@ -401,60 +345,7 @@ public class ProxyDroidService extends Service {
 	/** Called when the activity is first created. */
 	public boolean handleCommand() {
 
-		// try {
-		// InetAddress addr = InetAddress.getByName("www.google.cn");
-		// appHost = addr.getHostAddress();
-		// } catch (Exception ignore) {
-		// return false;
-		// }
-
-		/*
-		 * try { URL aURL = new URL("http://myhosts.sinaapp.com/apphosts");
-		 * HttpURLConnection conn = (HttpURLConnection) aURL.openConnection();
-		 * conn.setReadTimeout(10 * 1000); conn.connect(); InputStream is =
-		 * conn.getInputStream(); BufferedReader reader = new BufferedReader(
-		 * new InputStreamReader(is)); String line = reader.readLine(); if (line
-		 * == null) return false; if (!line.startsWith("#GAEPROXY")) return
-		 * false; while (true) { line = reader.readLine(); if (line == null)
-		 * break; if (line.startsWith("#")) continue; line =
-		 * line.trim().toLowerCase(); if (line.equals("")) continue; appHost =
-		 * line; } } catch (Exception e) { Log.e(TAG,
-		 * "cannot get remote host files", e); return false; }
-		 */
-
-		// String host = proxy.trim().toLowerCase().split("/")[2];
-		// if (host == null || host.equals(""))
-		// return false;
-
-		// Add hosts here
-		// runRootCommand(BASE + "host.sh add " + appHost + " " + host);
-
-		dnsServer = new DNSServer("DNS Server", 8153, "8.8.8.8", 53, appHost);
-		dnsServer.setBasePath(BASE);
-		new Thread(dnsServer).start();
-
-		int i = 0;
-		while (!dnsServer.isInService() && i < 3) {
-			try {
-				Thread.sleep(3 * 1000);
-			} catch (InterruptedException e) {
-				// Nothing
-			}
-			i++;
-		}
-
-		if (i >= 3)
-			return false;
-
-		preConnection();
-
-		try {
-			Thread.sleep(1 * 1000);
-		} catch (InterruptedException e) {
-			// Nothing
-		}
-
-		connect();
+		enableProxy();
 
 		return true;
 	}
@@ -514,7 +405,7 @@ public class ProxyDroidService extends Service {
 
 		this.initHasRedirectSupported();
 
-		intent = new Intent(this, GAEProxy.class);
+		intent = new Intent(this, ProxyDroid.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		pendIntent = PendingIntent.getActivity(this, 0, intent, 0);
 		notification = new Notification();
@@ -536,8 +427,6 @@ public class ProxyDroidService extends Service {
 
 		stopForegroundCompat(1);
 
-		// runRootCommand(BASE + "host.sh remove");
-
 		notifyAlert(getString(R.string.forward_stop),
 				getString(R.string.service_stopped),
 				Notification.FLAG_AUTO_CANCEL);
@@ -555,20 +444,13 @@ public class ProxyDroidService extends Service {
 			if (httpProcess != null)
 				httpProcess.destroy();
 		} catch (Exception e) {
-			Log.e(TAG, "HTTP Server close unexpected");
-		}
-
-		try {
-			if (dnsServer != null)
-				dnsServer.close();
-		} catch (Exception e) {
-			Log.e(TAG, "DNS Server close unexpected");
+			Log.e(TAG, "http Server close unexpected");
 		}
 
 		// for widget, maybe exception here
 		try {
 			RemoteViews views = new RemoteViews(getPackageName(),
-					R.layout.gaeproxy_appwidget);
+					R.layout.proxydroid_appwidget);
 			views.setImageViewResource(R.id.serviceToggle, R.drawable.off);
 			AppWidgetManager awm = AppWidgetManager.getInstance(this);
 			awm.updateAppWidget(awm.getAppWidgetIds(new ComponentName(this,
@@ -636,12 +518,23 @@ public class ProxyDroidService extends Service {
 		Log.e(TAG, "Service Start");
 
 		Bundle bundle = intent.getExtras();
-		proxy = bundle.getString("proxy");
+		host = bundle.getString("host");
 		proxyType = bundle.getString("proxyType");
 		port = bundle.getInt("port");
-		isGlobalProxy = bundle.getBoolean("isGlobalProxy");
+		isAutoSetProxy = bundle.getBoolean("isAutoSetProxy");
+		isAuth = bundle.getBoolean("isAuth");
 
-		Log.e(TAG, "GAE Proxy: " + proxy);
+		if (isAuth) {
+			auth = "true";
+			user = bundle.getString("user");
+			password = bundle.getString("password");
+		} else {
+			auth = "false";
+			user = "";
+			password = "";
+		}
+
+		Log.e(TAG, "GAE Proxy: " + host);
 		Log.e(TAG, "Local Port: " + port);
 
 		new Thread(new Runnable() {
@@ -659,7 +552,7 @@ public class ProxyDroidService extends Service {
 					// for widget, maybe exception here
 					try {
 						RemoteViews views = new RemoteViews(getPackageName(),
-								R.layout.gaeproxy_appwidget);
+								R.layout.proxydroid_appwidget);
 						views.setImageViewResource(R.id.serviceToggle,
 								R.drawable.on);
 						AppWidgetManager awm = AppWidgetManager

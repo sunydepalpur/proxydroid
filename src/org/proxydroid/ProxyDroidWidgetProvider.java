@@ -18,13 +18,16 @@ import android.widget.RemoteViews;
 
 public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 
-	public static final String PROXY_SWITCH_ACTION = "org.gaeproxy.GAEProxyWidgetProvider.PROXY_SWITCH_ACTION";
-	public static final String SERVICE_NAME = "org.gaeproxy.GAEProxyService";
-	public static final String TAG = "GAEProxyWidgetProvider";
+	public static final String PROXY_SWITCH_ACTION = "org.proxydroid.ProxyDroidWidgetProvider.PROXY_SWITCH_ACTION";
+	public static final String SERVICE_NAME = "org.proxydroid.ProxyDroidService";
+	public static final String TAG = "ProxyDroidWidgetProvider";
 
-	private String proxy;
+	private String host;
 	private String proxyType;
 	private int port;
+	private String user;
+	private String password;
+	private boolean isAuth = false;
 
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
 			int[] appWidgetIds) {
@@ -44,7 +47,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 			// Get the layout for the App Widget and attach an on-click listener
 			// to the button
 			RemoteViews views = new RemoteViews(context.getPackageName(),
-					R.layout.gaeproxy_appwidget);
+					R.layout.proxydroid_appwidget);
 			views.setOnClickPendingIntent(R.id.serviceToggle, pendingIntent);
 
 			if (isWorked(context, SERVICE_NAME)) {
@@ -81,7 +84,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 
 		if (intent.getAction().equals(PROXY_SWITCH_ACTION)) {
 			RemoteViews views = new RemoteViews(context.getPackageName(),
-					R.layout.gaeproxy_appwidget);
+					R.layout.proxydroid_appwidget);
 			try {
 				views.setImageViewResource(R.id.serviceToggle, R.drawable.ing);
 
@@ -112,22 +115,26 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 				boolean isInstalled = settings.getBoolean("isInstalled", false);
 
 				if (isInstalled) {
-					proxy = settings.getString("proxy", "");
-					proxyType = settings.getString("proxyType", "GAppProxy");
+					host = settings.getString("host", "");
+					proxyType = settings.getString("proxyType", "http");
+					user = settings.getString("user", "");
+					password = settings.getString("password", "");
+					isAuth = settings.getBoolean("isAuth", false);
 					String portText = settings.getString("port", "");
-					if (portText != null && portText.length() > 0) {
+					try {
 						port = Integer.valueOf(portText);
-						if (port <= 1024)
-							port = 1984;
-					} else {
-						port = 1984;
+					} catch (Exception e) {
+						port = 3128;
 					}
 
 					Intent it = new Intent(context, ProxyDroidService.class);
 					Bundle bundle = new Bundle();
-					bundle.putString("proxy", proxy);
-					bundle.putInt("port", port);
+					bundle.putString("host", host);
 					bundle.putString("proxyType", proxyType);
+					bundle.putInt("port", port);
+					bundle.putString("user", user);
+					bundle.putString("password", password);
+					bundle.putBoolean("isAuth", isAuth);
 
 					it.putExtras(bundle);
 					context.startService(it);

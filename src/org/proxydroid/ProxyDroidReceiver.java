@@ -9,11 +9,13 @@ import android.preference.PreferenceManager;
 
 public class ProxyDroidReceiver extends BroadcastReceiver {
 
-	private String proxy;
+	private String host;
 	private String proxyType;
 	private int port;
+	private String user;
+	private String password;
 	private boolean isAutoStart = false;
-	private boolean isInstalled = false;
+	private boolean isAuth = false;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -22,25 +24,28 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 				.getDefaultSharedPreferences(context);
 
 		isAutoStart = settings.getBoolean("isAutoStart", false);
-		isInstalled = settings.getBoolean("isInstalled", false);
 
-		if (isAutoStart && isInstalled) {
-			proxy = settings.getString("proxy", "");
-			proxyType = settings.getString("proxyType", "GAppProxy");
+		if (isAutoStart) {
+			host = settings.getString("host", "");
+			proxyType = settings.getString("proxyType", "http");
+			user = settings.getString("user", "");
+			password = settings.getString("password", "");
+			isAuth = settings.getBoolean("isAuth", false);
 			String portText = settings.getString("port", "");
-			if (portText != null && portText.length() > 0) {
+			try {
 				port = Integer.valueOf(portText);
-				if (port <= 1024)
-					port = 1984;
-			} else {
-				port = 1984;
+			} catch (Exception e) {
+				port = 3128;
 			}
-			
+
 			Intent it = new Intent(context, ProxyDroidService.class);
 			Bundle bundle = new Bundle();
-			bundle.putString("proxy", proxy);
+			bundle.putString("host", host);
 			bundle.putString("proxyType", proxyType);
 			bundle.putInt("port", port);
+			bundle.putString("user", user);
+			bundle.putString("password", password);
+			bundle.putBoolean("isAuth", isAuth);
 
 			it.putExtras(bundle);
 			context.startService(it);
