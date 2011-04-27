@@ -73,7 +73,7 @@
 	<string name="proxyed_help">Select apps to use with ProxyDroid:</string>
 
 	<!-- menu bar category -->
-	<string name="recovery">Recover the connection</string>
+	<string name="recovery">Recover</string>
 	<string name="copy_rights">:\n\nProxyDroid is an open source project
 		published
 		under
@@ -95,7 +95,7 @@
 	<string name="profile_default">Profile 1</string>
 	<string name="profile_new">New Profile</string>
 	<string name="profile_base">Profile</string>
-	<string name="profile_del">Remove current profile</string>
+	<string name="profile_del">Remove</string>
 
 	<!-- proxy type -->
 	<string name="proxy_type">Proxy type</string>
