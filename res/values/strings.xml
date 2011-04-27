@@ -35,6 +35,7 @@
 	<string name="reconnect_fail">Cannot reconnect, service stopped</string>
 	<string name="connecting">Connecting</string>
 	<string name="auto_connecting">Connecting...</string>
+	<string name="loading">Loading app list...</string>
 
 	<!-- settings function category -->
 	<string name="function_cat">Service Controller</string>
@@ -68,8 +69,8 @@
 		and IPTABLES support)</string>
 
 	<!-- settings proxyed apps category -->
-	<string name="proxyed_apps">Choose Apps through proxy</string>
-	<string name="proxyed_help">Select Apps to use with ProxyDroid:</string>
+	<string name="proxyed_apps">Choose apps through proxy</string>
+	<string name="proxyed_help">Select apps to use with ProxyDroid:</string>
 
 	<!-- menu bar category -->
 	<string name="recovery">Recover the connection</string>
@@ -90,7 +91,7 @@
 	</string>
 
 	<!-- profile switcher -->
-	<string name="profile">Choose one profile</string>
+	<string name="profile">Profiles</string>
 	<string name="profile_default">Profile 1</string>
 	<string name="profile_new">New Profile</string>
 	<string name="profile_base">Profile</string>
