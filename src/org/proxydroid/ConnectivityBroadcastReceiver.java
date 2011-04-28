@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -36,7 +37,6 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		}
 		return false;
 	}
-	
 
 	@Override
 	public synchronized void onReceive(Context context, Intent intent) {
@@ -48,9 +48,9 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		}
 
 		Log.e(TAG, "Connection Test");
-		
+
 		SharedPreferences settings = PreferenceManager
-		.getDefaultSharedPreferences(context);
+				.getDefaultSharedPreferences(context);
 
 		String ssid = settings.getString("ssid", "");
 		if (isOnline(context, ssid)) {
@@ -63,7 +63,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 	}
 
 	public boolean isOnline(Context context, String ssid) {
-		String ssids [] = ssid.split(" ");
+		String ssids[] = ssid.split(" ");
 		if (ssids.length < 1)
 			return false;
 		ConnectivityManager manager = (ConnectivityManager) context
@@ -71,9 +71,15 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 		if (networkInfo == null)
 			return false;
-		WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-		String current = wm.getConnectionInfo().getSSID();
-		for (String item:ssids) {
+		WifiManager wm = (WifiManager) context
+				.getSystemService(Context.WIFI_SERVICE);
+		WifiInfo wInfo = wm.getConnectionInfo();
+		if (wInfo == null)
+			return false;
+		String current = wInfo.getSSID();
+		if (current == null || current.equals(""))
+			return false;
+		for (String item : ssids) {
 			if (item.equals(current))
 				return true;
 		}
