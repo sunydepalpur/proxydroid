@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import com.google.ads.AdRequest;
@@ -26,6 +27,8 @@ import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -68,7 +71,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private EditTextPreference portText;
 	private EditTextPreference userText;
 	private EditTextPreference passwordText;
-	private EditTextPreference ssidText;
+	private ListPreference ssidList;
 	private ListPreference proxyTypeList;
 	private CheckBoxPreference isRunningCheck;
 	private Preference proxyedApps;
@@ -186,6 +189,20 @@ public class ProxyDroid extends PreferenceActivity implements
 		profileList.setEntries(profileEntries);
 		profileList.setEntryValues(profileValues);
 	}
+	
+	private void loadNetworkList() {
+		WifiManager wm = (WifiManager) this
+		.getSystemService(Context.WIFI_SERVICE);
+		List<WifiConfiguration> wcs = wm.getConfiguredNetworks();
+		String [] ssidEntries = new String[wcs.size()+1];
+		ssidEntries[0] = "2G/3G";
+		int n = 1;
+		for (WifiConfiguration wc : wcs) {
+			ssidEntries[n++] = wc.SSID.replace("\"", ""); 
+		}
+		ssidList.setEntries(ssidEntries);
+		ssidList.setEntryValues(ssidEntries);
+	}
 
 	/** Called when the activity is first created. */
 	@Override
@@ -209,7 +226,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		portText = (EditTextPreference) findPreference("port");
 		userText = (EditTextPreference) findPreference("user");
 		passwordText = (EditTextPreference) findPreference("password");
-		ssidText = (EditTextPreference) findPreference("ssid");
+		ssidList = (ListPreference) findPreference("ssid");
 		proxyTypeList = (ListPreference) findPreference("proxyType");
 		proxyedApps = (Preference) findPreference("proxyedApps");
 		profileList = (ListPreference) findPreference("profile");
@@ -237,6 +254,8 @@ public class ProxyDroid extends PreferenceActivity implements
 		}
 
 		loadProfileList();
+		
+		loadNetworkList();
 
 		Editor edit = settings.edit();
 
@@ -443,7 +462,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isAuthCheck.setChecked(isAuth);
 		proxyTypeList.setValue(proxyType);
 		isAutoConnectCheck.setChecked(isAutoConnect);
-		ssidText.setText(ssid);
+		ssidList.setValue(ssid);
 
 		ed = settings.edit();
 		ed.putString("host", host.equals("null") ? "" : host);
@@ -477,7 +496,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		portText.setEnabled(false);
 		userText.setEnabled(false);
 		passwordText.setEnabled(false);
-		ssidText.setEnabled(false);
+		ssidList.setEnabled(false);
 		proxyTypeList.setEnabled(false);
 		proxyedApps.setEnabled(false);
 		profileList.setEnabled(false);
@@ -499,7 +518,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		if (!isAutoSetProxyCheck.isChecked())
 			proxyedApps.setEnabled(true);
 		if (isAutoConnectCheck.isChecked())
-			ssidText.setEnabled(true);
+			ssidList.setEnabled(true);
 
 		profileList.setEnabled(true);
 		isAutoSetProxyCheck.setEnabled(true);
@@ -548,9 +567,9 @@ public class ProxyDroid extends PreferenceActivity implements
 			proxyedApps.setEnabled(true);
 
 		if (settings.getBoolean("isAutoConnect", false))
-			ssidText.setEnabled(true);
+			ssidList.setEnabled(true);
 		else
-			ssidText.setEnabled(false);
+			ssidList.setEnabled(false);
 
 		if (!settings.getBoolean("isAuth", false)) {
 			userText.setEnabled(false);
@@ -592,7 +611,7 @@ public class ProxyDroid extends PreferenceActivity implements
 				+ settings.getString("profile", ""));
 
 		if (!settings.getString("ssid", "").equals(""))
-			ssidText.setSummary(settings.getString("ssid", ""));
+			ssidList.setSummary(settings.getString("ssid", ""));
 		if (!settings.getString("user", "").equals(""))
 			userText.setSummary(settings.getString("user",
 					getString(R.string.user_summary)));
@@ -695,9 +714,9 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		if (key.equals("isAutoConnect")) {
 			if (settings.getBoolean("isAutoConnect", false))
-				ssidText.setEnabled(true);
+				ssidList.setEnabled(true);
 			else
-				ssidText.setEnabled(false);
+				ssidList.setEnabled(false);
 		}
 
 		if (key.equals("isAutoSetProxy")) {
@@ -719,9 +738,9 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		if (key.equals("ssid"))
 			if (settings.getString("ssid", "").equals(""))
-				ssidText.setSummary(getString(R.string.ssid_summary));
+				ssidList.setSummary(getString(R.string.ssid_summary));
 			else
-				ssidText.setSummary(settings.getString("ssid", ""));
+				ssidList.setSummary(settings.getString("ssid", ""));
 		else if (key.equals("user"))
 			if (settings.getString("user", "").equals(""))
 				userText.setSummary(getString(R.string.user_summary));

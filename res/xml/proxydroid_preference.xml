@@ -10,11 +10,16 @@
 		<EditTextPreference android:key="host"
 			android:summary="@string/host_summary" android:title="@string/host"></EditTextPreference>
 		<EditTextPreference android:title="@string/port"
-			android:summary="@string/port_summary" android:key="port" android:defaultValue="3128"></EditTextPreference>
+			android:summary="@string/port_summary" android:key="port"
+			android:defaultValue="3128"></EditTextPreference>
 		<ListPreference android:key="proxyType" android:title="@string/proxy_type"
 			android:entries="@array/proxy_type_entry" android:defaultValue="http"
-			android:entryValues="@array/proxy_type_value"></ListPreference><CheckBoxPreference android:key="isAutoConnect" android:title="@string/auto_connect" android:summary="@string/auto_connect_summary"></CheckBoxPreference>
-	<EditTextPreference android:summary="@string/ssid_summary" android:title="@string/ssid" android:key="ssid"></EditTextPreference></PreferenceCategory>
+			android:entryValues="@array/proxy_type_value"></ListPreference>
+		<CheckBoxPreference android:key="isAutoConnect"
+			android:title="@string/auto_connect" android:summary="@string/auto_connect_summary"></CheckBoxPreference>
+		<ListPreference android:summary="@string/ssid_summary"
+			android:title="@string/ssid" android:key="ssid"></ListPreference>
+	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/user_cat">
 		<CheckBoxPreference android:key="isAuth"
 			android:title="@string/auth" android:defaultValue="false"></CheckBoxPreference>

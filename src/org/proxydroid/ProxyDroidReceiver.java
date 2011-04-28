@@ -15,6 +15,7 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 	private String user;
 	private String password;
 	private boolean isAutoConnect = false;
+	private boolean isAutoSetProxy = false;
 	private boolean isAuth = false;
 
 	@Override
@@ -31,6 +32,7 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 			user = settings.getString("user", "");
 			password = settings.getString("password", "");
 			isAuth = settings.getBoolean("isAuth", false);
+			isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
 			String portText = settings.getString("port", "");
 			try {
 				port = Integer.valueOf(portText);
@@ -46,6 +48,7 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 			bundle.putString("user", user);
 			bundle.putString("password", password);
 			bundle.putBoolean("isAuth", isAuth);
+			bundle.putBoolean("isAutoSetProxy", isAutoSetProxy);
 
 			it.putExtras(bundle);
 			context.startService(it);

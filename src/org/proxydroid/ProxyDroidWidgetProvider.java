@@ -28,6 +28,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 	private String user;
 	private String password;
 	private boolean isAuth = false;
+	private boolean isAutoSetProxy = false;
 
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
 			int[] appWidgetIds) {
@@ -117,6 +118,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 				user = settings.getString("user", "");
 				password = settings.getString("password", "");
 				isAuth = settings.getBoolean("isAuth", false);
+				isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
 				String portText = settings.getString("port", "");
 				try {
 					port = Integer.valueOf(portText);
@@ -132,6 +134,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 				bundle.putString("user", user);
 				bundle.putString("password", password);
 				bundle.putBoolean("isAuth", isAuth);
+				bundle.putBoolean("isAutoSetProxy", isAutoSetProxy);
 
 				it.putExtras(bundle);
 				context.startService(it);
