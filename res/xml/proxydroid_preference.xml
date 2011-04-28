@@ -28,10 +28,11 @@
 	<PreferenceCategory android:title="@string/fearute_cat">
 		<CheckBoxPreference android:key="isAutoConnect"
 			android:title="@string/auto_connect" android:summary="@string/auto_connect_summary"></CheckBoxPreference>
-		<CheckBoxPreference android:key="isAutoSetProxy"
+		<EditTextPreference android:summary="@string/ssid_summary" android:title="@string/ssid" android:key="ssid"></EditTextPreference><CheckBoxPreference android:key="isAutoSetProxy"
 			android:title="@string/auto_set_proxy" android:summary="@string/auto_set_proxy_summary"
 			android:defaultValue="true"></CheckBoxPreference>
 		<Preference android:key="proxyedApps" android:title="@string/proxyed_apps"></Preference>
+		
 
 	</PreferenceCategory>
 
