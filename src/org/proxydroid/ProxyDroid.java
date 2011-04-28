@@ -573,6 +573,8 @@ public class ProxyDroid extends PreferenceActivity implements
 		profileList.setSummary(getString(R.string.profile_base) + " "
 				+ settings.getString("profile", ""));
 
+		if (!settings.getString("ssid", "").equals(""))
+			ssidText.setSummary(settings.getString("ssid", ""));
 		if (!settings.getString("user", "").equals(""))
 			userText.setSummary(settings.getString("user",
 					getString(R.string.user_summary)));
@@ -697,7 +699,12 @@ public class ProxyDroid extends PreferenceActivity implements
 			}
 		}
 
-		if (key.equals("user"))
+		if (key.equals("ssid"))
+			if (settings.getString("ssid", "").equals(""))
+				ssidText.setSummary(getString(R.string.ssid_summary));
+			else
+				ssidText.setSummary(settings.getString("ssid", ""));
+		else if (key.equals("user"))
 			if (settings.getString("user", "").equals(""))
 				userText.setSummary(getString(R.string.user_summary));
 			else
