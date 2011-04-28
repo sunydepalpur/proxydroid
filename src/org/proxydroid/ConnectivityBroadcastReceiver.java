@@ -71,6 +71,8 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 		if (networkInfo == null)
 			return false;
+		if (networkInfo.getTypeName().equals("MOBILE") && ssid.equals("2G/3G"))
+			return true;
 		if (!networkInfo.getTypeName().equals("WIFI"))
 			return false;
 		WifiManager wm = (WifiManager) context
