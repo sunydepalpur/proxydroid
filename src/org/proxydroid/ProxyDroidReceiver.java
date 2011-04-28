@@ -14,7 +14,7 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 	private int port;
 	private String user;
 	private String password;
-	private boolean isAutoStart = false;
+	private boolean isAutoConnect = false;
 	private boolean isAuth = false;
 
 	@Override
@@ -23,9 +23,9 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(context);
 
-		isAutoStart = settings.getBoolean("isAutoStart", false);
+		isAutoConnect = settings.getBoolean("isAutoConnect", false);
 
-		if (isAutoStart) {
+		if (isAutoConnect) {
 			host = settings.getString("host", "");
 			proxyType = settings.getString("proxyType", "http");
 			user = settings.getString("user", "");

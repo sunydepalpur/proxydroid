@@ -67,6 +67,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private EditTextPreference portText;
 	private EditTextPreference userText;
 	private EditTextPreference passwordText;
+	private EditTextPreference ssidText;
 	private ListPreference proxyTypeList;
 	private CheckBoxPreference isRunningCheck;
 	private Preference proxyedApps;
@@ -207,6 +208,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		portText = (EditTextPreference) findPreference("port");
 		userText = (EditTextPreference) findPreference("user");
 		passwordText = (EditTextPreference) findPreference("password");
+		ssidText = (EditTextPreference) findPreference("ssid");
 		proxyTypeList = (ListPreference) findPreference("proxyType");
 		proxyedApps = (Preference) findPreference("proxyedApps");
 		profileList = (ListPreference) findPreference("profile");
@@ -457,6 +459,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		portText.setEnabled(false);
 		userText.setEnabled(false);
 		passwordText.setEnabled(false);
+		ssidText.setEnabled(false);
 		proxyTypeList.setEnabled(false);
 		proxyedApps.setEnabled(false);
 		profileList.setEnabled(false);
@@ -477,6 +480,8 @@ public class ProxyDroid extends PreferenceActivity implements
 		}
 		if (!isAutoSetProxyCheck.isChecked())
 			proxyedApps.setEnabled(true);
+		if (isAutoConnectCheck.isChecked())
+			ssidText.setEnabled(true);
 
 		profileList.setEnabled(true);
 		isAutoSetProxyCheck.setEnabled(true);
@@ -523,6 +528,11 @@ public class ProxyDroid extends PreferenceActivity implements
 			proxyedApps.setEnabled(false);
 		else
 			proxyedApps.setEnabled(true);
+		
+		if (settings.getBoolean("isAutoConnect", false))
+			ssidText.setEnabled(true);
+		else 
+			ssidText.setEnabled(false);
 
 		if (!settings.getBoolean("isAuth", false)) {
 			userText.setEnabled(false);
@@ -661,6 +671,13 @@ public class ProxyDroid extends PreferenceActivity implements
 				userText.setEnabled(true);
 				passwordText.setEnabled(true);
 			}
+		}
+		
+		if (key.equals("isAutoConnect")) {
+			if (settings.getBoolean("isAutoConnect", false))
+				ssidText.setEnabled(true);
+			else
+				ssidText.setEnabled(false);
 		}
 
 		if (key.equals("isAutoSetProxy")) {
