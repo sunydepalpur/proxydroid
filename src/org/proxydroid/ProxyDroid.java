@@ -51,6 +51,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private int port = -1;
 	private String user = "";
 	private String password = "";
+	private String ssid = "";
 	private String profile;
 	public static boolean isAutoConnect = false;
 	public static boolean isAutoSetProxy = false;
@@ -203,7 +204,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		// Initiate a generic request to load it with an ad
 		AdRequest aq = new AdRequest();
 		adView.loadAd(aq);
-		
+
 		hostText = (EditTextPreference) findPreference("host");
 		portText = (EditTextPreference) findPreference("port");
 		userText = (EditTextPreference) findPreference("user");
@@ -312,7 +313,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		host = settings.getString("host", "");
 		if (isTextEmpty(host, getString(R.string.host_empty)))
 			return false;
-		
+
 		proxyType = settings.getString("proxyType", "http");
 
 		if (isAuth) {
@@ -373,6 +374,8 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		user = settings.getString("user", "");
 
+		ssid = settings.getString("ssid", "");
+
 		password = settings.getString("password", "");
 
 		String portString = settings.getString("port", "");
@@ -384,7 +387,8 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		String oldProfileSettings = host + "|" + (port != -1 ? port : "") + "|"
 				+ user + "|" + password + "|" + (isAuth ? "true" : "false")
-				+ "|" + proxyType;
+				+ "|" + proxyType + "|" + (isAutoConnect ? "true" : "false")
+				+ "|" + ssid;
 
 		Editor ed = settings.edit();
 		ed.putString(oldProfile, oldProfileSettings);
@@ -400,6 +404,8 @@ public class ProxyDroid extends PreferenceActivity implements
 			password = "";
 			isAuth = false;
 			proxyType = "http";
+			isAutoConnect = false;
+			ssid = "";
 
 		} else {
 
@@ -416,11 +422,19 @@ public class ProxyDroid extends PreferenceActivity implements
 			password = st[3];
 			isAuth = st[4].equals("true") ? true : false;
 			proxyType = st[5];
+			if (st.length < 7) {
+				isAutoConnect = false;
+				ssid = "";
+			} else {
+				isAutoConnect = st[6].equals("true") ? true : false;
+				ssid = st[7];
+			}
 
 		}
 
 		Log.d(TAG, host + "|" + port + "|" + user + "|" + password + "|"
-				+ (isAuth ? "true" : "false") + "|" + proxyType);
+				+ (isAuth ? "true" : "false") + "|" + proxyType + "|"
+				+ (isAutoConnect ? "true" : "false") + "|" + ssid);
 
 		hostText.setText(host);
 		portText.setText(port != -1 ? Integer.toString(port) : "");
@@ -428,6 +442,8 @@ public class ProxyDroid extends PreferenceActivity implements
 		passwordText.setText(password);
 		isAuthCheck.setChecked(isAuth);
 		proxyTypeList.setValue(proxyType);
+		isAutoConnectCheck.setChecked(isAutoConnect);
+		ssidText.setText(ssid);
 
 		ed = settings.edit();
 		ed.putString("host", host.equals("null") ? "" : host);
@@ -436,6 +452,8 @@ public class ProxyDroid extends PreferenceActivity implements
 		ed.putString("password", password.equals("null") ? "" : password);
 		ed.putBoolean("isSocks", isAuth);
 		ed.putString("proxyType", proxyType);
+		ed.putBoolean("isAutoConnect", isAutoConnect);
+		ed.putString("ssid", ssid);
 		ed.commit();
 
 	}
@@ -528,10 +546,10 @@ public class ProxyDroid extends PreferenceActivity implements
 			proxyedApps.setEnabled(false);
 		else
 			proxyedApps.setEnabled(true);
-		
+
 		if (settings.getBoolean("isAutoConnect", false))
 			ssidText.setEnabled(true);
-		else 
+		else
 			ssidText.setEnabled(false);
 
 		if (!settings.getBoolean("isAuth", false)) {
@@ -674,7 +692,7 @@ public class ProxyDroid extends PreferenceActivity implements
 				passwordText.setEnabled(true);
 			}
 		}
-		
+
 		if (key.equals("isAutoConnect")) {
 			if (settings.getBoolean("isAutoConnect", false))
 				ssidText.setEnabled(true);
