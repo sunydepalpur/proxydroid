@@ -189,16 +189,16 @@ public class ProxyDroid extends PreferenceActivity implements
 		profileList.setEntries(profileEntries);
 		profileList.setEntryValues(profileValues);
 	}
-	
+
 	private void loadNetworkList() {
 		WifiManager wm = (WifiManager) this
-		.getSystemService(Context.WIFI_SERVICE);
+				.getSystemService(Context.WIFI_SERVICE);
 		List<WifiConfiguration> wcs = wm.getConfiguredNetworks();
-		String [] ssidEntries = new String[wcs.size()+1];
+		String[] ssidEntries = new String[wcs.size() + 1];
 		ssidEntries[0] = "2G/3G";
 		int n = 1;
 		for (WifiConfiguration wc : wcs) {
-			ssidEntries[n++] = wc.SSID.replace("\"", ""); 
+			ssidEntries[n++] = wc.SSID.replace("\"", "");
 		}
 		ssidList.setEntries(ssidEntries);
 		ssidList.setEntryValues(ssidEntries);
@@ -254,7 +254,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		}
 
 		loadProfileList();
-		
+
 		loadNetworkList();
 
 		Editor edit = settings.edit();
@@ -406,8 +406,8 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		String oldProfileSettings = host + "|" + (port != -1 ? port : "") + "|"
 				+ user + "|" + password + "|" + (isAuth ? "true" : "false")
-				+ "|" + proxyType + "|" + (isAutoConnect ? "true" : "false")
-				+ "|" + ssid;
+				+ "|" + proxyType + "|" + ssid + "|"
+				+ (isAutoConnect ? "true" : "false");
 
 		Editor ed = settings.edit();
 		ed.putString(oldProfile, oldProfileSettings);
@@ -445,15 +445,16 @@ public class ProxyDroid extends PreferenceActivity implements
 				isAutoConnect = false;
 				ssid = "";
 			} else {
-				isAutoConnect = st[6].equals("true") ? true : false;
-				ssid = st[7];
+				ssid = st[6];
+				isAutoConnect = st[7].equals("true") ? true : false;
+
 			}
 
 		}
 
 		Log.d(TAG, host + "|" + port + "|" + user + "|" + password + "|"
-				+ (isAuth ? "true" : "false") + "|" + proxyType + "|"
-				+ (isAutoConnect ? "true" : "false") + "|" + ssid);
+				+ (isAuth ? "true" : "false") + "|" + proxyType + "|" + ssid
+				+ "|" + (isAutoConnect ? "true" : "false"));
 
 		hostText.setText(host);
 		portText.setText(port != -1 ? Integer.toString(port) : "");
