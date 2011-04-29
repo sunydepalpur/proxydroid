@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -51,6 +52,27 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(context);
+		
+		String[] profileValues = settings.getString("profileValues", "").split(
+		"\\|");
+		
+		for (String profile : profileValues) {
+			String profileString = settings.getString(profile, "");
+			String[] st = profileString.split("\\|");
+			if (st.length >= 8 && isOnline(context, st[6])) {
+				Editor ed = settings.edit();
+				ed.putString("host", st[0].equals("null") ? "" : st[0]);
+				ed.putString("port", st[1]);
+				ed.putString("user", st[2].equals("null") ? "" : st[2]);
+				ed.putString("password", st[3].equals("null") ? "" : st[3]);
+				ed.putBoolean("isSocks", st[4].equals("true") ? true : false);
+				ed.putString("proxyType", st[5]);
+				ed.putString("ssid", st[6]);
+				ed.putBoolean("isAutoConnect", st[7].equals("true") ? true : false);
+				ed.commit();
+				break;
+			}
+		}
 
 		String ssid = settings.getString("ssid", "");
 		if (isOnline(context, ssid)) {

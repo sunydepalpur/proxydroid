@@ -198,7 +198,10 @@ public class ProxyDroid extends PreferenceActivity implements
 		ssidEntries[0] = "2G/3G";
 		int n = 1;
 		for (WifiConfiguration wc : wcs) {
-			ssidEntries[n++] = wc.SSID.replace("\"", "");
+			if (wc != null && wc.SSID != null)
+				ssidEntries[n++] = wc.SSID.replace("\"", "");
+			else
+				ssidEntries[n++] = "unknown";
 		}
 		ssidList.setEntries(ssidEntries);
 		ssidList.setEntryValues(ssidEntries);
