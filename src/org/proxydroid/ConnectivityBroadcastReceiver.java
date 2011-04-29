@@ -59,8 +59,14 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		for (String profile : profileValues) {
 			String profileString = settings.getString(profile, "");
 			String[] st = profileString.split("\\|");
-			if (st.length >= 8 && st[7].equals(true) && isOnline(context, st[6])) {
+			if (st.length >= 8 && st[7].equals("true") && isOnline(context, st[6])) {
+				// XXX: Switch profile first
 				Editor ed = settings.edit();
+				ed.putString("profile", profile);
+				ed.commit();
+				
+				// Then switch profile values
+				ed = settings.edit();
 				ed.putString("host", st[0].equals("null") ? "" : st[0]);
 				ed.putString("port", st[1]);
 				ed.putString("user", st[2].equals("null") ? "" : st[2]);
