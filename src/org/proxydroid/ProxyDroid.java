@@ -54,23 +54,27 @@ public class ProxyDroid extends PreferenceActivity implements
 	private int port = -1;
 	private String user = "";
 	private String password = "";
+	private String domain = "";
 	private String ssid = "";
 	private String profile;
 	public static boolean isAutoConnect = false;
 	public static boolean isAutoSetProxy = false;
 	public static boolean isRoot = false;
 	private boolean isAuth = false;
+	private boolean isNTLM = false;
 	private String proxyType = "http";
 
 	private CheckBoxPreference isAutoConnectCheck;
 	private CheckBoxPreference isAutoSetProxyCheck;
 	private CheckBoxPreference isAuthCheck;
+	private CheckBoxPreference isNTLMCheck;
 	private ListPreference profileList;
 
 	private EditTextPreference hostText;
 	private EditTextPreference portText;
 	private EditTextPreference userText;
 	private EditTextPreference passwordText;
+	private EditTextPreference domainText;
 	private ListPreference ssidList;
 	private ListPreference proxyTypeList;
 	private CheckBoxPreference isRunningCheck;
@@ -229,6 +233,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		portText = (EditTextPreference) findPreference("port");
 		userText = (EditTextPreference) findPreference("user");
 		passwordText = (EditTextPreference) findPreference("password");
+		domainText = (EditTextPreference) findPreference("domainText");
 		ssidList = (ListPreference) findPreference("ssid");
 		proxyTypeList = (ListPreference) findPreference("proxyType");
 		proxyedApps = (Preference) findPreference("proxyedApps");
@@ -237,6 +242,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isRunningCheck = (CheckBoxPreference) findPreference("isRunning");
 		isAutoSetProxyCheck = (CheckBoxPreference) findPreference("isAutoSetProxy");
 		isAuthCheck = (CheckBoxPreference) findPreference("isAuth");
+		isNTLMCheck = (CheckBoxPreference) findPreference("isNTLM");
 		isAutoConnectCheck = (CheckBoxPreference) findPreference("isAutoConnect");
 
 		SharedPreferences settings = PreferenceManager
@@ -300,6 +306,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			runCommand("chmod 777 /data/data/org.proxydroid/iptables_n1");
 			runCommand("chmod 777 /data/data/org.proxydroid/redsocks");
 			runCommand("chmod 777 /data/data/org.proxydroid/proxy.sh");
+			runCommand("chmod 777 /data/data/org.proxydroid/cntlm");
 		}
 
 	}
@@ -331,6 +338,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isAutoConnect = settings.getBoolean("isAutoConnect", false);
 		isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
 		isAuth = settings.getBoolean("isAuth", false);
+		isNTLM = settings.getBoolean("isNTLM", false);
 
 		host = settings.getString("host", "");
 		if (isTextEmpty(host, getString(R.string.host_empty)))
@@ -371,6 +379,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			bundle.putString("proxyType", proxyType);
 			bundle.putBoolean("isAutoSetProxy", isAutoSetProxy);
 			bundle.putBoolean("isAuth", isAuth);
+			bundle.putBoolean("isNTLM", false);
 
 			it.putExtras(bundle);
 			startService(it);
@@ -391,6 +400,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isAutoConnect = settings.getBoolean("isAutoConnect", false);
 		isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
 		isAuth = settings.getBoolean("isAuth", false);
+		isNTLM = settings.getBoolean("isNTLM", false);
 
 		host = settings.getString("host", "");
 
@@ -399,6 +409,8 @@ public class ProxyDroid extends PreferenceActivity implements
 		ssid = settings.getString("ssid", "");
 
 		password = settings.getString("password", "");
+
+		domain = settings.getString("domain", "");
 
 		String portString = settings.getString("port", "");
 		try {
@@ -410,7 +422,8 @@ public class ProxyDroid extends PreferenceActivity implements
 		String oldProfileSettings = host + "|" + (port != -1 ? port : "") + "|"
 				+ user + "|" + password + "|" + (isAuth ? "true" : "false")
 				+ "|" + proxyType + "|" + ssid + "|"
-				+ (isAutoConnect ? "true" : "false");
+				+ (isAutoConnect ? "true" : "false") + "|" + domain + "|"
+				+ (isNTLM ? "true" : "false");
 
 		Editor ed = settings.edit();
 		ed.putString(oldProfile, oldProfileSettings);
@@ -423,6 +436,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			host = "";
 			port = -1;
 			user = "";
+			domain = "";
 			password = "";
 			isAuth = false;
 			proxyType = "http";
@@ -452,18 +466,28 @@ public class ProxyDroid extends PreferenceActivity implements
 				isAutoConnect = st[7].equals("true") ? true : false;
 
 			}
+			if (st.length < 9) {
+				isNTLM = false;
+				domain = "";
+			} else {
+				domain = st[8];
+				isNTLM = st[7].equals("true") ? true : false;
+			}
 
 		}
 
 		Log.d(TAG, host + "|" + port + "|" + user + "|" + password + "|"
 				+ (isAuth ? "true" : "false") + "|" + proxyType + "|" + ssid
-				+ "|" + (isAutoConnect ? "true" : "false"));
+				+ "|" + (isAutoConnect ? "true" : "false") + "|" + domain + "|"
+				+ (isNTLM ? "true" : "false"));
 
 		hostText.setText(host);
 		portText.setText(port != -1 ? Integer.toString(port) : "");
 		userText.setText(user);
 		passwordText.setText(password);
+		domainText.setText(domain);
 		isAuthCheck.setChecked(isAuth);
+		isNTLMCheck.setChecked(isNTLM);
 		proxyTypeList.setValue(proxyType);
 		isAutoConnectCheck.setChecked(isAutoConnect);
 		ssidList.setValue(ssid);
@@ -474,6 +498,8 @@ public class ProxyDroid extends PreferenceActivity implements
 		ed.putString("user", user.equals("null") ? "" : user);
 		ed.putString("password", password.equals("null") ? "" : password);
 		ed.putBoolean("isSocks", isAuth);
+		ed.putBoolean("isNTLM", isNTLM);
+		ed.putString("domain", domain);
 		ed.putString("proxyType", proxyType);
 		ed.putBoolean("isAutoConnect", isAutoConnect);
 		ed.putString("ssid", ssid);
@@ -500,12 +526,14 @@ public class ProxyDroid extends PreferenceActivity implements
 		portText.setEnabled(false);
 		userText.setEnabled(false);
 		passwordText.setEnabled(false);
+		domainText.setEnabled(false);
 		ssidList.setEnabled(false);
 		proxyTypeList.setEnabled(false);
 		proxyedApps.setEnabled(false);
 		profileList.setEnabled(false);
 
 		isAuthCheck.setEnabled(false);
+		isNTLMCheck.setEnabled(false);
 		isAutoSetProxyCheck.setEnabled(false);
 		isAutoConnectCheck.setEnabled(false);
 	}
@@ -518,6 +546,9 @@ public class ProxyDroid extends PreferenceActivity implements
 		if (isAuthCheck.isChecked()) {
 			userText.setEnabled(true);
 			passwordText.setEnabled(true);
+			isNTLMCheck.setEnabled(true);
+			if (isNTLMCheck.isChecked())
+				domainText.setEnabled(true);
 		}
 		if (!isAutoSetProxyCheck.isChecked())
 			proxyedApps.setEnabled(true);
@@ -583,6 +614,12 @@ public class ProxyDroid extends PreferenceActivity implements
 			passwordText.setEnabled(true);
 		}
 
+		if (!settings.getBoolean("isNTLM", false)) {
+			domainText.setEnabled(false);
+		} else {
+			domainText.setEnabled(true);
+		}
+
 		Editor edit = settings.edit();
 
 		if (this.isWorked(SERVICE_NAME)) {
@@ -630,6 +667,9 @@ public class ProxyDroid extends PreferenceActivity implements
 			passwordText.setSummary("*********");
 		if (!settings.getString("proxyType", "").equals(""))
 			proxyTypeList.setSummary(settings.getString("proxyType", "")
+					.toUpperCase());
+		if (!settings.getString("domain", "").equals(""))
+			domainText.setSummary(settings.getString("domain", "")
 					.toUpperCase());
 
 		// Set up a listener whenever a key changes
@@ -713,6 +753,14 @@ public class ProxyDroid extends PreferenceActivity implements
 			} else {
 				userText.setEnabled(true);
 				passwordText.setEnabled(true);
+			}
+		}
+
+		if (key.equals("isNTLM")) {
+			if (!settings.getBoolean("isNTLM", false)) {
+				domainText.setEnabled(false);
+			} else {
+				domainText.setEnabled(true);
 			}
 		}
 

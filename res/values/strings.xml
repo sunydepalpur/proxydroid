@@ -59,6 +59,11 @@
 	<string name="user_summary">Proxy User name</string>
 	<string name="password">Password</string>
 	<string name="password_summary">Proxy Password</string>
+	<string name="ntlm">NTLM Authentication</string>
+	<string name="ntlm_summary">Enable to support NTLM / NTLM2 authentication
+		method for Microsoft type network</string>
+	<string name="domain">Domain</string>
+	<string name="domain_summary">Domain name for NTLM</string>
 
 	<!-- settings feature category -->
 	<string name="fearute_cat">Feature Settings</string>
