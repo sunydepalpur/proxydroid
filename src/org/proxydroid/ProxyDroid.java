@@ -761,10 +761,15 @@ public class ProxyDroid extends PreferenceActivity implements
 				userText.setEnabled(false);
 				passwordText.setEnabled(false);
 				isNTLMCheck.setEnabled(false);
+				domainText.setEnabled(false);
 			} else {
 				userText.setEnabled(true);
 				passwordText.setEnabled(true);
 				isNTLMCheck.setEnabled(true);
+				if (isNTLMCheck.isChecked())
+					domainText.setEnabled(true);
+				else
+					domainText.setEnabled(false);
 			}
 		}
 
