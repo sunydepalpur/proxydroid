@@ -356,7 +356,13 @@ public class ProxyDroid extends PreferenceActivity implements
 			user = "";
 			password = "";
 		}
-
+		
+		if (isNTLM) {
+			domain = settings.getString("domain", "");
+		} else {
+			domain = "";
+		}
+		
 		try {
 			String portString = settings.getString("port", "");
 			if (isTextEmpty(portString, getString(R.string.port_empty)))
@@ -379,7 +385,8 @@ public class ProxyDroid extends PreferenceActivity implements
 			bundle.putString("proxyType", proxyType);
 			bundle.putBoolean("isAutoSetProxy", isAutoSetProxy);
 			bundle.putBoolean("isAuth", isAuth);
-			bundle.putBoolean("isNTLM", false);
+			bundle.putBoolean("isNTLM", isNTLM);
+			bundle.putString("domain", domain);
 
 			it.putExtras(bundle);
 			startService(it);

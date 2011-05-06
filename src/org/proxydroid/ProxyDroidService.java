@@ -92,6 +92,8 @@ public class ProxyDroidService extends Service {
 	private boolean isAuth = false;
 	private boolean isNTLM = false;
 
+	Process NTLMProcess;
+
 	private SharedPreferences settings = null;
 
 	// Flag indicating if this is an ARMv6 device (-1: unknown, 0: no, 1: yes)
@@ -278,6 +280,31 @@ public class ProxyDroidService extends Service {
 		return true;
 	}
 
+	public boolean runNTLMProxy(String command) {
+		NTLMProcess = null;
+		DataOutputStream os = null;
+		Log.d(TAG, command);
+		try {
+			NTLMProcess = Runtime.getRuntime().exec(command);
+			os = new DataOutputStream(NTLMProcess.getOutputStream());
+			os.flush();
+			NTLMProcess.waitFor();
+		} catch (Exception e) {
+			Log.e(TAG, e.getMessage());
+			return false;
+		} finally {
+			try {
+				if (os != null) {
+					os.close();
+				}
+				NTLMProcess.destroy();
+			} catch (Exception e) {
+				// nothing
+			}
+		}
+		return true;
+	}
+
 	/**
 	 * Internal method to request actual PTY terminal once we've finished
 	 * authentication. If called before authenticated, it will just fail.
@@ -290,9 +317,15 @@ public class ProxyDroidService extends Service {
 			if (isAuth && isNTLM) {
 				runRootCommand(BASE
 						+ "proxy.sh start http 127.0.0.1 8025 false");
-				runRootCommand(BASE + "cntlm -f -P cntlm.pid -l 8025 -u "
-						+ user + (!domain.equals("") ? "@" + domain : "")
-						+ " -p " + password + " " + host + ":" + port);
+				new Thread() {
+					@Override
+					public void run() {
+						runNTLMProxy(BASE + "cntlm -f -P " + BASE
+								+ "cntlm.pid -l 8025 -u " + user
+								+ (!domain.equals("") ? "@" + domain : "")
+								+ " -p " + password + " " + host + ":" + port);
+					}
+				}.start();
 			} else {
 				runRootCommand(BASE + "proxy.sh start" + " " + proxyType + " "
 						+ host + " " + port + " " + auth + " \"" + user
@@ -468,7 +501,7 @@ public class ProxyDroidService extends Service {
 		}
 
 		runRootCommand(BASE + "proxy.sh stop");
-		runRootCommand("kill -9 `cat /data/data/org.sshtunnel/cntlm.pid`");
+		runRootCommand("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`");
 
 	}
 
