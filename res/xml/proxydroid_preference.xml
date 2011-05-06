@@ -29,13 +29,16 @@
 			android:key="password" android:summary="@string/password_summary"
 			android:password="true"></EditTextPreference>
 
-	</PreferenceCategory>
+	<CheckBoxPreference android:summary="@string/ntlm_summary" android:title="@string/ntlm" android:key="isNTLM"></CheckBoxPreference>
+	<EditTextPreference android:summary="@string/domain_summary" android:title="@string/domain" android:key="domain"></EditTextPreference>
+</PreferenceCategory>
 	<PreferenceCategory android:title="@string/fearute_cat">
 		
 		<CheckBoxPreference android:key="isAutoSetProxy"
 			android:title="@string/auto_set_proxy" android:summary="@string/auto_set_proxy_summary"
 			android:defaultValue="true"></CheckBoxPreference>
 		<Preference android:key="proxyedApps" android:title="@string/proxyed_apps"></Preference>
+		
 		
 
 	</PreferenceCategory>

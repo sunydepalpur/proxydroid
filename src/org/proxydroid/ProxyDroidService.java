@@ -86,9 +86,11 @@ public class ProxyDroidService extends Service {
 	private int port;
 	private String user;
 	private String password;
+	private String domain;
 	private String proxyType = "http";
 	private String auth = "false";
-	private Boolean isAuth = false;
+	private boolean isAuth = false;
+	private boolean isNTLM = false;
 
 	private SharedPreferences settings = null;
 
@@ -285,9 +287,17 @@ public class ProxyDroidService extends Service {
 		try {
 			Log.e(TAG, "Forward Successful");
 
-			runRootCommand(BASE + "proxy.sh start" + " " + proxyType + " " + host
-					+ " " + port + " " + auth + " \"" + user + "\" \""
-					+ password + "\"");
+			if (isAuth && isNTLM) {
+				runRootCommand(BASE
+						+ "proxy.sh start http 127.0.0.1 8025 false");
+				runRootCommand(BASE + "cntlm -f -P cntlm.pid -l 8025 -u "
+						+ user + (!domain.equals("") ? "@" + domain : "")
+						+ " -p " + password + " " + host + ":" + port);
+			} else {
+				runRootCommand(BASE + "proxy.sh start" + " " + proxyType + " "
+						+ host + " " + port + " " + auth + " \"" + user
+						+ "\" \"" + password + "\"");
+			}
 
 			StringBuffer cmd = new StringBuffer();
 
@@ -458,6 +468,7 @@ public class ProxyDroidService extends Service {
 		}
 
 		runRootCommand(BASE + "proxy.sh stop");
+		runRootCommand("kill -9 `cat /data/data/org.sshtunnel/cntlm.pid`");
 
 	}
 
@@ -500,6 +511,7 @@ public class ProxyDroidService extends Service {
 		port = bundle.getInt("port");
 		isAutoSetProxy = bundle.getBoolean("isAutoSetProxy");
 		isAuth = bundle.getBoolean("isAuth");
+		isNTLM = bundle.getBoolean("isNTLM");
 
 		if (isAuth) {
 			auth = "true";
@@ -510,6 +522,11 @@ public class ProxyDroidService extends Service {
 			user = "";
 			password = "";
 		}
+
+		if (isNTLM)
+			domain = bundle.getString("domain");
+		else
+			domain = "";
 
 		Log.e(TAG, "GAE Proxy: " + host);
 		Log.e(TAG, "Local Port: " + port);
