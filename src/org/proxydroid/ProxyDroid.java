@@ -233,7 +233,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		portText = (EditTextPreference) findPreference("port");
 		userText = (EditTextPreference) findPreference("user");
 		passwordText = (EditTextPreference) findPreference("password");
-		domainText = (EditTextPreference) findPreference("domainText");
+		domainText = (EditTextPreference) findPreference("domain");
 		ssidList = (ListPreference) findPreference("ssid");
 		proxyTypeList = (ListPreference) findPreference("proxyType");
 		proxyedApps = (Preference) findPreference("proxyedApps");
@@ -609,12 +609,15 @@ public class ProxyDroid extends PreferenceActivity implements
 		if (!settings.getBoolean("isAuth", false)) {
 			userText.setEnabled(false);
 			passwordText.setEnabled(false);
+			isNTLMCheck.setEnabled(false);
 		} else {
 			userText.setEnabled(true);
 			passwordText.setEnabled(true);
+			isNTLMCheck.setEnabled(true);
 		}
 
-		if (!settings.getBoolean("isNTLM", false)) {
+		if (!settings.getBoolean("isAuth", false)
+				|| !settings.getBoolean("isNTLM", false)) {
 			domainText.setEnabled(false);
 		} else {
 			domainText.setEnabled(true);
@@ -750,14 +753,17 @@ public class ProxyDroid extends PreferenceActivity implements
 			if (!settings.getBoolean("isAuth", false)) {
 				userText.setEnabled(false);
 				passwordText.setEnabled(false);
+				isNTLMCheck.setEnabled(false);
 			} else {
 				userText.setEnabled(true);
 				passwordText.setEnabled(true);
+				isNTLMCheck.setEnabled(true);
 			}
 		}
 
 		if (key.equals("isNTLM")) {
-			if (!settings.getBoolean("isNTLM", false)) {
+			if (!settings.getBoolean("isAuth", false)
+					|| !settings.getBoolean("isNTLM", false)) {
 				domainText.setEnabled(false);
 			} else {
 				domainText.setEnabled(true);
@@ -798,6 +804,11 @@ public class ProxyDroid extends PreferenceActivity implements
 				userText.setSummary(getString(R.string.user_summary));
 			else
 				userText.setSummary(settings.getString("user", ""));
+		else if (key.equals("domain"))
+			if (settings.getString("domain", "").equals(""))
+				domainText.setSummary(getString(R.string.domain_summary));
+			else
+				domainText.setSummary(settings.getString("domain", ""));
 		else if (key.equals("port"))
 			if (settings.getString("port", "-1").equals("-1")
 					|| settings.getString("port", "-1").equals(""))
