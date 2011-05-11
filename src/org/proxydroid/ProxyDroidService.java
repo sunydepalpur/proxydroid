@@ -367,7 +367,7 @@ public class ProxyDroidService extends Service {
 							intranet = "172.16.0.0/12";
 						}
 					}
-					rules.replace("--dport", "! -d " + intranet + " --dport");
+					rules = rules.replace("--dport", "! -d " + intranet + " --dport");
 				}
 			}
 
