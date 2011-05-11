@@ -6,6 +6,10 @@ import java.io.DataOutputStream;
 import java.io.FileReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -40,40 +44,20 @@ public class ProxyDroidService extends Service {
 	private static final int MSG_CONNECT_SUCCESS = 2;
 	private static final int MSG_CONNECT_FAIL = 3;
 
-	final static String CMD_IPTABLES_REDIRECT_DEL_G1 = BASE
-			+ "iptables_g1 -t nat -D OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
-			+ BASE
-			+ "iptables_g1 -t nat -D OUTPUT -p tcp --dport 443 -j REDIRECT --to 8124\n";
-
 	final static String CMD_IPTABLES_REDIRECT_ADD_G1 = BASE
 			+ "iptables_g1 -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
 			+ BASE
 			+ "iptables_g1 -t nat -A OUTPUT -p tcp --dport 443 -j REDIRECT --to 8124\n";
-
-	final static String CMD_IPTABLES_REDIRECT_DEL_N1 = BASE
-			+ "iptables_n1 -t nat -D OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
-			+ BASE
-			+ "iptables_n1 -t nat -D OUTPUT -p tcp --dport 443 -j REDIRECT --to 8124\n";
 
 	final static String CMD_IPTABLES_REDIRECT_ADD_N1 = BASE
 			+ "iptables_n1 -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
 			+ BASE
 			+ "iptables_n1 -t nat -A OUTPUT -p tcp --dport 443 -j REDIRECT --to 8124\n";
 
-	final static String CMD_IPTABLES_DNAT_DEL_G1 = BASE
-			+ "iptables_g1 -t nat -D OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
-			+ BASE
-			+ "iptables_g1 -t nat -D OUTPUT -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:8124\n";
-
 	final static String CMD_IPTABLES_DNAT_ADD_G1 = BASE
 			+ "iptables_g1 -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
 			+ BASE
 			+ "iptables_g1 -t nat -A OUTPUT -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:8124\n";
-
-	final static String CMD_IPTABLES_DNAT_DEL_N1 = BASE
-			+ "iptables_n1 -t nat -D OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
-			+ BASE
-			+ "iptables_n1 -t nat -D OUTPUT -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:8124\n";
 
 	final static String CMD_IPTABLES_DNAT_ADD_N1 = BASE
 			+ "iptables_n1 -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
@@ -100,6 +84,7 @@ public class ProxyDroidService extends Service {
 	private static int isARMv6 = -1;
 	private boolean hasRedirectSupport = true;
 	private boolean isAutoSetProxy = false;
+	private String localIp;
 
 	private ProxyedApp apps[];
 
@@ -364,10 +349,32 @@ public class ProxyDroidService extends Service {
 				}
 			}
 
+			String rules = cmd.toString();
+
+			// Reference:
+			// http://en.wikipedia.org/wiki/Private_network#Private_IPv4_address_spaces
+			if (localIp != null) {
+				String[] prefix = localIp.split("\\.");
+				if (prefix.length == 4) {
+					String intranet = localIp;
+					if (localIp.startsWith("192.168."))
+						intranet = "192.168.0.0/16";
+					else if (localIp.startsWith("10."))
+						intranet = "10.0.0.0/8";
+					else if (localIp.startsWith("172.")) {
+						int prefix2 = Integer.valueOf(prefix[1]);
+						if (prefix2 <= 31 && prefix2 >= 16) {
+							intranet = "172.16.0.0/12";
+						}
+					}
+					rules.replace("--dport", "! -d " + intranet + " --dport");
+				}
+			}
+
 			if (proxyType.equals("http"))
-				runRootCommand(cmd.toString());
+				runRootCommand(rules);
 			else
-				runRootCommand(cmd.toString().replace("8124", "8123"));
+				runRootCommand(rules.replace("8124", "8123"));
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting up port forward during connect", e);
@@ -528,6 +535,26 @@ public class ProxyDroidService extends Service {
 		}
 	};
 
+	// Local Ip address
+	public String getLocalIpAddress() {
+		try {
+			for (Enumeration<NetworkInterface> en = NetworkInterface
+					.getNetworkInterfaces(); en.hasMoreElements();) {
+				NetworkInterface intf = en.nextElement();
+				for (Enumeration<InetAddress> enumIpAddr = intf
+						.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+					InetAddress inetAddress = enumIpAddr.nextElement();
+					if (!inetAddress.isLoopbackAddress()) {
+						return inetAddress.getHostAddress().toString();
+					}
+				}
+			}
+		} catch (SocketException ex) {
+			Log.e(TAG, ex.toString());
+		}
+		return null;
+	}
+
 	// This is the old onStart method that will be called on the pre-2.0
 	// platform. On 2.0 or later we override onStartCommand() so this
 	// method will not be called.
@@ -560,6 +587,8 @@ public class ProxyDroidService extends Service {
 			domain = bundle.getString("domain");
 		else
 			domain = "";
+
+		localIp = getLocalIpAddress();
 
 		Log.e(TAG, "GAE Proxy: " + host);
 		Log.e(TAG, "Local Port: " + port);
