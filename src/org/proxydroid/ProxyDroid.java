@@ -272,7 +272,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			edit.putBoolean("isRunning", true);
 		} else {
 			if (settings.getBoolean("isRunning", false)) {
-//				showAToast(getString(R.string.crash_alert));
+				// showAToast(getString(R.string.crash_alert));
 				recovery();
 			}
 			edit.putBoolean("isRunning", false);
@@ -298,6 +298,8 @@ public class ProxyDroid extends PreferenceActivity implements
 
 			isAutoSetProxyCheck.setChecked(false);
 			isAutoSetProxyCheck.setEnabled(false);
+			proxyedApps.setEnabled(false);
+			showAToast(getString(R.string.require_root_alert));
 		}
 
 		if (!isWorked(SERVICE_NAME)) {
@@ -356,13 +358,13 @@ public class ProxyDroid extends PreferenceActivity implements
 			user = "";
 			password = "";
 		}
-		
+
 		if (isNTLM) {
 			domain = settings.getString("domain", "");
 		} else {
 			domain = "";
 		}
-		
+
 		try {
 			String portString = settings.getString("port", "");
 			if (isTextEmpty(portString, getString(R.string.port_empty)))
