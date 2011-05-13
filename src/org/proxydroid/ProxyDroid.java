@@ -272,7 +272,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			edit.putBoolean("isRunning", true);
 		} else {
 			if (settings.getBoolean("isRunning", false)) {
-				showAToast(getString(R.string.crash_alert));
+//				showAToast(getString(R.string.crash_alert));
 				recovery();
 			}
 			edit.putBoolean("isRunning", false);
