@@ -301,24 +301,25 @@ public class ProxyDroid extends PreferenceActivity implements
 			proxyedApps.setEnabled(false);
 			showAToast(getString(R.string.require_root_alert));
 		}
-		
+
 		String versionName = "";
 		try {
-			versionName = getPackageManager().getPackageInfo(
-					getPackageName(), 0).versionName;
+			versionName = getPackageManager().getPackageInfo(getPackageName(),
+					0).versionName;
 		} catch (NameNotFoundException e) {
 			versionName = "NONE";
 		}
-		
+
 		if (!settings.getBoolean(versionName, false)) {
 			CopyAssets();
-			runCommand("chmod 777 /data/data/org.proxydroid/iptables_g1\n"
-					+ "chmod 777 /data/data/org.proxydroid/iptables_n1\n"
-					+ "chmod 777 /data/data/org.proxydroid/redsocks\n"
-					+ "chmod 777 /data/data/org.proxydroid/proxy.sh\n"
-					+ "chmod 777 /data/data/org.proxydroid/cntlm\n");
+			runCommand("chmod 777 /data/data/org.proxydroid/iptables_g1");
+			runCommand("chmod 777 /data/data/org.proxydroid/iptables_n1");
+			runCommand("chmod 777 /data/data/org.proxydroid/redsocks");
+			runCommand("chmod 777 /data/data/org.proxydroid/proxy.sh");
+			runCommand("chmod 777 /data/data/org.proxydroid/cntlm");
 			edit = settings.edit();
 			edit.putBoolean(versionName, true);
+			edit.commit();
 		}
 
 	}
