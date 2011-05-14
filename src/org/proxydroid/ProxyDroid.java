@@ -304,11 +304,11 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		if (!isWorked(SERVICE_NAME)) {
 			CopyAssets();
-			runCommand("chmod 777 /data/data/org.proxydroid/iptables_g1");
-			runCommand("chmod 777 /data/data/org.proxydroid/iptables_n1");
-			runCommand("chmod 777 /data/data/org.proxydroid/redsocks");
-			runCommand("chmod 777 /data/data/org.proxydroid/proxy.sh");
-			runCommand("chmod 777 /data/data/org.proxydroid/cntlm");
+			runCommand("chmod 777 /data/data/org.proxydroid/iptables_g1\n"
+					+ "chmod 777 /data/data/org.proxydroid/iptables_n1\n"
+					+ "chmod 777 /data/data/org.proxydroid/redsocks\n"
+					+ "chmod 777 /data/data/org.proxydroid/proxy.sh\n"
+					+ "chmod 777 /data/data/org.proxydroid/cntlm\n");
 		}
 
 	}
@@ -930,21 +930,26 @@ public class ProxyDroid extends PreferenceActivity implements
 	}
 
 	private void recovery() {
-		try {
-			stopService(new Intent(this, ProxyDroidService.class));
-		} catch (Exception e) {
-			// Nothing
-		}
+		new Thread() {
+			public void run() {
+				try {
+					stopService(new Intent(ProxyDroid.this,
+							ProxyDroidService.class));
+				} catch (Exception e) {
+					// Nothing
+				}
 
-		if (ProxyDroidService.isARMv6()) {
-			runRootCommand(ProxyDroidService.BASE
-					+ "iptables_g1 -t nat -F OUTPUT");
-		} else {
-			runRootCommand(ProxyDroidService.BASE
-					+ "iptables_n1 -t nat -F OUTPUT");
-		}
+				if (ProxyDroidService.isARMv6()) {
+					runRootCommand(ProxyDroidService.BASE
+							+ "iptables_g1 -t nat -F OUTPUT");
+				} else {
+					runRootCommand(ProxyDroidService.BASE
+							+ "iptables_n1 -t nat -F OUTPUT");
+				}
 
-		runRootCommand(ProxyDroidService.BASE + "proxy.sh stop");
+				runRootCommand(ProxyDroidService.BASE + "proxy.sh stop");
+			}
+		}.start();
 	}
 
 	@Override
