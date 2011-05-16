@@ -90,19 +90,32 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		
+
 		String[] profileValues = settings.getString("profileValues", "").split(
-		"\\|");
-		
+				"\\|");
+
+		ConnectivityManager manager = (ConnectivityManager) context
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+		if (networkInfo == null) {
+			try {
+				context.stopService(new Intent(context, ProxyDroidService.class));
+			} catch (Exception e) {
+				// Nothing
+			}
+			return;
+		}
+
 		for (String profile : profileValues) {
 			String profileString = settings.getString(profile, "");
 			String[] st = profileString.split("\\|");
-			if (st.length >= 8 && st[7].equals("true") && isOnline(context, st[6])) {
+			if (st.length >= 8 && st[7].equals("true")
+					&& isOnline(context, st[6])) {
 				// XXX: Switch profile first
 				Editor ed = settings.edit();
 				ed.putString("profile", profile);
 				ed.commit();
-				
+
 				// Then switch profile values
 				ed = settings.edit();
 				ed.putString("host", st[0].equals("null") ? "" : st[0]);
@@ -112,7 +125,8 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 				ed.putBoolean("isSocks", st[4].equals("true") ? true : false);
 				ed.putString("proxyType", st[5]);
 				ed.putString("ssid", st[6]);
-				ed.putBoolean("isAutoConnect", st[7].equals("true") ? true : false);
+				ed.putBoolean("isAutoConnect", st[7].equals("true") ? true
+						: false);
 				ed.commit();
 				break;
 			}

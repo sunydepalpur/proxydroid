@@ -47,6 +47,7 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 import android.app.Notification;
@@ -635,6 +636,14 @@ public class ProxyDroidService extends Service {
 			public void run() {
 
 				handler.sendEmptyMessage(MSG_CONNECT_START);
+				
+				String tmp = host;
+				
+				try {
+					host = InetAddress.getByName(host).getHostAddress();
+				} catch (UnknownHostException e) {
+					host = tmp;
+				}
 
 				if (handleCommand()) {
 					// Connection and forward successful
