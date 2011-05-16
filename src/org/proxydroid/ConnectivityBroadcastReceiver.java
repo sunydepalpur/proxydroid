@@ -108,19 +108,30 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
 		String lastSSID = settings.getString("lastSSID", "-1");
 
-		if (!lastSSID.equals("-1")) {
-			WifiManager wm = (WifiManager) context
-					.getSystemService(Context.WIFI_SERVICE);
-			WifiInfo wInfo = wm.getConnectionInfo();
-			if (wInfo != null) {
-				String current = wInfo.getSSID();
-				if (current != null && !current.equals(lastSSID)) {
-					try {
-						context.stopService(new Intent(context,
-								ProxyDroidService.class));
-					} catch (Exception e) {
-						// Nothing
+		if (networkInfo.getTypeName().equals("WIFI")) {
+			if (!lastSSID.equals("-1")) {
+				WifiManager wm = (WifiManager) context
+						.getSystemService(Context.WIFI_SERVICE);
+				WifiInfo wInfo = wm.getConnectionInfo();
+				if (wInfo != null) {
+					String current = wInfo.getSSID();
+					if (current != null && !current.equals(lastSSID)) {
+						try {
+							context.stopService(new Intent(context,
+									ProxyDroidService.class));
+						} catch (Exception e) {
+							// Nothing
+						}
 					}
+				}
+			}
+		} else {
+			if (!lastSSID.equals("2G/3G")) {
+				try {
+					context.stopService(new Intent(context,
+							ProxyDroidService.class));
+				} catch (Exception e) {
+					// Nothing
 				}
 			}
 		}

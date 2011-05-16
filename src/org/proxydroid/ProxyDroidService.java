@@ -406,7 +406,8 @@ public class ProxyDroidService extends Service {
 							intranet = "172.16.0.0/12";
 						}
 					}
-					rules = rules.replace("--dport", "! -d " + intranet + " --dport");
+					rules = rules.replace("--dport", "! -d " + intranet
+							+ " --dport");
 				}
 			}
 
@@ -636,9 +637,9 @@ public class ProxyDroidService extends Service {
 			public void run() {
 
 				handler.sendEmptyMessage(MSG_CONNECT_START);
-				
+
 				String tmp = host;
-				
+
 				try {
 					host = InetAddress.getByName(host).getHostAddress();
 				} catch (UnknownHostException e) {
@@ -648,7 +649,9 @@ public class ProxyDroidService extends Service {
 				if (handleCommand()) {
 					// Connection and forward successful
 					notifyAlert(getString(R.string.forward_success),
-							getString(R.string.service_running));
+							getString(R.string.service_running) + "\n"
+									+ getString(R.string.profile_base) + " "
+									+ settings.getString("profile", "1"));
 
 					handler.sendEmptyMessage(MSG_CONNECT_SUCCESS);
 
