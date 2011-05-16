@@ -648,10 +648,10 @@ public class ProxyDroidService extends Service {
 
 				if (handleCommand()) {
 					// Connection and forward successful
-					notifyAlert(getString(R.string.forward_success),
-							getString(R.string.service_running) + "\n"
-									+ getString(R.string.profile_base) + " "
-									+ settings.getString("profile", "1"));
+					notifyAlert(getString(R.string.forward_success) + " | "
+							+ getString(R.string.profile_base) + " "
+							+ settings.getString("profile", "1"),
+							getString(R.string.service_running));
 
 					handler.sendEmptyMessage(MSG_CONNECT_SUCCESS);
 
