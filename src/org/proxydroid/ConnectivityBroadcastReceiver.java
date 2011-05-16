@@ -106,6 +106,25 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 			return;
 		}
 
+		String lastSSID = settings.getString("lastSSID", "-1");
+
+		if (!lastSSID.equals("-1")) {
+			WifiManager wm = (WifiManager) context
+					.getSystemService(Context.WIFI_SERVICE);
+			WifiInfo wInfo = wm.getConnectionInfo();
+			if (wInfo != null) {
+				String current = wInfo.getSSID();
+				if (current != null && !current.equals(lastSSID)) {
+					try {
+						context.stopService(new Intent(context,
+								ProxyDroidService.class));
+					} catch (Exception e) {
+						// Nothing
+					}
+				}
+			}
+		}
+
 		for (String profile : profileValues) {
 			String profileString = settings.getString(profile, "");
 			String[] st = profileString.split("\\|");
@@ -136,6 +155,9 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		if (isOnline(context, ssid)) {
 			if (!isWorked(context, ProxyDroid.SERVICE_NAME)) {
 				ProxyDroidReceiver pdr = new ProxyDroidReceiver();
+				Editor ed = settings.edit();
+				ed.putString("lastSSID", ssid);
+				ed.commit();
 				pdr.onReceive(context, intent);
 			}
 		}
