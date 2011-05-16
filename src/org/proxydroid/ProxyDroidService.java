@@ -456,8 +456,11 @@ public class ProxyDroidService extends Service {
 		notification.flags = Notification.FLAG_ONGOING_EVENT;
 		initSoundVibrateLights(notification);
 		// notification.defaults = Notification.DEFAULT_SOUND;
-		notification.setLatestEventInfo(this, getString(R.string.app_name),
-				info, pendIntent);
+		notification.setLatestEventInfo(
+				this,
+				getString(R.string.app_name) + " | "
+						+ getString(R.string.profile_base) + " "
+						+ settings.getString("profile", "1"), info, pendIntent);
 		startForegroundCompat(1, notification);
 	}
 
@@ -466,8 +469,11 @@ public class ProxyDroidService extends Service {
 		notification.tickerText = title;
 		notification.flags = flags;
 		initSoundVibrateLights(notification);
-		notification.setLatestEventInfo(this, getString(R.string.app_name),
-				info, pendIntent);
+		notification.setLatestEventInfo(
+				this,
+				getString(R.string.app_name) + " | "
+						+ getString(R.string.profile_base) + " "
+						+ settings.getString("profile", "1"), info, pendIntent);
 		notificationManager.notify(0, notification);
 	}
 
@@ -648,9 +654,10 @@ public class ProxyDroidService extends Service {
 
 				if (handleCommand()) {
 					// Connection and forward successful
-					notifyAlert(getString(R.string.forward_success) + " | "
-							+ getString(R.string.profile_base) + " "
-							+ settings.getString("profile", "1"),
+					notifyAlert(
+							getString(R.string.forward_success) + " | "
+									+ getString(R.string.profile_base) + " "
+									+ settings.getString("profile", "1"),
 							getString(R.string.service_running));
 
 					handler.sendEmptyMessage(MSG_CONNECT_SUCCESS);
