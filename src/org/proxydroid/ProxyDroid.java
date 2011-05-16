@@ -456,7 +456,6 @@ public class ProxyDroid extends PreferenceActivity implements
 				.getDefaultSharedPreferences(ProxyDroid.this);
 
 		isAutoConnect = settings.getBoolean("isAutoConnect", false);
-		isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
 		isAuth = settings.getBoolean("isAuth", false);
 		isNTLM = settings.getBoolean("isNTLM", false);
 
@@ -471,6 +470,9 @@ public class ProxyDroid extends PreferenceActivity implements
 		domain = settings.getString("domain", "");
 
 		String portString = settings.getString("port", "");
+		
+		proxyType = settings.getString("proxyType", "http");
+		
 		try {
 			port = Integer.valueOf(portString);
 		} catch (NumberFormatException e) {
