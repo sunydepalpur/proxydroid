@@ -141,8 +141,49 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 			String[] st = profileString.split("\\|");
 			if (st.length >= 8 && st[7].equals("true")
 					&& isOnline(context, st[6])) {
-				// XXX: Switch profile first
+				
+				// Store settings here
+
+				String oldProfile = settings.getString("profile", "1");
+				
+				boolean isAutoConnect = settings.getBoolean("isAutoConnect", false);
+				boolean isAuth = settings.getBoolean("isAuth", false);
+				boolean isNTLM = settings.getBoolean("isNTLM", false);
+
+				String host = settings.getString("host", "");
+
+				String user = settings.getString("user", "");
+
+				String ssid = settings.getString("ssid", "");
+
+				String password = settings.getString("password", "");
+
+				String domain = settings.getString("domain", "");
+
+				String portString = settings.getString("port", "");
+				
+				String proxyType = settings.getString("proxyType", "http");
+				
+				int port = -1;
+				
+				try {
+					port = Integer.valueOf(portString);
+				} catch (NumberFormatException e) {
+					port = -1;
+				}
+
+				String oldProfileSettings = host + "|" + (port != -1 ? port : "") + "|"
+						+ user + "|" + password + "|" + (isAuth ? "true" : "false")
+						+ "|" + proxyType + "|" + ssid + "|"
+						+ (isAutoConnect ? "true" : "false") + "|" + domain + "|"
+						+ (isNTLM ? "true" : "false");
+
 				Editor ed = settings.edit();
+				ed.putString(oldProfile, oldProfileSettings);
+				ed.commit();
+				
+				// XXX: Switch profile first
+				ed = settings.edit();
 				ed.putString("profile", profile);
 				ed.commit();
 
