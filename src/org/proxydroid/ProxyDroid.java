@@ -350,8 +350,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		if (!settings.getBoolean(versionName, false)) {
 			CopyAssets();
-			runCommand("chmod 777 /data/data/org.proxydroid/iptables_g1");
-			runCommand("chmod 777 /data/data/org.proxydroid/iptables_n1");
+			runCommand("chmod 777 /data/data/org.proxydroid/iptables");
 			runCommand("chmod 777 /data/data/org.proxydroid/redsocks");
 			runCommand("chmod 777 /data/data/org.proxydroid/proxy.sh");
 			runCommand("chmod 777 /data/data/org.proxydroid/cntlm");
@@ -470,9 +469,9 @@ public class ProxyDroid extends PreferenceActivity implements
 		domain = settings.getString("domain", "");
 
 		String portString = settings.getString("port", "");
-		
+
 		proxyType = settings.getString("proxyType", "http");
-		
+
 		try {
 			port = Integer.valueOf(portString);
 		} catch (NumberFormatException e) {
@@ -990,13 +989,8 @@ public class ProxyDroid extends PreferenceActivity implements
 					// Nothing
 				}
 
-				if (ProxyDroidService.isARMv6()) {
-					runRootCommand(ProxyDroidService.BASE
-							+ "iptables_g1 -t nat -F OUTPUT");
-				} else {
-					runRootCommand(ProxyDroidService.BASE
-							+ "iptables_n1 -t nat -F OUTPUT");
-				}
+				runRootCommand(ProxyDroidService.BASE
+						+ "iptables -t nat -F OUTPUT");
 
 				runRootCommand(ProxyDroidService.BASE + "proxy.sh stop");
 			}
