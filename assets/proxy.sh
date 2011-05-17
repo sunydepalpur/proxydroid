@@ -1,4 +1,4 @@
-#!/data/data/org.proxydroid/busybox sh
+#!/system/bin/sh
 
 DIR=/data/data/org.proxydroid
 type=$2
