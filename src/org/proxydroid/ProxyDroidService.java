@@ -600,6 +600,20 @@ public class ProxyDroidService extends Service {
 		}
 		return null;
 	}
+	
+	private boolean getAddress() {
+
+		String tmp = host;
+
+		try {
+			host = InetAddress.getByName(host).getHostAddress();
+		} catch (UnknownHostException e) {
+			host = tmp;
+			return false;
+		}
+		
+		return true;
+	}
 
 	// This is the old onStart method that will be called on the pre-2.0
 	// platform. On 2.0 or later we override onStartCommand() so this
@@ -644,15 +658,7 @@ public class ProxyDroidService extends Service {
 
 				handler.sendEmptyMessage(MSG_CONNECT_START);
 
-				String tmp = host;
-
-				try {
-					host = InetAddress.getByName(host).getHostAddress();
-				} catch (UnknownHostException e) {
-					host = tmp;
-				}
-
-				if (handleCommand()) {
+				if (getAddress() && handleCommand()) {
 					// Connection and forward successful
 					notifyAlert(
 							getString(R.string.forward_success) + " | "
