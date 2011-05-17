@@ -354,7 +354,6 @@ public class ProxyDroid extends PreferenceActivity implements
 			runCommand("chmod 777 /data/data/org.proxydroid/redsocks");
 			runCommand("chmod 777 /data/data/org.proxydroid/proxy.sh");
 			runCommand("chmod 777 /data/data/org.proxydroid/cntlm");
-			runCommand("chmod 777 /data/data/org.proxydroid/busybox");
 			edit = settings.edit();
 			edit.putBoolean(versionName, true);
 			edit.commit();
