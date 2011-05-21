@@ -297,7 +297,7 @@ public class ProxyDroidService extends Service {
 					public void run() {
 						runNTLMProxy(BASE + "cntlm -f -P " + BASE
 								+ "cntlm.pid -l 8025 -u " + user
-								+ (!domain.equals("") ? "@" + domain : "")
+								+ (!domain.equals("") ? "@" + domain : "@local")
 								+ " -p " + password + " " + host + ":" + port);
 					}
 				}.start();
@@ -315,7 +315,7 @@ public class ProxyDroidService extends Service {
 			} else {
 				// for host specified apps
 				if (apps == null || apps.length <= 0)
-					apps = AppManager.getApps(this);
+					apps = AppManager.getProxyedApps(this);
 
 				for (int i = 0; i < apps.length; i++) {
 					if (apps[i].isProxyed()) {
