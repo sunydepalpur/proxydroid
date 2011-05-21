@@ -291,12 +291,16 @@ public class ProxyDroidService extends Service {
 
 			if (isAuth && isNTLM) {
 				runRootCommand(BASE
-						+ "proxy.sh start http 127.0.0.1 8025 false");
+						+ "tproxy -P /data/data/org.proxydroid/tproxy.pid -s 8125 127.0.0.1 8025");
+				runRootCommand(BASE + "proxy.sh start http 127.0.0.1 8025 false");
 				new Thread() {
 					@Override
 					public void run() {
-						runNTLMProxy(BASE + "cntlm -P " + BASE
-								+ "cntlm.pid -l 8025 -u " + user
+						runNTLMProxy(BASE
+								+ "cntlm -P "
+								+ BASE
+								+ "cntlm.pid -l 8025 -u "
+								+ user
 								+ (!domain.equals("") ? "@" + domain : "@local")
 								+ " -p " + password + " " + host + ":" + port);
 					}
@@ -351,7 +355,9 @@ public class ProxyDroidService extends Service {
 				}
 			}
 
-			if (proxyType.equals("http"))
+			if (proxyType.equals("http") && isNTLM)
+				runRootCommand(rules.replace("8123", "8125"));
+			else if (proxyType.equals("http"))
 				runRootCommand(rules);
 			else
 				runRootCommand(rules.replace("8124", "8123"));
@@ -488,6 +494,9 @@ public class ProxyDroidService extends Service {
 	private void onDisconnect() {
 
 		runRootCommand(BASE + "iptables -t nat -F OUTPUT");
+
+		if (isNTLM)
+			runRootCommand("kill -9 `cat /data/data/org.proxydroid/tproxy.pid`");
 
 		runRootCommand(BASE + "proxy.sh stop");
 		runRootCommand("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`");
