@@ -993,6 +993,12 @@ public class ProxyDroid extends PreferenceActivity implements
 						+ "iptables -t nat -F OUTPUT");
 
 				runRootCommand(ProxyDroidService.BASE + "proxy.sh stop");
+				
+				CopyAssets();
+				runCommand("chmod 777 /data/data/org.proxydroid/iptables");
+				runCommand("chmod 777 /data/data/org.proxydroid/redsocks");
+				runCommand("chmod 777 /data/data/org.proxydroid/proxy.sh");
+				runCommand("chmod 777 /data/data/org.proxydroid/cntlm");
 			}
 		}.start();
 	}
