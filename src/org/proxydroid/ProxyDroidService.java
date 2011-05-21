@@ -295,7 +295,7 @@ public class ProxyDroidService extends Service {
 				new Thread() {
 					@Override
 					public void run() {
-						runNTLMProxy(BASE + "cntlm -f -P " + BASE
+						runNTLMProxy(BASE + "cntlm -P " + BASE
 								+ "cntlm.pid -l 8025 -u " + user
 								+ (!domain.equals("") ? "@" + domain : "@local")
 								+ " -p " + password + " " + host + ":" + port);
