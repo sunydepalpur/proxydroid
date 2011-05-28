@@ -320,7 +320,7 @@ public class ProxyDroidService extends Service {
 
 			if (isDNSProxy) {
 				dnsServer = new DNSProxy("DNS Server", dnsPort);
-				dnsServer.setBasePath("/data/data/org.proxydroid");
+				dnsServer.setBasePath("/data/data/org.proxydroid/");
 				dnsPort = dnsServer.init();
 
 				Thread dnsThread = new Thread(dnsServer);
@@ -377,8 +377,8 @@ public class ProxyDroidService extends Service {
 							intranet = "172.16.0.0/12";
 						}
 					}
-					rules = rules.replace("--dport", "! -d " + intranet
-							+ " --dport");
+					rules = rules.replace("-p tcp", "--p tcp " + "! -d "
+							+ intranet);
 				}
 			}
 
