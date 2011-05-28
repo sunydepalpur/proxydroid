@@ -203,7 +203,7 @@ public class DNSProxy implements Runnable {
 	 * @param answer
 	 *            解析结果
 	 */
-	private void addToCache(String questDomainName, byte[] answer) {
+	private synchronized void addToCache(String questDomainName, byte[] answer) {
 		DnsResponse response = new DnsResponse(questDomainName);
 		response.setDnsResponse(answer);
 		dnsCache.put(questDomainName, response);
