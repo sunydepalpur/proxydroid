@@ -100,12 +100,14 @@ public class ProxyDroid extends PreferenceActivity implements
 	public static boolean isRoot = false;
 	private boolean isAuth = false;
 	private boolean isNTLM = false;
+	private boolean isDNSProxy = false;
 	private String proxyType = "http";
 
 	private CheckBoxPreference isAutoConnectCheck;
 	private CheckBoxPreference isAutoSetProxyCheck;
 	private CheckBoxPreference isAuthCheck;
 	private CheckBoxPreference isNTLMCheck;
+	private CheckBoxPreference isDNSProxyCheck;
 	private ListPreference profileList;
 
 	private EditTextPreference hostText;
@@ -281,6 +283,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isAutoSetProxyCheck = (CheckBoxPreference) findPreference("isAutoSetProxy");
 		isAuthCheck = (CheckBoxPreference) findPreference("isAuth");
 		isNTLMCheck = (CheckBoxPreference) findPreference("isNTLM");
+		isDNSProxyCheck = (CheckBoxPreference) findPreference("isDNSProxy");
 		isAutoConnectCheck = (CheckBoxPreference) findPreference("isAutoConnect");
 
 		SharedPreferences settings = PreferenceManager
@@ -390,6 +393,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
 		isAuth = settings.getBoolean("isAuth", false);
 		isNTLM = settings.getBoolean("isNTLM", false);
+		isDNSProxy = settings.getBoolean("isDNSProxy", false);
 
 		host = settings.getString("host", "");
 		if (isTextEmpty(host, getString(R.string.host_empty)))
@@ -437,6 +441,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			bundle.putBoolean("isAutoSetProxy", isAutoSetProxy);
 			bundle.putBoolean("isAuth", isAuth);
 			bundle.putBoolean("isNTLM", isNTLM);
+			bundle.putBoolean("isDNSProxy", isDNSProxy);
 			bundle.putString("domain", domain);
 
 			it.putExtras(bundle);
@@ -594,6 +599,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		isAuthCheck.setEnabled(false);
 		isNTLMCheck.setEnabled(false);
+		isDNSProxyCheck.setEnabled(false);
 		isAutoSetProxyCheck.setEnabled(false);
 		isAutoConnectCheck.setEnabled(false);
 	}
@@ -615,6 +621,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		if (isAutoConnectCheck.isChecked())
 			ssidList.setEnabled(true);
 
+		isDNSProxyCheck.setEnabled(true);
 		profileList.setEnabled(true);
 		isAutoSetProxyCheck.setEnabled(true);
 		isAuthCheck.setEnabled(true);

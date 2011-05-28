@@ -104,6 +104,10 @@ public class ProxyDroidService extends Service {
 	private String auth = "false";
 	private boolean isAuth = false;
 	private boolean isNTLM = false;
+	private boolean isDNSProxy = false;
+
+	private DNSProxy dnsServer = null;
+	private int dnsPort = 0;
 
 	Process NTLMProcess;
 
@@ -292,7 +296,8 @@ public class ProxyDroidService extends Service {
 			if (isAuth && isNTLM) {
 				runRootCommand(BASE
 						+ "tproxy -P /data/data/org.proxydroid/tproxy.pid -s 8125 127.0.0.1 8025");
-				runRootCommand(BASE + "proxy.sh start http 127.0.0.1 8025 false");
+				runRootCommand(BASE
+						+ "proxy.sh start http 127.0.0.1 8025 false");
 				new Thread() {
 					@Override
 					public void run() {
@@ -312,6 +317,28 @@ public class ProxyDroidService extends Service {
 			}
 
 			StringBuffer cmd = new StringBuffer();
+
+			if (isDNSProxy) {
+				dnsServer = new DNSProxy("DNS Server", dnsPort);
+				dnsServer.setBasePath("/data/data/org.proxydroid");
+				dnsPort = dnsServer.init();
+
+				Thread dnsThread = new Thread(dnsServer);
+				dnsThread.setDaemon(true);
+				dnsThread.start();
+
+				if (hasRedirectSupport)
+					cmd.append(BASE
+							+ "iptables "
+							+ "-t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to "
+							+ dnsPort + "\n");
+				else
+					cmd.append(BASE
+							+ "iptables "
+							+ "-t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 127.0.0.1:"
+							+ dnsPort + "\n");
+
+			}
 
 			if (isAutoSetProxy) {
 				cmd.append(hasRedirectSupport ? CMD_IPTABLES_REDIRECT_ADD
@@ -466,6 +493,15 @@ public class ProxyDroidService extends Service {
 		// Make sure the connection is closed, important here
 		onDisconnect();
 
+		try {
+			if (dnsServer != null) {
+				dnsServer.close();
+				dnsServer = null;
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "DNS Server close unexpected");
+		}
+
 		// for widget, maybe exception here
 		try {
 			RemoteViews views = new RemoteViews(getPackageName(),
@@ -577,6 +613,7 @@ public class ProxyDroidService extends Service {
 		isAutoSetProxy = bundle.getBoolean("isAutoSetProxy");
 		isAuth = bundle.getBoolean("isAuth");
 		isNTLM = bundle.getBoolean("isNTLM");
+		isDNSProxy = bundle.getBoolean("isDNSProxy");
 
 		if (isAuth) {
 			auth = "true";

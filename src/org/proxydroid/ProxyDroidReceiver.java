@@ -56,6 +56,7 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 	private boolean isAutoSetProxy = false;
 	private boolean isAuth = false;
 	private boolean isNTLM = false;
+	private boolean isDNSProxy = false;
 	private String domain;
 
 	@Override
@@ -74,6 +75,7 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 			domain = settings.getString("domain", "");
 			isAuth = settings.getBoolean("isAuth", false);
 			isNTLM = settings.getBoolean("isNTLM", false);
+			isDNSProxy = settings.getBoolean("isDNSProxy", false);
 			isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
 			String portText = settings.getString("port", "");
 			try {
@@ -92,6 +94,7 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 			bundle.putString("domain", domain);
 			bundle.putBoolean("isAuth", isAuth);
 			bundle.putBoolean("isNTLM", isNTLM);
+			bundle.putBoolean("isDNSProxy", isDNSProxy);
 			bundle.putBoolean("isAutoSetProxy", isAutoSetProxy);
 
 			it.putExtras(bundle);

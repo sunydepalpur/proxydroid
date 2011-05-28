@@ -38,6 +38,7 @@
 			android:title="@string/auto_set_proxy" android:summary="@string/auto_set_proxy_summary"
 			android:defaultValue="true"></CheckBoxPreference>
 		<Preference android:key="proxyedApps" android:title="@string/proxyed_apps"></Preference>
+		<CheckBoxPreference android:key="isDNSProxy" android:summary="@string/dns_proxy_summary" android:title="@string/dns_proxy"></CheckBoxPreference>
 		
 		
 
