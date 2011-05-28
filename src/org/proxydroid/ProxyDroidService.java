@@ -377,7 +377,7 @@ public class ProxyDroidService extends Service {
 							intranet = "172.16.0.0/12";
 						}
 					}
-					rules = rules.replace("-p tcp", "--p tcp " + "! -d "
+					rules = rules.replace("-p tcp", "-p tcp " + "! -d "
 							+ intranet);
 				}
 			}
