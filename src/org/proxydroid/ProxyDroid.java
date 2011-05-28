@@ -996,6 +996,14 @@ public class ProxyDroid extends PreferenceActivity implements
 				} catch (Exception e) {
 					// Nothing
 				}
+				
+				try {
+					File cache = new File(ProxyDroidService.BASE + "cache/dnscache");
+					if (cache.exists())
+						cache.delete();
+				} catch (Exception ignore) {
+					// Nothing
+				}
 
 				runRootCommand(ProxyDroidService.BASE
 						+ "iptables -t nat -F OUTPUT");
