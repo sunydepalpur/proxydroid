@@ -77,6 +77,9 @@
 	<string name="auto_set_proxy">Global Proxy</string>
 	<string name="auto_set_proxy_summary">Auto set up the global proxy (needs ROOT permission
 		and IPTABLES support)</string>
+	<string name="dns_proxy">DNS Proxy</string>
+	<string name="dns_proxy_summary">Enable DNS Proxy for some LAN users. Turn on it
+		only if you know what it is</string>
 
 	<!-- settings proxyed apps category -->
 	<string name="proxyed_apps">Choose apps through proxy</string>

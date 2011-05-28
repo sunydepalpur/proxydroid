@@ -68,6 +68,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 	private boolean isAuth = false;
 	private boolean isAutoSetProxy = false;
 	private boolean isNTLM = false;
+	private boolean isDNSProxy = false;
 	private String domain;
 
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
@@ -160,6 +161,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 				domain = settings.getString("domain", "");
 				isAuth = settings.getBoolean("isAuth", false);
 				isNTLM = settings.getBoolean("isNTLM", false);
+				isDNSProxy = settings.getBoolean("isDNSProxy", false);
 				isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
 				String portText = settings.getString("port", "");
 				try {
@@ -178,6 +180,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 				bundle.putString("domain", domain);
 				bundle.putBoolean("isAuth", isAuth);
 				bundle.putBoolean("isNTLM", isNTLM);
+				bundle.putBoolean("isDNSProxy", isDNSProxy);
 				bundle.putBoolean("isAutoSetProxy", isAutoSetProxy);
 
 				it.putExtras(bundle);
