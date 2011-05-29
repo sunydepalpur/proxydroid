@@ -97,41 +97,27 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		ConnectivityManager manager = (ConnectivityManager) context
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-		if (networkInfo == null) {
-			try {
-				context.stopService(new Intent(context, ProxyDroidService.class));
-			} catch (Exception e) {
-				// Nothing
-			}
-			return;
-		}
+		if (networkInfo != null) {
 
-		String lastSSID = settings.getString("lastSSID", "-1");
+			String lastSSID = settings.getString("lastSSID", "-1");
 
-		if (networkInfo.getTypeName().equals("WIFI")) {
-			if (!lastSSID.equals("-1")) {
-				WifiManager wm = (WifiManager) context
-						.getSystemService(Context.WIFI_SERVICE);
-				WifiInfo wInfo = wm.getConnectionInfo();
-				if (wInfo != null) {
-					String current = wInfo.getSSID();
-					if (current != null && !current.equals(lastSSID)) {
-						try {
+			if (networkInfo.getTypeName().equals("WIFI")) {
+				if (!lastSSID.equals("-1")) {
+					WifiManager wm = (WifiManager) context
+							.getSystemService(Context.WIFI_SERVICE);
+					WifiInfo wInfo = wm.getConnectionInfo();
+					if (wInfo != null) {
+						String current = wInfo.getSSID();
+						if (current != null && !current.equals(lastSSID)) {
 							context.stopService(new Intent(context,
 									ProxyDroidService.class));
-						} catch (Exception e) {
-							// Nothing
 						}
 					}
 				}
-			}
-		} else {
-			if (!lastSSID.equals("2G/3G")) {
-				try {
+			} else {
+				if (!lastSSID.equals("2G/3G")) {
 					context.stopService(new Intent(context,
 							ProxyDroidService.class));
-				} catch (Exception e) {
-					// Nothing
 				}
 			}
 		}
@@ -141,12 +127,13 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 			String[] st = profileString.split("\\|");
 			if (st.length >= 8 && st[7].equals("true")
 					&& isOnline(context, st[6])) {
-				
+
 				// Store settings here
 
 				String oldProfile = settings.getString("profile", "1");
-				
-				boolean isAutoConnect = settings.getBoolean("isAutoConnect", false);
+
+				boolean isAutoConnect = settings.getBoolean("isAutoConnect",
+						false);
 				boolean isAuth = settings.getBoolean("isAuth", false);
 				boolean isNTLM = settings.getBoolean("isNTLM", false);
 
@@ -161,27 +148,28 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 				String domain = settings.getString("domain", "");
 
 				String portString = settings.getString("port", "");
-				
+
 				String proxyType = settings.getString("proxyType", "http");
-				
+
 				int port = -1;
-				
+
 				try {
 					port = Integer.valueOf(portString);
 				} catch (NumberFormatException e) {
 					port = -1;
 				}
 
-				String oldProfileSettings = host + "|" + (port != -1 ? port : "") + "|"
-						+ user + "|" + password + "|" + (isAuth ? "true" : "false")
-						+ "|" + proxyType + "|" + ssid + "|"
-						+ (isAutoConnect ? "true" : "false") + "|" + domain + "|"
-						+ (isNTLM ? "true" : "false");
+				String oldProfileSettings = host + "|"
+						+ (port != -1 ? port : "") + "|" + user + "|"
+						+ password + "|" + (isAuth ? "true" : "false") + "|"
+						+ proxyType + "|" + ssid + "|"
+						+ (isAutoConnect ? "true" : "false") + "|" + domain
+						+ "|" + (isNTLM ? "true" : "false");
 
 				Editor ed = settings.edit();
 				ed.putString(oldProfile, oldProfileSettings);
 				ed.commit();
-				
+
 				// XXX: Switch profile first
 				ed = settings.edit();
 				ed.putString("profile", profile);
