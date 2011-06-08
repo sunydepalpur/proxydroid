@@ -26,7 +26,6 @@ import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Hashtable;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -538,10 +537,8 @@ public class DNSProxy implements Runnable {
 		InputStream is;
 
 		String url = "http://www.hosts.dotcloud.com/lookup.php?host="
-				+ URLEncoder.encode(
-						Base64.encodeBase64(
-						Base64.encodeBase64(domain.getBytes())).toString());
-
+			+ URLEncoder.encode(Base64.encodeBytes(Base64
+					.encodeBytesToBytes(domain.getBytes())));
 		Log.d(TAG, "DNS Relay URL: " + url);
 
 		try {
