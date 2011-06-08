@@ -744,8 +744,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			proxyTypeList.setSummary(settings.getString("proxyType", "")
 					.toUpperCase());
 		if (!settings.getString("domain", "").equals(""))
-			domainText.setSummary(settings.getString("domain", "")
-					.toUpperCase());
+			domainText.setSummary(settings.getString("domain", ""));
 
 		// Set up a listener whenever a key changes
 		getPreferenceScreen().getSharedPreferences()
