@@ -507,6 +507,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			proxyType = "http";
 			isAutoConnect = false;
 			ssid = "";
+			isNTLM = false;
 
 		} else {
 
@@ -523,7 +524,9 @@ public class ProxyDroid extends PreferenceActivity implements
 			password = st[3];
 			isAuth = st[4].equals("true") ? true : false;
 			proxyType = st[5];
-			if (st.length < 7) {
+			
+			// tricks for old editions
+			if (st.length < 8) {
 				isAutoConnect = false;
 				ssid = "";
 			} else {
@@ -531,12 +534,14 @@ public class ProxyDroid extends PreferenceActivity implements
 				isAutoConnect = st[7].equals("true") ? true : false;
 
 			}
-			if (st.length < 9) {
+			
+			// tricks for old editions
+			if (st.length < 10) {
 				isNTLM = false;
 				domain = "";
 			} else {
 				domain = st[8];
-				isNTLM = st[7].equals("true") ? true : false;
+				isNTLM = st[9].equals("true") ? true : false;
 			}
 
 		}
