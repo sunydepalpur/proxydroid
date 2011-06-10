@@ -400,8 +400,10 @@ public class ProxyDroidService extends Service {
 
 			if (proxyType.equals("http") && isNTLM)
 				runRootCommand(rules.replace("8123", "8125"));
-			else
+			else if (proxyType.equals("http"))
 				runRootCommand(rules);
+			else
+				runRootCommand(rules.replace("-p tcp", "-p tcp" + " ! --dport " + port));
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting up port forward during connect", e);
