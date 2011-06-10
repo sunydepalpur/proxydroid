@@ -83,15 +83,25 @@ public class ProxyDroidService extends Service {
 	private static final int MSG_CONNECT_SUCCESS = 2;
 	private static final int MSG_CONNECT_FAIL = 3;
 
-	final static String CMD_IPTABLES_REDIRECT_ADD = BASE
+	final static String CMD_IPTABLES_REDIRECT_ADD_HTTP = BASE
 			+ "iptables -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
 			+ BASE
-			+ "iptables -t nat -A OUTPUT -p tcp --dport 443 -j REDIRECT --to 8124\n";
+			+ "iptables -t nat -A OUTPUT -p tcp --dport 443 -j REDIRECT --to 8124\n"
+			+ BASE
+			+ "iptables -t nat -A OUTPUT -p tcp --dport 5228 -j REDIRECT --to 8124\n";
 
-	final static String CMD_IPTABLES_DNAT_ADD = BASE
+	final static String CMD_IPTABLES_DNAT_ADD_HTTP = BASE
 			+ "iptables -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
 			+ BASE
-			+ "iptables -t nat -A OUTPUT -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:8124\n";
+			+ "iptables -t nat -A OUTPUT -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:8124\n"
+			+ BASE
+			+ "iptables -t nat -A OUTPUT -p tcp --dport 5228 -j REDIRECT --to 8124\n";
+
+	final static String CMD_IPTABLES_REDIRECT_ADD_SOCKS = BASE
+			+ "iptables -t nat -A OUTPUT -p tcp -j REDIRECT --to 8123\n";
+
+	final static String CMD_IPTABLES_DNAT_ADD_SOCKS = BASE
+			+ "iptables -t nat -A OUTPUT -p tcp -j DNAT --to-destination 127.0.0.1:8123\n";
 
 	private static final String TAG = "ProxyDroidService";
 
@@ -340,9 +350,16 @@ public class ProxyDroidService extends Service {
 
 			}
 
+			String redirectCmd = CMD_IPTABLES_REDIRECT_ADD_HTTP;
+			String dnatCmd = CMD_IPTABLES_DNAT_ADD_HTTP;
+
+			if (!proxyType.equals("http")) {
+				redirectCmd = CMD_IPTABLES_REDIRECT_ADD_SOCKS;
+				dnatCmd = CMD_IPTABLES_DNAT_ADD_SOCKS;
+			}
+
 			if (isAutoSetProxy) {
-				cmd.append(hasRedirectSupport ? CMD_IPTABLES_REDIRECT_ADD
-						: CMD_IPTABLES_DNAT_ADD);
+				cmd.append(hasRedirectSupport ? redirectCmd : dnatCmd);
 			} else {
 				// for host specified apps
 				if (apps == null || apps.length <= 0)
@@ -350,11 +367,10 @@ public class ProxyDroidService extends Service {
 
 				for (int i = 0; i < apps.length; i++) {
 					if (apps[i].isProxyed()) {
-						cmd.append((hasRedirectSupport ? CMD_IPTABLES_REDIRECT_ADD
-								: CMD_IPTABLES_DNAT_ADD).replace(
-								"-t nat",
-								"-t nat -m owner --uid-owner "
-										+ apps[i].getUid()));
+						cmd.append((hasRedirectSupport ? redirectCmd : dnatCmd)
+								.replace("-t nat",
+										"-t nat -m owner --uid-owner "
+												+ apps[i].getUid()));
 					}
 				}
 			}
@@ -384,10 +400,8 @@ public class ProxyDroidService extends Service {
 
 			if (proxyType.equals("http") && isNTLM)
 				runRootCommand(rules.replace("8123", "8125"));
-			else if (proxyType.equals("http"))
-				runRootCommand(rules);
 			else
-				runRootCommand(rules.replace("8124", "8123"));
+				runRootCommand(rules);
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting up port forward during connect", e);
