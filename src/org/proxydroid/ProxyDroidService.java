@@ -547,11 +547,13 @@ public class ProxyDroidService extends Service {
 
 		runRootCommand(BASE + "iptables -t nat -F OUTPUT");
 
-		if (isNTLM)
+		if (isNTLM) {
 			runRootCommand("kill -9 `cat /data/data/org.proxydroid/tproxy.pid`");
+			runRootCommand("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`");
+		}
 
 		runRootCommand(BASE + "proxy.sh stop");
-		runRootCommand("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`");
+
 
 	}
 

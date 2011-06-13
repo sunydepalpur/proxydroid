@@ -161,7 +161,7 @@ public class DNSProxy implements Runnable {
 	 * DNS Proxy upper stream
 	 * 
 	 */
-	private String dnsRelay = "203.208.37.22";
+	private String dnsRelay = "74.125.224.178";
 
 	private static final String CANT_RESOLVE = "Error";
 
@@ -172,10 +172,10 @@ public class DNSProxy implements Runnable {
 		domains = new HashSet<String>();
 
 		try {
-			InetAddress addr = InetAddress.getByName("music.google.com");
+			InetAddress addr = InetAddress.getByName("www.google.com");
 			dnsRelay = addr.getHostAddress();
 		} catch (Exception ignore) {
-			dnsRelay = "203.208.37.22";
+			dnsRelay = "74.125.224.178";
 		}
 
 	}
@@ -545,6 +545,8 @@ public class DNSProxy implements Runnable {
 		try {
 			URL aURL = new URL(url);
 			HttpURLConnection conn = (HttpURLConnection) aURL.openConnection();
+			conn.setConnectTimeout(2000);
+			conn.setConnectTimeout(5000);
 			conn.connect();
 			is = conn.getInputStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
