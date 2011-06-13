@@ -161,7 +161,7 @@ public class DNSProxy implements Runnable {
 	 * DNS Proxy upper stream
 	 * 
 	 */
-	private String dnsRelay = "174.129.17.131";
+	private String dnsRelay = "203.208.37.22";
 
 	private static final String CANT_RESOLVE = "Error";
 
@@ -172,10 +172,10 @@ public class DNSProxy implements Runnable {
 		domains = new HashSet<String>();
 
 		try {
-			InetAddress addr = InetAddress.getByName("www.hosts.dotcloud.com");
+			InetAddress addr = InetAddress.getByName("music.google.com");
 			dnsRelay = addr.getHostAddress();
 		} catch (Exception ignore) {
-			dnsRelay = "174.129.17.131";
+			dnsRelay = "203.208.37.22";
 		}
 
 	}
@@ -444,13 +444,13 @@ public class DNSProxy implements Runnable {
 
 					Log.d(TAG, "DNS cache hit");
 
-				} else if (questDomain.toLowerCase().contains("dotcloud.com")) { // for
+				} else if (questDomain.toLowerCase().contains("appspot.com")) { // for
 																					// dotcloud
 					byte[] ips = parseIPString(dnsRelay);
 					byte[] answer = createDNSResponse(udpreq, ips);
 					addToCache(questDomain, answer);
 					sendDns(answer, dnsq, srvSocket);
-					Log.d(TAG, "Custom DNS resolver dotcloud.com");
+					Log.d(TAG, "Custom DNS resolver appspot.com");
 				} else {
 
 					synchronized (this) {
@@ -530,13 +530,14 @@ public class DNSProxy implements Runnable {
 	 * Example:
 	 * 
 	 * http://www.hosts.dotcloud.com/lookup.php?(domain name encoded)
+	 * http://gaednsproxy.appspot.com/?d=(domain name encoded)
 	 */
 	private String resolveDomainName(String domain) {
 		String ip = null;
 
 		InputStream is;
 
-		String url = "http://www.hosts.dotcloud.com/lookup.php?host="
+		String url = "http://gaednsproxy.appspot.com/?d="
 			+ URLEncoder.encode(Base64.encodeBytes(Base64
 					.encodeBytesToBytes(domain.getBytes())));
 		Log.d(TAG, "DNS Relay URL: " + url);
