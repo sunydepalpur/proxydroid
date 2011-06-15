@@ -403,7 +403,8 @@ public class ProxyDroidService extends Service {
 			else if (proxyType.equals("http"))
 				runRootCommand(rules);
 			else
-				runRootCommand(rules.replace("-p tcp", "-p tcp" + " ! --dport " + port));
+				runRootCommand(rules.replace("-p tcp", "-p tcp" + " ! --dport "
+						+ port));
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting up port forward during connect", e);
@@ -448,8 +449,7 @@ public class ProxyDroidService extends Service {
 		notification.setLatestEventInfo(
 				this,
 				getString(R.string.app_name) + " | "
-						+ getString(R.string.profile_base) + " "
-						+ settings.getString("profile", "1"), info, pendIntent);
+						+ getProfileName(), info, pendIntent);
 		startForegroundCompat(1, notification);
 	}
 
@@ -461,8 +461,7 @@ public class ProxyDroidService extends Service {
 		notification.setLatestEventInfo(
 				this,
 				getString(R.string.app_name) + " | "
-						+ getString(R.string.profile_base) + " "
-						+ settings.getString("profile", "1"), info, pendIntent);
+						+ getProfileName(), info, pendIntent);
 		notificationManager.notify(0, notification);
 	}
 
@@ -477,8 +476,6 @@ public class ProxyDroidService extends Service {
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
 		notificationManager = (NotificationManager) this
 				.getSystemService(NOTIFICATION_SERVICE);
-
-		this.initHasRedirectSupported();
 
 		intent = new Intent(this, ProxyDroid.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -554,7 +551,6 @@ public class ProxyDroidService extends Service {
 
 		runRootCommand(BASE + "proxy.sh stop");
 
-
 	}
 
 	final Handler handler = new Handler() {
@@ -614,6 +610,15 @@ public class ProxyDroidService extends Service {
 		return true;
 	}
 
+	private String getProfileName() {
+		SharedPreferences settings = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		return settings.getString(
+				"profile" + settings.getString("profile", "1"),
+				getString(R.string.profile_base) + " "
+						+ settings.getString("profile", "1"));
+	}
+
 	// This is the old onStart method that will be called on the pre-2.0
 	// platform. On 2.0 or later we override onStartCommand() so this
 	// method will not be called.
@@ -658,12 +663,14 @@ public class ProxyDroidService extends Service {
 
 				handler.sendEmptyMessage(MSG_CONNECT_START);
 
+				initHasRedirectSupported();
+
 				if (getAddress() && handleCommand()) {
 					// Connection and forward successful
 					notifyAlert(
-							getString(R.string.forward_success) + " | "
-									+ getString(R.string.profile_base) + " "
-									+ settings.getString("profile", "1"),
+							getString(R.string.forward_success)
+									+ " | "
+									+ getProfileName(),
 							getString(R.string.service_running));
 
 					handler.sendEmptyMessage(MSG_CONNECT_SUCCESS);
