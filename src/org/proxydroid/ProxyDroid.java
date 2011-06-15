@@ -856,9 +856,11 @@ public class ProxyDroid extends PreferenceActivity implements
 		}
 
 		if (key.equals("isAutoConnect")) {
-			if (settings.getBoolean("isAutoConnect", false))
+			if (settings.getBoolean("isAutoConnect", false)) {
+				loadNetworkList();
 				ssidList.setEnabled(true);
-			else
+			}
+			else 
 				ssidList.setEnabled(false);
 		}
 
