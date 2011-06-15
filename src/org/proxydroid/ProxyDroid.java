@@ -52,6 +52,7 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
@@ -77,8 +78,11 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 
 public class ProxyDroid extends PreferenceActivity implements
@@ -524,7 +528,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			password = st[3];
 			isAuth = st[4].equals("true") ? true : false;
 			proxyType = st[5];
-			
+
 			// tricks for old editions
 			if (st.length < 8) {
 				isAutoConnect = false;
@@ -534,7 +538,7 @@ public class ProxyDroid extends PreferenceActivity implements
 				isAutoConnect = st[7].equals("true") ? true : false;
 
 			}
-			
+
 			// tricks for old editions
 			if (st.length < 10) {
 				isNTLM = false;
@@ -662,6 +666,13 @@ public class ProxyDroid extends PreferenceActivity implements
 		return super.onPreferenceTreeClick(preferenceScreen, preference);
 	}
 
+	private String getProfileName(String profile) {
+		SharedPreferences settings = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		return settings.getString("profile" + profile,
+				getString(R.string.profile_base) + " " + profile);
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -723,8 +734,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		profile = settings.getString("profile", "1");
 		profileList.setValue(profile);
 
-		profileList.setSummary(getString(R.string.profile_base) + " "
-				+ settings.getString("profile", ""));
+		profileList.setSummary(getProfileName(profile));
 
 		if (!settings.getString("ssid", "").equals(""))
 			ssidList.setSummary(settings.getString("ssid", ""));
@@ -780,8 +790,8 @@ public class ProxyDroid extends PreferenceActivity implements
 					profileEntriesBuffer.append(profileEntries[i] + "|");
 					profileValuesBuffer.append(profileValues[i] + "|");
 				}
-				profileEntriesBuffer.append(getString(R.string.profile_base)
-						+ " " + newProfileValue + "|");
+				profileEntriesBuffer.append(getProfileName(Integer
+						.toString(newProfileValue)) + "|");
 				profileValuesBuffer.append(newProfileValue + "|");
 				profileEntriesBuffer.append(getString(R.string.profile_new));
 				profileValuesBuffer.append("0");
@@ -799,8 +809,7 @@ public class ProxyDroid extends PreferenceActivity implements
 				profile = profileString;
 				profileList.setValue(profile);
 				onProfileChange(oldProfile);
-				profileList.setSummary(getString(R.string.profile_base) + " "
-						+ profileString);
+				profileList.setSummary(getProfileName(profileString));
 			}
 		}
 
@@ -924,6 +933,8 @@ public class ProxyDroid extends PreferenceActivity implements
 				.setIcon(android.R.drawable.ic_menu_delete);
 		menu.add(Menu.NONE, Menu.FIRST + 3, 3, getString(R.string.about))
 				.setIcon(android.R.drawable.ic_menu_info_details);
+		menu.add(Menu.NONE, Menu.FIRST + 4, 4, getString(R.string.change_name))
+				.setIcon(android.R.drawable.ic_menu_edit);
 
 		// return true才会起作用
 		return true;
@@ -938,7 +949,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			recovery();
 			break;
 		case Menu.FIRST + 2:
-			delProfile();
+			delProfile(profile);
 			break;
 		case Menu.FIRST + 3:
 			String versionName = "";
@@ -951,12 +962,96 @@ public class ProxyDroid extends PreferenceActivity implements
 			showAToast(getString(R.string.about) + " (" + versionName + ")"
 					+ getString(R.string.copy_rights));
 			break;
+		case Menu.FIRST + 4:
+			rename();
+			break;
 		}
 
 		return true;
 	}
+	
+	private void rename() {
+		LayoutInflater factory = LayoutInflater.from(this);
+		final View textEntryView = factory.inflate(
+				R.layout.alert_dialog_text_entry, null);
+		final EditText profileName = (EditText) textEntryView
+				.findViewById(R.id.profile_name_edit);
+		profileName.setText(getProfileName(profile));
 
-	private void delProfile() {
+		AlertDialog ad = new AlertDialog.Builder(this)
+				.setTitle(R.string.change_name)
+				.setView(textEntryView)
+				.setPositiveButton(R.string.alert_dialog_ok,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int whichButton) {
+								EditText profileName = (EditText) textEntryView
+										.findViewById(R.id.profile_name_edit);
+								SharedPreferences settings = PreferenceManager
+										.getDefaultSharedPreferences(ProxyDroid.this);
+								String name = profileName.getText()
+										.toString();
+								if (name == null)
+									return;
+								name = name.replace("|", "");
+								if (name.length() <= 0)
+									return;
+								Editor ed = settings.edit();
+								ed.putString("profile" + profile, name);
+								ed.commit();
+								
+								profileList
+										.setSummary(getProfileName(profile));
+								
+								String[] profileEntries = settings
+										.getString("profileEntries", "")
+										.split("\\|");
+								String[] profileValues = settings
+										.getString("profileValues", "")
+										.split("\\|");
+
+								StringBuffer profileEntriesBuffer = new StringBuffer();
+								StringBuffer profileValuesBuffer = new StringBuffer();
+
+								for (int i = 0; i < profileValues.length - 1; i++) {
+									if (profileValues[i].equals(profile))
+										profileEntriesBuffer
+												.append(getProfileName(profile)
+														+ "|");
+									else
+										profileEntriesBuffer
+												.append(profileEntries[i]
+														+ "|");
+									profileValuesBuffer
+											.append(profileValues[i] + "|");
+								}
+
+								profileEntriesBuffer
+										.append(getString(R.string.profile_new));
+								profileValuesBuffer.append("0");
+
+								ed = settings.edit();
+								ed.putString("profileEntries",
+										profileEntriesBuffer.toString());
+								ed.putString("profileValues",
+										profileValuesBuffer.toString());
+
+								ed.commit();
+
+								loadProfileList();
+							}
+						})
+				.setNegativeButton(R.string.alert_dialog_cancel,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int whichButton) {
+								/* User clicked cancel so do some stuff */
+							}
+						}).create();
+		ad.show();
+	}
+
+	private void delProfile(String profile) {
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		String[] profileEntries = settings.getString("profileEntries", "")
@@ -1000,9 +1095,10 @@ public class ProxyDroid extends PreferenceActivity implements
 				} catch (Exception e) {
 					// Nothing
 				}
-				
+
 				try {
-					File cache = new File(ProxyDroidService.BASE + "cache/dnscache");
+					File cache = new File(ProxyDroidService.BASE
+							+ "cache/dnscache");
 					if (cache.exists())
 						cache.delete();
 				} catch (Exception ignore) {
@@ -1014,7 +1110,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 				runRootCommand(ProxyDroidService.BASE + "proxy.sh stop");
 				runRootCommand("kill -9 `cat /data/data/org.proxydroid/tproxy.pid`");
-				
+
 				CopyAssets();
 				runCommand("chmod 777 /data/data/org.proxydroid/iptables");
 				runCommand("chmod 777 /data/data/org.proxydroid/redsocks");
