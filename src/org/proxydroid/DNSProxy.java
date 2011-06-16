@@ -445,7 +445,7 @@ public class DNSProxy implements Runnable {
 					Log.d(TAG, "DNS cache hit");
 
 				} else if (questDomain.toLowerCase().contains("appspot.com")) { // for
-																					// dotcloud
+																				// dotcloud
 					byte[] ips = parseIPString(dnsRelay);
 					byte[] answer = createDNSResponse(udpreq, ips);
 					addToCache(questDomain, answer);
@@ -538,8 +538,8 @@ public class DNSProxy implements Runnable {
 		InputStream is;
 
 		String url = "http://gaednsproxy.appspot.com/?d="
-			+ URLEncoder.encode(Base64.encodeBytes(Base64
-					.encodeBytesToBytes(domain.getBytes())));
+				+ URLEncoder.encode(Base64.encodeBytes(Base64
+						.encodeBytesToBytes(domain.getBytes())));
 		Log.d(TAG, "DNS Relay URL: " + url);
 
 		try {
@@ -573,7 +573,7 @@ public class DNSProxy implements Runnable {
 
 		/* Not support reverse domain name query */
 		if (domain.endsWith("in-addr.arpa")) {
-			return null;
+			return createDNSResponse(quest, parseIPString("127.0.0.1"));
 		}
 
 		ip = resolveDomainName(domain);
