@@ -167,32 +167,32 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		}
 
 		// only switching profiles when needed
-		if (needSwitching) {
-			ConnectivityManager manager = (ConnectivityManager) context
-					.getSystemService(Context.CONNECTIVITY_SERVICE);
-			NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-			if (networkInfo != null) {
+		ConnectivityManager manager = (ConnectivityManager) context
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+		if (networkInfo == null) {
+			context.stopService(new Intent(context, ProxyDroidService.class));
+		} else if (needSwitching) {
 
-				String lastSSID = settings.getString("lastSSID", "-1");
+			String lastSSID = settings.getString("lastSSID", "-1");
 
-				if (networkInfo.getTypeName().equals("WIFI")) {
-					if (!lastSSID.equals("-1")) {
-						WifiManager wm = (WifiManager) context
-								.getSystemService(Context.WIFI_SERVICE);
-						WifiInfo wInfo = wm.getConnectionInfo();
-						if (wInfo != null) {
-							String current = wInfo.getSSID();
-							if (current != null && !current.equals(lastSSID)) {
-								context.stopService(new Intent(context,
-										ProxyDroidService.class));
-							}
+			if (networkInfo.getTypeName().equals("WIFI")) {
+				if (!lastSSID.equals("-1")) {
+					WifiManager wm = (WifiManager) context
+							.getSystemService(Context.WIFI_SERVICE);
+					WifiInfo wInfo = wm.getConnectionInfo();
+					if (wInfo != null) {
+						String current = wInfo.getSSID();
+						if (current != null && !current.equals(lastSSID)) {
+							context.stopService(new Intent(context,
+									ProxyDroidService.class));
 						}
 					}
-				} else {
-					if (!lastSSID.equals("2G/3G")) {
-						context.stopService(new Intent(context,
-								ProxyDroidService.class));
-					}
+				}
+			} else {
+				if (!lastSSID.equals("2G/3G")) {
+					context.stopService(new Intent(context,
+							ProxyDroidService.class));
 				}
 			}
 		}
