@@ -38,10 +38,8 @@
 
 package org.proxydroid;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.FileReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -123,8 +121,6 @@ public class ProxyDroidService extends Service {
 
 	private SharedPreferences settings = null;
 
-	// Flag indicating if this is an ARMv6 device (-1: unknown, 0: no, 1: yes)
-	private static int isARMv6 = -1;
 	private boolean hasRedirectSupport = true;
 	private boolean isAutoSetProxy = false;
 	private String localIp;
