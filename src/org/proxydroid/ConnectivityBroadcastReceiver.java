@@ -134,7 +134,6 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		// Load all profiles
 		String[] profileValues = settings.getString("profileValues", "").split(
 				"\\|");
-		boolean needSwitching = false;
 
 		// Test on each profile
 		for (String profile : profileValues) {
@@ -142,8 +141,6 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 			String[] st = profileString.split("\\|");
 			if (st.length >= 8 && st[7].equals("true")
 					&& isOnline(context, st[6])) {
-
-				needSwitching = true;
 
 				// XXX: Switch profile first
 				ed = settings.edit();
@@ -172,7 +169,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 		if (networkInfo == null) {
 			context.stopService(new Intent(context, ProxyDroidService.class));
-		} else if (needSwitching) {
+		} else {
 
 			String lastSSID = settings.getString("lastSSID", "-1");
 
