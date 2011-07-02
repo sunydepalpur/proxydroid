@@ -105,7 +105,7 @@ public class ProxyDroidService extends Service {
 
 	private String host;
 	private int port;
-	private String intranetAddr;
+	private String intranetAddr = "";
 	private String user;
 	private String password;
 	private String domain;
@@ -374,7 +374,7 @@ public class ProxyDroidService extends Service {
 
 			String rules = cmd.toString();
 
-			if (intranetAddr.equals("")) {
+			if (intranetAddr == null || intranetAddr.equals("")) {
 				// Reference:
 				// http://en.wikipedia.org/wiki/Private_network#Private_IPv4_address_spaces
 				if (localIp != null) {
