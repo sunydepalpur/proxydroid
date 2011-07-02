@@ -156,7 +156,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 				ed.putString("intranetAddr", st[2]);
 				ed.putString("user", st[3].equals("null") ? "" : st[3]);
 				ed.putString("password", st[4].equals("null") ? "" : st[4]);
-				ed.putBoolean("isSocks", st[5].equals("true") ? true : false);
+				ed.putBoolean("isAuth", st[5].equals("true") ? true : false);
 				ed.putString("proxyType", st[6]);
 				ed.putString("ssid", st[7]);
 				ed.putBoolean("isAutoConnect", st[8].equals("true") ? true
