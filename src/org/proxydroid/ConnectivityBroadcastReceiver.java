@@ -113,6 +113,8 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
 		String proxyType = settings.getString("proxyType", "http");
 
+		String intranetAddr = settings.getString("intranetAddr", "");
+
 		int port = -1;
 
 		try {
@@ -122,9 +124,9 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		}
 
 		String oldProfileSettings = host + "|" + (port != -1 ? port : "") + "|"
-				+ user + "|" + password + "|" + (isAuth ? "true" : "false")
-				+ "|" + proxyType + "|" + ssid + "|"
-				+ (isAutoConnect ? "true" : "false") + "|" + domain + "|"
+				+ intranetAddr + "|" + user + "|" + password + "|"
+				+ (isAuth ? "true" : "false") + "|" + proxyType + "|" + ssid
+				+ "|" + (isAutoConnect ? "true" : "false") + "|" + domain + "|"
 				+ (isNTLM ? "true" : "false");
 
 		Editor ed = settings.edit();
@@ -139,8 +141,8 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		for (String profile : profileValues) {
 			String profileString = settings.getString(profile, "");
 			String[] st = profileString.split("\\|");
-			if (st.length >= 8 && st[7].equals("true")
-					&& isOnline(context, st[6])) {
+			if (st.length >= 11 && st[8].equals("true")
+					&& isOnline(context, st[7])) {
 
 				// XXX: Switch profile first
 				ed = settings.edit();
@@ -151,13 +153,16 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 				ed = settings.edit();
 				ed.putString("host", st[0].equals("null") ? "" : st[0]);
 				ed.putString("port", st[1]);
-				ed.putString("user", st[2].equals("null") ? "" : st[2]);
-				ed.putString("password", st[3].equals("null") ? "" : st[3]);
-				ed.putBoolean("isSocks", st[4].equals("true") ? true : false);
-				ed.putString("proxyType", st[5]);
-				ed.putString("ssid", st[6]);
-				ed.putBoolean("isAutoConnect", st[7].equals("true") ? true
+				ed.putString("intranetAddr", st[2]);
+				ed.putString("user", st[3].equals("null") ? "" : st[3]);
+				ed.putString("password", st[4].equals("null") ? "" : st[4]);
+				ed.putBoolean("isSocks", st[5].equals("true") ? true : false);
+				ed.putString("proxyType", st[6]);
+				ed.putString("ssid", st[7]);
+				ed.putBoolean("isAutoConnect", st[8].equals("true") ? true
 						: false);
+				ed.putString("domain", st[9]);
+				ed.putBoolean("isNTLM", st[10].equals("true") ? true : false);
 				ed.commit();
 				break;
 			}
