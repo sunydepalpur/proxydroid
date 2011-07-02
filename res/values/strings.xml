@@ -52,6 +52,10 @@
 	<string name="proxy_summary">Proxy URL</string>
 	<string name="port">Port</string>
 	<string name="port_summary">The port number of your Proxy service</string>
+	<string name="set_intranet">Intranet Addresses</string>
+	<string name="set_intranet_summary">Manually set intranet addresses, e.g.
+		192.168.0.0/16. Leave blank to set it automatically.
+	</string>
 
 	<!-- settings account category -->
 	<string name="auth">Enable Authentication</string>

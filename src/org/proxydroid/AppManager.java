@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -273,9 +274,9 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 
 			// check if this application is allowed
 			if (aInfo.packageName != null
-					&& aInfo.packageName.equals("org.proxydroid"))
-				apps[appIdx].setEnabled(true);
-			else if (Arrays.binarySearch(tordApps, apps[appIdx].getUsername()) >= 0) {
+					&& aInfo.packageName.equals("org.proxydroid")) {
+				apps[appIdx].setProxyed(true);
+			} else if (Arrays.binarySearch(tordApps, apps[appIdx].getUsername()) >= 0) {
 				apps[appIdx].setProxyed(true);
 			} else {
 				apps[appIdx].setProxyed(false);

@@ -47,6 +47,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
@@ -98,6 +100,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private String password = "";
 	private String domain = "";
 	private String ssid = "";
+	private String intranetAddr = "";
 	private String profile;
 	public static boolean isAutoConnect = false;
 	public static boolean isAutoSetProxy = false;
@@ -119,6 +122,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private EditTextPreference userText;
 	private EditTextPreference passwordText;
 	private EditTextPreference domainText;
+	private EditTextPreference intranetAddrText;
 	private ListPreference ssidList;
 	private ListPreference proxyTypeList;
 	private CheckBoxPreference isRunningCheck;
@@ -278,6 +282,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		userText = (EditTextPreference) findPreference("user");
 		passwordText = (EditTextPreference) findPreference("password");
 		domainText = (EditTextPreference) findPreference("domain");
+		intranetAddrText = (EditTextPreference) findPreference("intranetAddr");
 		ssidList = (ListPreference) findPreference("ssid");
 		proxyTypeList = (ListPreference) findPreference("proxyType");
 		proxyedApps = (Preference) findPreference("proxyedApps");
@@ -376,6 +381,16 @@ public class ProxyDroid extends PreferenceActivity implements
 		super.onDestroy();
 	}
 
+	private String validateIntrnet(String ia) {
+
+		boolean valid = Pattern.matches("[0-9]\\.[0-9]\\.[0-9]\\.[0-9]/[0-9]",
+				ia);
+		if (valid)
+			return ia;
+		else
+			return "";
+	}
+
 	/** Called when connect button is clicked. */
 	public boolean serviceStart() {
 
@@ -433,12 +448,15 @@ public class ProxyDroid extends PreferenceActivity implements
 			return false;
 		}
 
+		intranetAddr = validateIntrnet(settings.getString("intranetAddr", ""));
+
 		try {
 
 			Intent it = new Intent(ProxyDroid.this, ProxyDroidService.class);
 			Bundle bundle = new Bundle();
 			bundle.putString("host", host);
 			bundle.putString("user", user);
+			bundle.putString("intranetAddr", intranetAddr);
 			bundle.putString("password", password);
 			bundle.putInt("port", port);
 			bundle.putString("proxyType", proxyType);
@@ -482,6 +500,8 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		proxyType = settings.getString("proxyType", "http");
 
+		intranetAddr = settings.getString("intranetAddr", "");
+
 		try {
 			port = Integer.valueOf(portString);
 		} catch (NumberFormatException e) {
@@ -489,9 +509,9 @@ public class ProxyDroid extends PreferenceActivity implements
 		}
 
 		String oldProfileSettings = host + "|" + (port != -1 ? port : "") + "|"
-				+ user + "|" + password + "|" + (isAuth ? "true" : "false")
-				+ "|" + proxyType + "|" + ssid + "|"
-				+ (isAutoConnect ? "true" : "false") + "|" + domain + "|"
+				+ intranetAddr + "|" + user + "|" + password + "|"
+				+ (isAuth ? "true" : "false") + "|" + proxyType + "|" + ssid
+				+ "|" + (isAutoConnect ? "true" : "false") + "|" + domain + "|"
 				+ (isNTLM ? "true" : "false");
 
 		Editor ed = settings.edit();
@@ -512,51 +532,75 @@ public class ProxyDroid extends PreferenceActivity implements
 			isAutoConnect = false;
 			ssid = "";
 			isNTLM = false;
+			intranetAddr = "";
 
 		} else {
 
 			String[] st = profileString.split("\\|");
 			Log.d(TAG, "Token size: " + st.length);
 
-			host = st[0];
-			try {
-				port = Integer.valueOf(st[1]);
-			} catch (Exception e) {
-				port = -1;
-			}
-			user = st[2];
-			password = st[3];
-			isAuth = st[4].equals("true") ? true : false;
-			proxyType = st[5];
-
 			// tricks for old editions
-			if (st.length < 8) {
-				isAutoConnect = false;
-				ssid = "";
-			} else {
-				ssid = st[6];
-				isAutoConnect = st[7].equals("true") ? true : false;
+			if (st.length < 11) {
+				host = st[0];
+				try {
+					port = Integer.valueOf(st[1]);
+				} catch (Exception e) {
+					port = -1;
+				}
+				intranetAddr = "";
+				user = st[2];
+				password = st[3];
+				isAuth = st[4].equals("true") ? true : false;
+				proxyType = st[5];
 
-			}
+				// tricks for old editions
+				if (st.length < 8) {
+					isAutoConnect = false;
+					ssid = "";
+				} else {
+					ssid = st[6];
+					isAutoConnect = st[7].equals("true") ? true : false;
 
-			// tricks for old editions
-			if (st.length < 10) {
-				isNTLM = false;
-				domain = "";
+				}
+
+				// tricks for old editions
+				if (st.length < 10) {
+					isNTLM = false;
+					domain = "";
+				} else {
+					domain = st[8];
+					isNTLM = st[9].equals("true") ? true : false;
+				}
+
 			} else {
-				domain = st[8];
-				isNTLM = st[9].equals("true") ? true : false;
+				host = st[0];
+				try {
+					port = Integer.valueOf(st[1]);
+				} catch (Exception e) {
+					port = -1;
+				}
+				intranetAddr = st[2];
+				user = st[3];
+				password = st[4];
+				isAuth = st[5].equals("true") ? true : false;
+				proxyType = st[6];
+				ssid = st[7];
+				isAutoConnect = st[8].equals("true") ? true : false;
+				domain = st[9];
+				isNTLM = st[10].equals("true") ? true : false;
 			}
 
 		}
 
-		Log.d(TAG, host + "|" + port + "|" + user + "|" + password + "|"
-				+ (isAuth ? "true" : "false") + "|" + proxyType + "|" + ssid
-				+ "|" + (isAutoConnect ? "true" : "false") + "|" + domain + "|"
+		Log.d(TAG, host + "|" + port + "|" + intranetAddr + "|" + user + "|"
+				+ password + "|" + (isAuth ? "true" : "false") + "|"
+				+ proxyType + "|" + ssid + "|"
+				+ (isAutoConnect ? "true" : "false") + "|" + domain + "|"
 				+ (isNTLM ? "true" : "false"));
 
 		hostText.setText(host);
 		portText.setText(port != -1 ? Integer.toString(port) : "");
+		intranetAddrText.setText(intranetAddr);
 		userText.setText(user);
 		passwordText.setText(password);
 		domainText.setText(domain);
@@ -569,6 +613,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		ed = settings.edit();
 		ed.putString("host", host.equals("null") ? "" : host);
 		ed.putString("port", port != -1 ? Integer.toString(port) : "");
+		ed.putString("intranetAddr", intranetAddr);
 		ed.putString("user", user.equals("null") ? "" : user);
 		ed.putString("password", password.equals("null") ? "" : password);
 		ed.putBoolean("isSocks", isAuth);
@@ -605,6 +650,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		proxyTypeList.setEnabled(false);
 		proxyedApps.setEnabled(false);
 		profileList.setEnabled(false);
+		intranetAddrText.setEnabled(false);
 
 		isAuthCheck.setEnabled(false);
 		isNTLMCheck.setEnabled(false);
@@ -616,6 +662,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private void enableAll() {
 		hostText.setEnabled(true);
 		portText.setEnabled(true);
+		intranetAddrText.setEnabled(true);
 
 		proxyTypeList.setEnabled(true);
 		if (isAuthCheck.isChecked()) {
@@ -741,6 +788,9 @@ public class ProxyDroid extends PreferenceActivity implements
 		if (!settings.getString("user", "").equals(""))
 			userText.setSummary(settings.getString("user",
 					getString(R.string.user_summary)));
+		if (!settings.getString("intranetAddr", "").equals(""))
+			intranetAddrText.setSummary(settings.getString("intranetAddr",
+					getString(R.string.set_intranet_summary)));
 		if (!settings.getString("port", "-1").equals("-1")
 				&& !settings.getString("port", "-1").equals(""))
 			portText.setSummary(settings.getString("port",
@@ -859,8 +909,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			if (settings.getBoolean("isAutoConnect", false)) {
 				loadNetworkList();
 				ssidList.setEnabled(true);
-			}
-			else 
+			} else
 				ssidList.setEnabled(false);
 		}
 
@@ -896,6 +945,13 @@ public class ProxyDroid extends PreferenceActivity implements
 				domainText.setSummary(getString(R.string.domain_summary));
 			else
 				domainText.setSummary(settings.getString("domain", ""));
+		else if (key.equals("intranetAddr"))
+			if (settings.getString("intranetAddr", "").equals(""))
+				intranetAddrText
+						.setSummary(getString(R.string.set_intranet_summary));
+			else
+				intranetAddrText.setSummary(settings.getString("intranetAddr",
+						""));
 		else if (key.equals("port"))
 			if (settings.getString("port", "-1").equals("-1")
 					|| settings.getString("port", "-1").equals(""))
@@ -971,7 +1027,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		return true;
 	}
-	
+
 	private void rename() {
 		LayoutInflater factory = LayoutInflater.from(this);
 		final View textEntryView = factory.inflate(
@@ -991,8 +1047,7 @@ public class ProxyDroid extends PreferenceActivity implements
 										.findViewById(R.id.profile_name_edit);
 								SharedPreferences settings = PreferenceManager
 										.getDefaultSharedPreferences(ProxyDroid.this);
-								String name = profileName.getText()
-										.toString();
+								String name = profileName.getText().toString();
 								if (name == null)
 									return;
 								name = name.replace("|", "");
@@ -1001,16 +1056,13 @@ public class ProxyDroid extends PreferenceActivity implements
 								Editor ed = settings.edit();
 								ed.putString("profile" + profile, name);
 								ed.commit();
-								
-								profileList
-										.setSummary(getProfileName(profile));
-								
-								String[] profileEntries = settings
-										.getString("profileEntries", "")
-										.split("\\|");
-								String[] profileValues = settings
-										.getString("profileValues", "")
-										.split("\\|");
+
+								profileList.setSummary(getProfileName(profile));
+
+								String[] profileEntries = settings.getString(
+										"profileEntries", "").split("\\|");
+								String[] profileValues = settings.getString(
+										"profileValues", "").split("\\|");
 
 								StringBuffer profileEntriesBuffer = new StringBuffer();
 								StringBuffer profileValuesBuffer = new StringBuffer();
@@ -1022,10 +1074,9 @@ public class ProxyDroid extends PreferenceActivity implements
 														+ "|");
 									else
 										profileEntriesBuffer
-												.append(profileEntries[i]
-														+ "|");
-									profileValuesBuffer
-											.append(profileValues[i] + "|");
+												.append(profileEntries[i] + "|");
+									profileValuesBuffer.append(profileValues[i]
+											+ "|");
 								}
 
 								profileEntriesBuffer
