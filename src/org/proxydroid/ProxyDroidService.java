@@ -105,6 +105,7 @@ public class ProxyDroidService extends Service {
 
 	private String host;
 	private int port;
+	private String intranetAddr;
 	private String user;
 	private String password;
 	private String domain;
@@ -373,25 +374,30 @@ public class ProxyDroidService extends Service {
 
 			String rules = cmd.toString();
 
-			// Reference:
-			// http://en.wikipedia.org/wiki/Private_network#Private_IPv4_address_spaces
-			if (localIp != null) {
-				String[] prefix = localIp.split("\\.");
-				if (prefix.length == 4) {
-					String intranet = localIp;
-					if (localIp.startsWith("192.168."))
-						intranet = "192.168.0.0/16";
-					else if (localIp.startsWith("10."))
-						intranet = "10.0.0.0/8";
-					else if (localIp.startsWith("172.")) {
-						int prefix2 = Integer.valueOf(prefix[1]);
-						if (prefix2 <= 31 && prefix2 >= 16) {
-							intranet = "172.16.0.0/12";
+			if (intranetAddr.equals("")) {
+				// Reference:
+				// http://en.wikipedia.org/wiki/Private_network#Private_IPv4_address_spaces
+				if (localIp != null) {
+					String[] prefix = localIp.split("\\.");
+					if (prefix.length == 4) {
+						String intranet = localIp;
+						if (localIp.startsWith("192.168."))
+							intranet = "192.168.0.0/16";
+						else if (localIp.startsWith("10."))
+							intranet = "10.0.0.0/8";
+						else if (localIp.startsWith("172.")) {
+							int prefix2 = Integer.valueOf(prefix[1]);
+							if (prefix2 <= 31 && prefix2 >= 16) {
+								intranet = "172.16.0.0/12";
+							}
 						}
+						rules = rules.replace("-p tcp", "-p tcp " + "! -d "
+								+ intranet);
 					}
-					rules = rules.replace("-p tcp", "-p tcp " + "! -d "
-							+ intranet);
 				}
+			} else {
+				rules = rules.replace("-p tcp", "-p tcp " + "! -d "
+						+ intranetAddr);
 			}
 
 			if (proxyType.equals("http") && isNTLM)
@@ -442,10 +448,8 @@ public class ProxyDroidService extends Service {
 		notification.flags = Notification.FLAG_ONGOING_EVENT;
 		initSoundVibrateLights(notification);
 		// notification.defaults = Notification.DEFAULT_SOUND;
-		notification.setLatestEventInfo(
-				this,
-				getString(R.string.app_name) + " | "
-						+ getProfileName(), info, pendIntent);
+		notification.setLatestEventInfo(this, getString(R.string.app_name)
+				+ " | " + getProfileName(), info, pendIntent);
 		startForegroundCompat(1, notification);
 	}
 
@@ -454,10 +458,8 @@ public class ProxyDroidService extends Service {
 		notification.tickerText = title;
 		notification.flags = flags;
 		initSoundVibrateLights(notification);
-		notification.setLatestEventInfo(
-				this,
-				getString(R.string.app_name) + " | "
-						+ getProfileName(), info, pendIntent);
+		notification.setLatestEventInfo(this, getString(R.string.app_name)
+				+ " | " + getProfileName(), info, pendIntent);
 		notificationManager.notify(0, notification);
 	}
 
@@ -627,6 +629,7 @@ public class ProxyDroidService extends Service {
 
 		Bundle bundle = intent.getExtras();
 		host = bundle.getString("host");
+		intranetAddr = bundle.getString("intranetAddr");
 		proxyType = bundle.getString("proxyType");
 		port = bundle.getInt("port");
 		isAutoSetProxy = bundle.getBoolean("isAutoSetProxy");
@@ -663,10 +666,8 @@ public class ProxyDroidService extends Service {
 
 				if (getAddress() && handleCommand()) {
 					// Connection and forward successful
-					notifyAlert(
-							getString(R.string.forward_success)
-									+ " | "
-									+ getProfileName(),
+					notifyAlert(getString(R.string.forward_success) + " | "
+							+ getProfileName(),
 							getString(R.string.service_running));
 
 					handler.sendEmptyMessage(MSG_CONNECT_SUCCESS);

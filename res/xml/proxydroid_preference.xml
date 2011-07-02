@@ -18,7 +18,7 @@
 		<CheckBoxPreference android:key="isAutoConnect"
 			android:title="@string/auto_connect" android:summary="@string/auto_connect_summary"></CheckBoxPreference>
 		<ListPreference android:summary="@string/ssid_summary"
-			android:title="@string/ssid" android:key="ssid"></ListPreference>
+			android:title="@string/ssid" android:key="ssid"></ListPreference><EditTextPreference android:summary="@string/set_intranet_summary" android:title="@string/set_intranet" android:key="intranetAddr"></EditTextPreference>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/user_cat">
 		<CheckBoxPreference android:key="isAuth"
@@ -39,6 +39,7 @@
 			android:defaultValue="true"></CheckBoxPreference>
 		<Preference android:key="proxyedApps" android:title="@string/proxyed_apps"></Preference>
 		<CheckBoxPreference android:key="isDNSProxy" android:summary="@string/dns_proxy_summary" android:title="@string/dns_proxy"></CheckBoxPreference>
+		
 		
 		
 
