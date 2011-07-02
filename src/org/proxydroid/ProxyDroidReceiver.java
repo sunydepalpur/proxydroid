@@ -50,6 +50,7 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 	private String host;
 	private String proxyType;
 	private int port;
+	private String intranetAddr;
 	private String user;
 	private String password;
 	private boolean isAutoConnect = false;
@@ -72,6 +73,7 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 			proxyType = settings.getString("proxyType", "http");
 			user = settings.getString("user", "");
 			password = settings.getString("password", "");
+			intranetAddr = settings.getString("intranetAddr", "");
 			domain = settings.getString("domain", "");
 			isAuth = settings.getBoolean("isAuth", false);
 			isNTLM = settings.getBoolean("isNTLM", false);
@@ -89,6 +91,7 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 			bundle.putString("host", host);
 			bundle.putString("proxyType", proxyType);
 			bundle.putInt("port", port);
+			bundle.putString("intranetAddr", intranetAddr);
 			bundle.putString("user", user);
 			bundle.putString("password", password);
 			bundle.putString("domain", domain);
