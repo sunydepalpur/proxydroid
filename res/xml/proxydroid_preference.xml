@@ -18,7 +18,7 @@
 		<CheckBoxPreference android:key="isAutoConnect"
 			android:title="@string/auto_connect" android:summary="@string/auto_connect_summary"></CheckBoxPreference>
 		<ListPreference android:summary="@string/ssid_summary"
-			android:title="@string/ssid" android:key="ssid"></ListPreference><EditTextPreference android:summary="@string/set_intranet_summary" android:title="@string/set_intranet" android:key="intranetAddr"></EditTextPreference>
+			android:title="@string/ssid" android:key="ssid"></ListPreference><EditTextPreference android:summary="@string/set_intranet_summary" android:title="@string/set_intranet" android:key="intranetAddr" android:defaultValue="X.X.X.X/X"></EditTextPreference>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/user_cat">
 		<CheckBoxPreference android:key="isAuth"
