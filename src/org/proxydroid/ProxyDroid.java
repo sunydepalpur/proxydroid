@@ -361,6 +361,19 @@ public class ProxyDroid extends PreferenceActivity implements
 		}
 
 		if (!settings.getBoolean(versionName, false)) {
+			// Load all profiles
+			String[] profileValues = settings.getString("profileValues", "").split(
+					"\\|");
+
+			String tmpProfile = settings.getString("profile", "1");
+			
+			// Test on each profile
+			for (String p : profileValues) {
+				onProfileChange(p);
+			}
+			
+			onProfileChange(tmpProfile);
+			
 			CopyAssets();
 			runCommand("chmod 777 /data/data/org.proxydroid/iptables");
 			runCommand("chmod 777 /data/data/org.proxydroid/redsocks");
