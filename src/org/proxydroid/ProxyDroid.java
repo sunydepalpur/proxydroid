@@ -71,6 +71,8 @@ import android.content.res.AssetManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -86,6 +88,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 public class ProxyDroid extends PreferenceActivity implements
 		OnSharedPreferenceChangeListener {
@@ -127,6 +130,22 @@ public class ProxyDroid extends PreferenceActivity implements
 	private ListPreference proxyTypeList;
 	private CheckBoxPreference isRunningCheck;
 	private Preference proxyedApps;
+	
+	private static final int MSG_UPDATE_FINISHED = 0;
+	
+	final Handler handler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case MSG_UPDATE_FINISHED:
+				Toast.makeText(ProxyDroid.this,
+						getString(R.string.update_finished),
+						Toast.LENGTH_LONG).show();
+				break;
+			}
+			super.handleMessage(msg);
+		}
+	};
 
 	public static boolean runCommand(String command) {
 		Process process = null;
@@ -352,7 +371,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			showAToast(getString(R.string.require_root_alert));
 		}
 
-		String versionName = "";
+		String versionName;
 		try {
 			versionName = getPackageManager().getPackageInfo(getPackageName(),
 					0).versionName;
@@ -361,30 +380,153 @@ public class ProxyDroid extends PreferenceActivity implements
 		}
 
 		if (!settings.getBoolean(versionName, false)) {
-			// Load all profiles
-			String[] profileValues = settings.getString("profileValues", "").split(
-					"\\|");
 
-			String tmpProfile = settings.getString("profile", "1");
-			
-			// Test on each profile
-			for (String p : profileValues) {
-				onProfileChange(p);
-			}
-			
-			onProfileChange(tmpProfile);
-			
-			CopyAssets();
-			runCommand("chmod 777 /data/data/org.proxydroid/iptables");
-			runCommand("chmod 777 /data/data/org.proxydroid/redsocks");
-			runCommand("chmod 777 /data/data/org.proxydroid/proxy.sh");
-			runCommand("chmod 777 /data/data/org.proxydroid/cntlm");
-			runCommand("chmod 777 /data/data/org.proxydroid/tproxy");
-			edit = settings.edit();
-			edit.putBoolean(versionName, true);
-			edit.commit();
+			new Thread() {
+				public void run() {
+
+					String version;
+					try {
+						version = getPackageManager().getPackageInfo(
+								getPackageName(), 0).versionName;
+					} catch (NameNotFoundException e) {
+						version = "NONE";
+					}
+
+					SharedPreferences settings = PreferenceManager
+							.getDefaultSharedPreferences(ProxyDroid.this);
+
+					updateProfiles();
+
+					CopyAssets();
+					runCommand("chmod 777 /data/data/org.proxydroid/iptables");
+					runCommand("chmod 777 /data/data/org.proxydroid/redsocks");
+					runCommand("chmod 777 /data/data/org.proxydroid/proxy.sh");
+					runCommand("chmod 777 /data/data/org.proxydroid/cntlm");
+					runCommand("chmod 777 /data/data/org.proxydroid/tproxy");
+					Editor edit = settings.edit();
+					edit.putBoolean(version, true);
+					edit.commit();
+					
+					handler.sendEmptyMessage(MSG_UPDATE_FINISHED);
+				}
+			}.start();
+
 		}
 
+	}
+
+	private void updateProfiles() {
+		SharedPreferences settings = PreferenceManager
+				.getDefaultSharedPreferences(this);
+
+		// Store current settings first
+		String oldProfile = settings.getString("profile", "1");
+
+		boolean mIsAutoConnect = settings.getBoolean("isAutoConnect", false);
+		boolean mIsAuth = settings.getBoolean("isAuth", false);
+		boolean mIsNTLM = settings.getBoolean("isNTLM", false);
+
+		String mHost = settings.getString("host", "");
+		String mUser = settings.getString("user", "");
+		String mSsid = settings.getString("ssid", "");
+		String mPassword = settings.getString("password", "");
+		String mDomain = settings.getString("domain", "");
+		String mPortString = settings.getString("port", "");
+		String mProxyType = settings.getString("proxyType", "http");
+		String mIntranetAddr = settings.getString("intranetAddr", "");
+		int mPort = -1;
+
+		try {
+			mPort = Integer.valueOf(mPortString);
+		} catch (NumberFormatException e) {
+			mPort = -1;
+		}
+
+		String oldProfileSettings = mHost + "|" + (mPort != -1 ? mPort : "")
+				+ "|" + mIntranetAddr + "|" + mUser + "|" + mPassword + "|"
+				+ (mIsAuth ? "true" : "false") + "|" + mProxyType + "|" + mSsid
+				+ "|" + (mIsAutoConnect ? "true" : "false") + "|" + mDomain
+				+ "|" + (mIsNTLM ? "true" : "false");
+
+		Editor ed = settings.edit();
+		ed.putString(oldProfile, oldProfileSettings);
+		ed.commit();
+
+		// Load all profiles
+		String[] mProfileValues = settings.getString("profileValues", "")
+				.split("\\|");
+
+		// Test on each profile
+		for (String p : mProfileValues) {
+
+			if (p.equals("0"))
+				continue;
+
+			String profileString = settings.getString(p, "");
+			String[] st = profileString.split("\\|");
+
+			// tricks for old editions
+			if (st.length < 11) {
+				mHost = st[0];
+				try {
+					mPort = Integer.valueOf(st[1]);
+				} catch (Exception e) {
+					mPort = -1;
+				}
+				mIntranetAddr = "";
+				mUser = st[2];
+				mPassword = st[3];
+				mIsAuth = st[4].equals("true") ? true : false;
+				mProxyType = st[5];
+
+				// tricks for old editions
+				if (st.length < 8) {
+					mIsAutoConnect = false;
+					mSsid = "";
+				} else {
+					mSsid = st[6];
+					mIsAutoConnect = st[7].equals("true") ? true : false;
+
+				}
+
+				// tricks for old editions
+				if (st.length < 10) {
+					mIsNTLM = false;
+					mDomain = "";
+				} else {
+					mDomain = st[8];
+					mIsNTLM = st[9].equals("true") ? true : false;
+				}
+
+			} else {
+				mHost = st[0];
+				try {
+					mPort = Integer.valueOf(st[1]);
+				} catch (Exception e) {
+					mPort = -1;
+				}
+				mIntranetAddr = st[2];
+				mUser = st[3];
+				mPassword = st[4];
+				mIsAuth = st[5].equals("true") ? true : false;
+				mProxyType = st[6];
+				mSsid = st[7];
+				mIsAutoConnect = st[8].equals("true") ? true : false;
+				mDomain = st[9];
+				mIsNTLM = st[10].equals("true") ? true : false;
+			}
+
+			String tmpProfileSettings = mHost + "|"
+					+ (mPort != -1 ? mPort : "") + "|" + mIntranetAddr + "|"
+					+ mUser + "|" + mPassword + "|"
+					+ (mIsAuth ? "true" : "false") + "|" + mProxyType + "|"
+					+ mSsid + "|" + (mIsAutoConnect ? "true" : "false") + "|"
+					+ mDomain + "|" + (mIsNTLM ? "true" : "false");
+
+			ed = settings.edit();
+			ed.putString(p, tmpProfileSettings);
+			ed.commit();
+		}
 	}
 
 	/** Called when the activity is closed. */
