@@ -39,6 +39,7 @@
 package org.proxydroid;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import android.app.ActivityManager;
 import android.app.PendingIntent;
@@ -70,6 +71,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 	private boolean isNTLM = false;
 	private boolean isDNSProxy = false;
 	private String domain;
+	private String intranetAddr = "";
 
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
 			int[] appWidgetIds) {
@@ -119,6 +121,16 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 		}
 		return false;
 	}
+	
+	private String validateIntrnet(String ia) {
+
+		boolean valid = Pattern.matches("[0-9]\\.[0-9]\\.[0-9]\\.[0-9]/[0-9]",
+				ia);
+		if (valid)
+			return ia;
+		else
+			return "";
+	}
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -163,6 +175,9 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 				isNTLM = settings.getBoolean("isNTLM", false);
 				isDNSProxy = settings.getBoolean("isDNSProxy", false);
 				isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
+				intranetAddr = settings.getString("intranetAddr", "");
+				intranetAddr = validateIntrnet(intranetAddr);
+				
 				String portText = settings.getString("port", "");
 				try {
 					port = Integer.valueOf(portText);
@@ -182,6 +197,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 				bundle.putBoolean("isNTLM", isNTLM);
 				bundle.putBoolean("isDNSProxy", isDNSProxy);
 				bundle.putBoolean("isAutoSetProxy", isAutoSetProxy);
+				bundle.putString("intranetAddr", intranetAddr);
 
 				it.putExtras(bundle);
 				context.startService(it);

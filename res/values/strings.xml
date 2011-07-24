@@ -20,9 +20,10 @@
 		problem to the project page. \n\n(proxydroid.googlecode.com)
 	</string>
 	<string name="require_root_alert">PLEASE ROOT YOUR DEVICE FIRST !!!</string>
+	<string name="update_finished">Programs and configurations have been updated</string>
 
 	<!-- status string -->
-	<string name="service_running">ProxyDroid is running in the background</string>
+	<string name="service_running">Running in the background</string>
 	<string name="forward_success">Connected</string>
 	<string name="forward_fail">Fail to connect</string>
 	<string name="service_stopped">ProxyDroid service stopped</string>

@@ -38,6 +38,8 @@
 
 package org.proxydroid;
 
+import java.util.regex.Pattern;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -59,6 +61,16 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 	private boolean isNTLM = false;
 	private boolean isDNSProxy = false;
 	private String domain;
+	
+	private String validateIntrnet(String ia) {
+
+		boolean valid = Pattern.matches("[0-9]\\.[0-9]\\.[0-9]\\.[0-9]/[0-9]",
+				ia);
+		if (valid)
+			return ia;
+		else
+			return "";
+	}
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -74,6 +86,7 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 			user = settings.getString("user", "");
 			password = settings.getString("password", "");
 			intranetAddr = settings.getString("intranetAddr", "");
+			intranetAddr = validateIntrnet(intranetAddr);
 			domain = settings.getString("domain", "");
 			isAuth = settings.getBoolean("isAuth", false);
 			isNTLM = settings.getBoolean("isNTLM", false);
