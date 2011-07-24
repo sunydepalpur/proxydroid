@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory android:title="@string/function_cat">
+		<CheckBoxPreference android:key="isRunning"
+			android:title="@string/service_controller" android:summary="@string/service_summary"></CheckBoxPreference>
+		<ListPreference android:title="@string/profile"
+			android:key="profile"></ListPreference>
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/proxy_cat">
+		<EditTextPreference android:key="host"
+			android:summary="@string/host_summary" android:title="@string/host"></EditTextPreference>
+		<EditTextPreference android:title="@string/port"
+			android:summary="@string/port_summary" android:key="port"
+			android:defaultValue="3128"></EditTextPreference>
+		<ListPreference android:key="proxyType" android:title="@string/proxy_type"
+			android:entries="@array/proxy_type_entry" android:defaultValue="http"
+			android:entryValues="@array/proxy_type_value"></ListPreference>
+		<CheckBoxPreference android:key="isAutoConnect"
+			android:title="@string/auto_connect" android:summary="@string/auto_connect_summary"></CheckBoxPreference>
+		<ListPreference android:summary="@string/ssid_summary"
+			android:title="@string/ssid" android:key="ssid"></ListPreference><EditTextPreference android:summary="@string/set_intranet_summary" android:title="@string/set_intranet" android:key="intranetAddr" android:defaultValue="X.X.X.X/X"></EditTextPreference>
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/user_cat">
+		<CheckBoxPreference android:key="isAuth"
+			android:title="@string/auth" android:defaultValue="false"></CheckBoxPreference>
+		<EditTextPreference android:title="@string/user"
+			android:key="user" android:summary="@string/user_summary"></EditTextPreference>
+		<EditTextPreference android:title="@string/password"
+			android:key="password" android:summary="@string/password_summary"
+			android:password="true"></EditTextPreference>
+
+	<CheckBoxPreference android:summary="@string/ntlm_summary" android:title="@string/ntlm" android:key="isNTLM"></CheckBoxPreference>
+	<EditTextPreference android:summary="@string/domain_summary" android:title="@string/domain" android:key="domain"></EditTextPreference>
+</PreferenceCategory>
+	<PreferenceCategory android:title="@string/fearute_cat">
+		
+		<CheckBoxPreference android:key="isAutoSetProxy"
+			android:title="@string/auto_set_proxy" android:summary="@string/auto_set_proxy_summary"
+			android:defaultValue="true"></CheckBoxPreference>
+		<Preference android:key="proxyedApps" android:title="@string/proxyed_apps"></Preference>
+		<CheckBoxPreference android:key="isDNSProxy" android:summary="@string/dns_proxy_summary" android:title="@string/dns_proxy"></CheckBoxPreference>
+		
+		
+		
+
+	</PreferenceCategory>
+
+	<PreferenceCategory android:title="@string/notif_cat">
+		<RingtonePreference android:key="settings_key_notif_ringtone"
+			android:title="@string/notif_ringtone_title" android:ringtoneType="notification"
+			android:showDefault="true" android:showSilent="true" />
+		<CheckBoxPreference android:key="settings_key_notif_vibrate"
+			android:title="@string/notif_vibrate_title" android:summary="@string/notif_vibrate_summary"
+			android:defaultValue="true" />
+	</PreferenceCategory>
+
+
+
+</PreferenceScreen>
