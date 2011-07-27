@@ -59,6 +59,8 @@ public class ListPreferenceMultiSelect extends ListPreference {
     }
 
     public static String[] parseStoredValue(CharSequence val) {
+    	if (val == null)
+    		return null;
 		if ( "".equals(val) )
 			return null;
 		else
