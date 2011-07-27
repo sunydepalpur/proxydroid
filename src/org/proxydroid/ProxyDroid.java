@@ -606,17 +606,22 @@ public class ProxyDroid extends PreferenceActivity implements
 		}
 		
 		hostText.setText(mProfile.getHost());
-		portText.setText(Integer.toString(mProfile.getPort()));
 		intranetAddrText.setText(mProfile.getIntranetAddr());
 		userText.setText(mProfile.getUser());
 		passwordText.setText(mProfile.getPassword());
 		domainText.setText(mProfile.getDomain());
+		proxyTypeList.setValue(mProfile.getProxyType());
+		ssidList.setValue(mProfile.getSsid());
+		
 		isAuthCheck.setChecked(mProfile.isAuth());
 		isNTLMCheck.setChecked(mProfile.isNTLM());
-		proxyTypeList.setValue(mProfile.getProxyType());
 		isAutoConnectCheck.setChecked(mProfile.isAutoConnect());
-		ssidList.setValue(mProfile.getSsid());
 		isAutoSetProxyCheck.setChecked(mProfile.isAutoSetProxy());
+		isDNSProxyCheck.setChecked(mProfile.isDNSProxy());
+		
+		portText.setText(Integer.toString(mProfile.getPort()));
+		
+		Log.d(TAG, mProfile.toString());
 
 		mProfile.setProfile(settings);
 

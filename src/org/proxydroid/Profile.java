@@ -42,7 +42,6 @@ public class Profile implements Serializable {
 	public void getProfile(SharedPreferences settings) {
 		name = settings.getString("profileName", "");
 
-		isAutoConnect = settings.getBoolean("isAutoConnect", false);
 		host = settings.getString("host", "");
 		proxyType = settings.getString("proxyType", "http");
 		user = settings.getString("user", "");
@@ -51,10 +50,12 @@ public class Profile implements Serializable {
 		intranetAddr = settings.getString("intranetAddr", "");
 		intranetAddr = validateIntrnet(intranetAddr);
 		domain = settings.getString("domain", "");
+		
 		isAuth = settings.getBoolean("isAuth", false);
 		isNTLM = settings.getBoolean("isNTLM", false);
 		isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
 		isDNSProxy = settings.getBoolean("isDNSProxy", false);
+		isAutoConnect = settings.getBoolean("isAutoConnect", false);
 
 		String portText = settings.getString("port", "");
 
@@ -65,7 +66,7 @@ public class Profile implements Serializable {
 		try {
 			port = Integer.valueOf(portText);
 		} catch (Exception e) {
-			port = 1984;
+			port = 3128;
 		}
 	}
 
@@ -90,7 +91,7 @@ public class Profile implements Serializable {
 
 	public void init() {
 		host = "";
-		port = 1984;
+		port = 3128;
 		ssid = "";
 		user = "";
 		domain = "";
@@ -125,17 +126,19 @@ public class Profile implements Serializable {
 		obj.put("name", name);
 		obj.put("ssid", ssid);
 		obj.put("host", host);
-		obj.put("port", port);
 		obj.put("proxyType", proxyType);
-		obj.put("isAuth", isAuth);
 		obj.put("user", user);
 		obj.put("password", password);
 		obj.put("domain", domain);
+		obj.put("intranetAddr", intranetAddr);
+		
+		obj.put("isAuth", isAuth);
 		obj.put("isNTLM", isNTLM);
 		obj.put("isAutoConnect", isAutoConnect);
-		obj.put("intranetAddr", intranetAddr);
 		obj.put("isAutoSetProxy", isAutoSetProxy);
 		obj.put("isDNSProxy", isDNSProxy);
+		
+		obj.put("port", port);
 		return obj;
 	}
 
@@ -168,10 +171,10 @@ public class Profile implements Serializable {
 			}
 		}
 
-		public boolean getBoolean(String key, boolean def) {
+		public Boolean getBoolean(String key, Boolean def) {
 			Object tmp = obj.get(key);
 			if (tmp != null)
-				return (Boolean) def;
+				return (Boolean) tmp;
 			else
 				return def;
 		}
@@ -195,7 +198,7 @@ public class Profile implements Serializable {
 		domain = jd.getString("domain", "");
 		intranetAddr = jd.getString("intranetAddr", "");
 		
-		port = jd.getInt("port", 1984);
+		port = jd.getInt("port", 3128);
 		
 		isAuth = jd.getBoolean("isAuth", false);
 		isNTLM = jd.getBoolean("isNTLM", false);
