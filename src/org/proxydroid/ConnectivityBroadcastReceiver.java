@@ -40,6 +40,8 @@ package org.proxydroid;
 
 import java.util.ArrayList;
 
+import com.ksmaze.android.preference.ListPreferenceMultiSelect;
+
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Notification;
@@ -90,47 +92,15 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(context);
+		
+		Profile mProfile = new Profile();
+		mProfile.getProfile(settings);
 
 		// Store current settings first
-
 		String oldProfile = settings.getString("profile", "1");
 
-		boolean isAutoConnect = settings.getBoolean("isAutoConnect", false);
-		boolean isAuth = settings.getBoolean("isAuth", false);
-		boolean isNTLM = settings.getBoolean("isNTLM", false);
-
-		String host = settings.getString("host", "");
-
-		String user = settings.getString("user", "");
-
-		String ssid = settings.getString("ssid", "");
-
-		String password = settings.getString("password", "");
-
-		String domain = settings.getString("domain", "");
-
-		String portString = settings.getString("port", "");
-
-		String proxyType = settings.getString("proxyType", "http");
-
-		String intranetAddr = settings.getString("intranetAddr", "");
-
-		int port = -1;
-
-		try {
-			port = Integer.valueOf(portString);
-		} catch (NumberFormatException e) {
-			port = -1;
-		}
-
-		String oldProfileSettings = host + "|" + (port != -1 ? port : "") + "|"
-				+ intranetAddr + "|" + user + "|" + password + "|"
-				+ (isAuth ? "true" : "false") + "|" + proxyType + "|" + ssid
-				+ "|" + (isAutoConnect ? "true" : "false") + "|" + domain + "|"
-				+ (isNTLM ? "true" : "false");
-
 		Editor ed = settings.edit();
-		ed.putString(oldProfile, oldProfileSettings);
+		ed.putString(oldProfile, mProfile.toString());
 		ed.commit();
 
 		// Load all profiles
@@ -140,9 +110,9 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		// Test on each profile
 		for (String profile : profileValues) {
 			String profileString = settings.getString(profile, "");
-			String[] st = profileString.split("\\|");
-			if (st.length >= 11 && st[8].equals("true")
-					&& isOnline(context, st[7])) {
+			mProfile.decodeJson(profileString);
+			if (mProfile.isAutoConnect()
+					&& isOnline(context, mProfile.getSsid())) {
 
 				// XXX: Switch profile first
 				ed = settings.edit();
@@ -150,20 +120,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 				ed.commit();
 
 				// Then switch profile values
-				ed = settings.edit();
-				ed.putString("host", st[0].equals("null") ? "" : st[0]);
-				ed.putString("port", st[1]);
-				ed.putString("intranetAddr", st[2]);
-				ed.putString("user", st[3].equals("null") ? "" : st[3]);
-				ed.putString("password", st[4].equals("null") ? "" : st[4]);
-				ed.putBoolean("isAuth", st[5].equals("true") ? true : false);
-				ed.putString("proxyType", st[6]);
-				ed.putString("ssid", st[7]);
-				ed.putBoolean("isAutoConnect", st[8].equals("true") ? true
-						: false);
-				ed.putString("domain", st[9]);
-				ed.putBoolean("isNTLM", st[10].equals("true") ? true : false);
-				ed.commit();
+				mProfile.setProfile(settings);
 				break;
 			}
 		}
@@ -199,12 +156,12 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 			}
 		}
 
-		ssid = settings.getString("ssid", "");
-		if (isOnline(context, ssid)) {
+		mProfile.getProfile(settings);
+		if (isOnline(context, mProfile.getSsid())) {
 			if (!isWorked(context, ProxyDroid.SERVICE_NAME)) {
 				ProxyDroidReceiver pdr = new ProxyDroidReceiver();
 				ed = settings.edit();
-				ed.putString("lastSSID", ssid);
+				ed.putString("lastSSID", mProfile.getSsid());
 				ed.commit();
 				pdr.onReceive(context, intent);
 			}
@@ -213,7 +170,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 	}
 
 	public boolean isOnline(Context context, String ssid) {
-		String ssids[] = ssid.split(" ");
+		String ssids[] = ListPreferenceMultiSelect.parseStoredValue(ssid);
 		if (ssids.length < 1)
 			return false;
 		ConnectivityManager manager = (ConnectivityManager) context
