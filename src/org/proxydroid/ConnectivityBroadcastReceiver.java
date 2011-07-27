@@ -171,6 +171,8 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
 	public boolean isOnline(Context context, String ssid) {
 		String ssids[] = ListPreferenceMultiSelect.parseStoredValue(ssid);
+		if (ssids == null)
+			return false;
 		if (ssids.length < 1)
 			return false;
 		ConnectivityManager manager = (ConnectivityManager) context
