@@ -38,8 +38,6 @@
 
 package org.proxydroid;
 
-import java.util.regex.Pattern;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -49,69 +47,31 @@ import android.preference.PreferenceManager;
 
 public class ProxyDroidReceiver extends BroadcastReceiver {
 
-	private String host;
-	private String proxyType;
-	private int port;
-	private String intranetAddr;
-	private String user;
-	private String password;
-	private boolean isAutoConnect = false;
-	private boolean isAutoSetProxy = false;
-	private boolean isAuth = false;
-	private boolean isNTLM = false;
-	private boolean isDNSProxy = false;
-	private String domain;
-	
-	private String validateIntrnet(String ia) {
-
-		boolean valid = Pattern.matches("[0-9]\\.[0-9]\\.[0-9]\\.[0-9]/[0-9]",
-				ia);
-		if (valid)
-			return ia;
-		else
-			return "";
-	}
-
 	@Override
 	public void onReceive(Context context, Intent intent) {
 
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(context);
+		Profile mProfile = new Profile();
+		mProfile.getProfile(settings);
 
-		isAutoConnect = settings.getBoolean("isAutoConnect", false);
-
-		if (isAutoConnect) {
-			host = settings.getString("host", "");
-			proxyType = settings.getString("proxyType", "http");
-			user = settings.getString("user", "");
-			password = settings.getString("password", "");
-			intranetAddr = settings.getString("intranetAddr", "");
-			intranetAddr = validateIntrnet(intranetAddr);
-			domain = settings.getString("domain", "");
-			isAuth = settings.getBoolean("isAuth", false);
-			isNTLM = settings.getBoolean("isNTLM", false);
-			isDNSProxy = settings.getBoolean("isDNSProxy", false);
-			isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
-			String portText = settings.getString("port", "");
-			try {
-				port = Integer.valueOf(portText);
-			} catch (Exception e) {
-				port = 3128;
-			}
+		if (mProfile.isAutoConnect()) {
 
 			Intent it = new Intent(context, ProxyDroidService.class);
 			Bundle bundle = new Bundle();
-			bundle.putString("host", host);
-			bundle.putString("proxyType", proxyType);
-			bundle.putInt("port", port);
-			bundle.putString("intranetAddr", intranetAddr);
-			bundle.putString("user", user);
-			bundle.putString("password", password);
-			bundle.putString("domain", domain);
-			bundle.putBoolean("isAuth", isAuth);
-			bundle.putBoolean("isNTLM", isNTLM);
-			bundle.putBoolean("isDNSProxy", isDNSProxy);
-			bundle.putBoolean("isAutoSetProxy", isAutoSetProxy);
+			bundle.putString("host", mProfile.getHost());
+			bundle.putString("user", mProfile.getUser());
+			bundle.putString("intranetAddr", mProfile.getIntranetAddr());
+			bundle.putString("password", mProfile.getPassword());
+			bundle.putString("domain", mProfile.getDomain());
+
+			bundle.putString("proxyType", mProfile.getProxyType());
+			bundle.putBoolean("isAutoSetProxy", mProfile.isAutoSetProxy());
+			bundle.putBoolean("isAuth", mProfile.isAuth());
+			bundle.putBoolean("isNTLM", mProfile.isNTLM());
+			bundle.putBoolean("isDNSProxy", mProfile.isDNSProxy());
+
+			bundle.putInt("port", mProfile.getPort());
 
 			it.putExtras(bundle);
 			context.startService(it);

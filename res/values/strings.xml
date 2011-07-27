@@ -20,7 +20,8 @@
 		problem to the project page. \n\n(proxydroid.googlecode.com)
 	</string>
 	<string name="require_root_alert">PLEASE ROOT YOUR DEVICE FIRST !!!</string>
-	<string name="update_finished">Programs and configurations have been updated</string>
+	<string name="update_finished">Programs and configurations have been updated
+	</string>
 
 	<!-- status string -->
 	<string name="service_running">Running in the background</string>
@@ -67,7 +68,8 @@
 	<string name="password_summary">Proxy Password</string>
 	<string name="ntlm">NTLM Authentication</string>
 	<string name="ntlm_summary">Enable to support NTLM / NTLM2 authentication
-		method</string>
+		method
+	</string>
 	<string name="domain">Domain</string>
 	<string name="domain_summary">Domain name for NTLM</string>
 
@@ -78,16 +80,24 @@
 	</string>
 	<string name="ssid">Binded NetWork</string>
 	<string name="ssid_summary">Bind your proxy setting to 2G/3G Network or
-		specified SSID</string>
+		specified SSID
+	</string>
+	<string-array name="ssid_default_values"></string-array>
+	<string-array name="ssid_default_entries"></string-array>
 	<string name="auto_set_proxy">Global Proxy</string>
 	<string name="auto_set_proxy_summary">Auto set up the global proxy (needs ROOT permission
-		and IPTABLES support)</string>
+		and IPTABLES support)
+	</string>
 	<string name="dns_proxy">DNS Proxy</string>
 	<string name="dns_proxy_summary">Enable DNS Proxy for some LAN users. Turn on it
-		only if you know what it is</string>
+		only if you know what it is
+	</string>
 
 	<!-- settings proxyed apps category -->
-	<string name="proxyed_apps">Choose apps through proxy</string>
+	<string name="proxyed_apps">Individual Proxy</string>
+	<string name="proxyed_apps_summary">Set individual proxy for apps (needs ROOT
+		permission and
+		IPTABLES support)</string>
 	<string name="proxyed_help">Select apps to use with ProxyDroid:</string>
 
 	<!-- menu bar category -->
@@ -98,7 +108,8 @@
 		the GPLv3. \n\nIf you have any question, please visit
 		our project
 		page on
-		googlecode. \n\n(proxydroid.googlecode.com)</string>
+		googlecode. \n\n(proxydroid.googlecode.com)
+	</string>
 	<string name="about">About</string>
 	<string name="change_name">Rename</string>
 	<string name="alert_dialog_ok">OK</string>

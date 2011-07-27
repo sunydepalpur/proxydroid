@@ -53,6 +53,7 @@ import java.util.regex.Pattern;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
+import com.ksmaze.android.preference.ListPreferenceMultiSelect;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -97,21 +98,11 @@ public class ProxyDroid extends PreferenceActivity implements
 	public static final String SERVICE_NAME = "org.proxydroid.ProxyDroidService";
 
 	private ProgressDialog pd = null;
-	private String host = "";
-	private int port = -1;
-	private String user = "";
-	private String password = "";
-	private String domain = "";
-	private String ssid = "";
-	private String intranetAddr = "";
+	
 	private String profile;
-	public static boolean isAutoConnect = false;
-	public static boolean isAutoSetProxy = false;
 	public static boolean isRoot = false;
-	private boolean isAuth = false;
-	private boolean isNTLM = false;
-	private boolean isDNSProxy = false;
-	private String proxyType = "http";
+	
+	private Profile mProfile = new Profile();
 
 	private CheckBoxPreference isAutoConnectCheck;
 	private CheckBoxPreference isAutoSetProxyCheck;
@@ -126,7 +117,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private EditTextPreference passwordText;
 	private EditTextPreference domainText;
 	private EditTextPreference intranetAddrText;
-	private ListPreference ssidList;
+	private ListPreferenceMultiSelect ssidList;
 	private ListPreference proxyTypeList;
 	private CheckBoxPreference isRunningCheck;
 	private Preference proxyedApps;
@@ -302,7 +293,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		passwordText = (EditTextPreference) findPreference("password");
 		domainText = (EditTextPreference) findPreference("domain");
 		intranetAddrText = (EditTextPreference) findPreference("intranetAddr");
-		ssidList = (ListPreference) findPreference("ssid");
+		ssidList = (ListPreferenceMultiSelect) findPreference("ssid");
 		proxyTypeList = (ListPreference) findPreference("proxyType");
 		proxyedApps = (Preference) findPreference("proxyedApps");
 		profileList = (ListPreference) findPreference("profile");
@@ -421,36 +412,30 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		// Store current settings first
 		String oldProfile = settings.getString("profile", "1");
-
-		boolean mIsAutoConnect = settings.getBoolean("isAutoConnect", false);
-		boolean mIsAuth = settings.getBoolean("isAuth", false);
-		boolean mIsNTLM = settings.getBoolean("isNTLM", false);
-
-		String mHost = settings.getString("host", "");
-		String mUser = settings.getString("user", "");
-		String mSsid = settings.getString("ssid", "");
-		String mPassword = settings.getString("password", "");
-		String mDomain = settings.getString("domain", "");
-		String mPortString = settings.getString("port", "");
-		String mProxyType = settings.getString("proxyType", "http");
-		String mIntranetAddr = settings.getString("intranetAddr", "");
-		int mPort = -1;
-
-		try {
-			mPort = Integer.valueOf(mPortString);
-		} catch (NumberFormatException e) {
-			mPort = -1;
-		}
-
-		String oldProfileSettings = mHost + "|" + (mPort != -1 ? mPort : "")
-				+ "|" + mIntranetAddr + "|" + mUser + "|" + mPassword + "|"
-				+ (mIsAuth ? "true" : "false") + "|" + mProxyType + "|" + mSsid
-				+ "|" + (mIsAutoConnect ? "true" : "false") + "|" + mDomain
-				+ "|" + (mIsNTLM ? "true" : "false");
+		
+		Profile mProfile = new Profile();
+		mProfile.getProfile(settings);
 
 		Editor ed = settings.edit();
-		ed.putString(oldProfile, oldProfileSettings);
+		ed.putString(oldProfile, mProfile.toString());
 		ed.commit();
+
+		boolean mIsAutoConnect = mProfile.isAutoConnect();
+		boolean mIsAutoSetProxy = mProfile.isAutoSetProxy();
+		boolean mIsAuth = mProfile.isAuth();
+		boolean mIsNTLM = mProfile.isNTLM();
+		boolean mIsDNSProxy = mProfile.isDNSProxy();
+
+		String mName = mProfile.getName();
+		String mHost = mProfile.getHost();
+		String mUser = mProfile.getUser();
+		String mSsid = mProfile.getSsid();
+		String mPassword = mProfile.getPassword();
+		String mDomain = mProfile.getDomain();
+		String mProxyType = mProfile.getProxyType();
+		String mIntranetAddr = mProfile.getIntranetAddr();
+		
+		int mPort = mProfile.getPort();
 
 		// Load all profiles
 		String[] mProfileValues = settings.getString("profileValues", "")
@@ -464,7 +449,12 @@ public class ProxyDroid extends PreferenceActivity implements
 
 			String profileString = settings.getString(p, "");
 			String[] st = profileString.split("\\|");
+			
+			mName =  getProfileName(p);
 
+			if (st.length < 6)
+				return;
+			
 			// tricks for old editions
 			if (st.length < 11) {
 				mHost = st[0];
@@ -515,16 +505,28 @@ public class ProxyDroid extends PreferenceActivity implements
 				mDomain = st[9];
 				mIsNTLM = st[10].equals("true") ? true : false;
 			}
-
-			String tmpProfileSettings = mHost + "|"
-					+ (mPort != -1 ? mPort : "") + "|" + mIntranetAddr + "|"
-					+ mUser + "|" + mPassword + "|"
-					+ (mIsAuth ? "true" : "false") + "|" + mProxyType + "|"
-					+ mSsid + "|" + (mIsAutoConnect ? "true" : "false") + "|"
-					+ mDomain + "|" + (mIsNTLM ? "true" : "false");
-
+			
+			Profile tmpProfile = new Profile();
+			
+			tmpProfile.setAuth(mIsAuth);
+			tmpProfile.setAutoConnect(mIsAutoConnect);
+			tmpProfile.setAutoSetProxy(mIsAutoSetProxy);
+			tmpProfile.setDNSProxy(mIsDNSProxy);
+			tmpProfile.setNTLM(mIsNTLM);
+			
+			tmpProfile.setName(mName);
+			tmpProfile.setHost(mHost);
+			tmpProfile.setIntranetAddr(mIntranetAddr);
+			tmpProfile.setUser(mUser);
+			tmpProfile.setPassword(mPassword);
+			tmpProfile.setDomain(mDomain);
+			tmpProfile.setProxyType(mProxyType);
+			tmpProfile.setSsid(mSsid);
+			
+			tmpProfile.setPort(mPort);
+			
 			ed = settings.edit();
-			ed.putString(p, tmpProfileSettings);
+			ed.putString(p, tmpProfile.toString());
 			ed.commit();
 		}
 	}
@@ -532,18 +534,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	/** Called when the activity is closed. */
 	@Override
 	public void onDestroy() {
-
 		super.onDestroy();
-	}
-
-	private String validateIntrnet(String ia) {
-
-		boolean valid = Pattern.matches("[0-9]\\.[0-9]\\.[0-9]\\.[0-9]/[0-9]",
-				ia);
-		if (valid)
-			return ia;
-		else
-			return "";
 	}
 
 	/** Called when connect button is clicked. */
@@ -562,64 +553,26 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(this);
-
-		isAutoConnect = settings.getBoolean("isAutoConnect", false);
-		isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
-		isAuth = settings.getBoolean("isAuth", false);
-		isNTLM = settings.getBoolean("isNTLM", false);
-		isDNSProxy = settings.getBoolean("isDNSProxy", false);
-
-		host = settings.getString("host", "");
-		if (isTextEmpty(host, getString(R.string.host_empty)))
-			return false;
-
-		proxyType = settings.getString("proxyType", "http");
-
-		if (isAuth) {
-			user = settings.getString("user", "");
-			if (isTextEmpty(user, getString(R.string.user_empty)))
-				return false;
-
-			password = settings.getString("password", "");
-		} else {
-			user = "";
-			password = "";
-		}
-
-		if (isNTLM) {
-			domain = settings.getString("domain", "");
-		} else {
-			domain = "";
-		}
-
-		try {
-			String portString = settings.getString("port", "");
-			if (isTextEmpty(portString, getString(R.string.port_empty)))
-				return false;
-			port = Integer.valueOf(portString);
-		} catch (NumberFormatException e) {
-			showAToast(getString(R.string.number_alert));
-			Log.e(TAG, "wrong number", e);
-			return false;
-		}
-
-		intranetAddr = validateIntrnet(settings.getString("intranetAddr", ""));
+		
+		mProfile.getProfile(settings);
 
 		try {
 
 			Intent it = new Intent(ProxyDroid.this, ProxyDroidService.class);
 			Bundle bundle = new Bundle();
-			bundle.putString("host", host);
-			bundle.putString("user", user);
-			bundle.putString("intranetAddr", intranetAddr);
-			bundle.putString("password", password);
-			bundle.putInt("port", port);
-			bundle.putString("proxyType", proxyType);
-			bundle.putBoolean("isAutoSetProxy", isAutoSetProxy);
-			bundle.putBoolean("isAuth", isAuth);
-			bundle.putBoolean("isNTLM", isNTLM);
-			bundle.putBoolean("isDNSProxy", isDNSProxy);
-			bundle.putString("domain", domain);
+			bundle.putString("host", mProfile.getHost());
+			bundle.putString("user",  mProfile.getUser());
+			bundle.putString("intranetAddr", mProfile.getIntranetAddr());
+			bundle.putString("password", mProfile.getPassword());
+			bundle.putString("domain", mProfile.getDomain());
+			
+			bundle.putString("proxyType", mProfile.getProxyType());
+			bundle.putBoolean("isAutoSetProxy", mProfile.isAutoSetProxy());
+			bundle.putBoolean("isAuth", mProfile.isAuth());
+			bundle.putBoolean("isNTLM", mProfile.isNTLM());
+			bundle.putBoolean("isDNSProxy", mProfile.isDNSProxy());
+			
+			bundle.putInt("port", mProfile.getPort());
 
 			it.putExtras(bundle);
 			startService(it);
@@ -632,152 +585,40 @@ public class ProxyDroid extends PreferenceActivity implements
 		return true;
 	}
 
-	private void onProfileChange(String oldProfile) {
+	private void onProfileChange(String oldProfileName) {
 
 		SharedPreferences settings = PreferenceManager
-				.getDefaultSharedPreferences(ProxyDroid.this);
-
-		isAutoConnect = settings.getBoolean("isAutoConnect", false);
-		isAuth = settings.getBoolean("isAuth", false);
-		isNTLM = settings.getBoolean("isNTLM", false);
-
-		host = settings.getString("host", "");
-
-		user = settings.getString("user", "");
-
-		ssid = settings.getString("ssid", "");
-
-		password = settings.getString("password", "");
-
-		domain = settings.getString("domain", "");
-
-		String portString = settings.getString("port", "");
-
-		proxyType = settings.getString("proxyType", "http");
-
-		intranetAddr = settings.getString("intranetAddr", "");
-
-		try {
-			port = Integer.valueOf(portString);
-		} catch (NumberFormatException e) {
-			port = -1;
-		}
-
-		String oldProfileSettings = host + "|" + (port != -1 ? port : "") + "|"
-				+ intranetAddr + "|" + user + "|" + password + "|"
-				+ (isAuth ? "true" : "false") + "|" + proxyType + "|" + ssid
-				+ "|" + (isAutoConnect ? "true" : "false") + "|" + domain + "|"
-				+ (isNTLM ? "true" : "false");
-
+				.getDefaultSharedPreferences(this);
+		
+		mProfile.getProfile(settings);
 		Editor ed = settings.edit();
-		ed.putString(oldProfile, oldProfileSettings);
+		ed.putString(oldProfileName, mProfile.toString());
 		ed.commit();
-
+		
+		
 		String profileString = settings.getString(profile, "");
-
+		
 		if (profileString.equals("")) {
-
-			host = "";
-			port = -1;
-			user = "";
-			domain = "";
-			password = "";
-			isAuth = false;
-			proxyType = "http";
-			isAutoConnect = false;
-			ssid = "";
-			isNTLM = false;
-			intranetAddr = "";
-
+			mProfile.init();
+			mProfile.setName(getProfileName(profile));
 		} else {
-
-			String[] st = profileString.split("\\|");
-			Log.d(TAG, "Token size: " + st.length);
-
-			// tricks for old editions
-			if (st.length < 11) {
-				host = st[0];
-				try {
-					port = Integer.valueOf(st[1]);
-				} catch (Exception e) {
-					port = -1;
-				}
-				intranetAddr = "";
-				user = st[2];
-				password = st[3];
-				isAuth = st[4].equals("true") ? true : false;
-				proxyType = st[5];
-
-				// tricks for old editions
-				if (st.length < 8) {
-					isAutoConnect = false;
-					ssid = "";
-				} else {
-					ssid = st[6];
-					isAutoConnect = st[7].equals("true") ? true : false;
-
-				}
-
-				// tricks for old editions
-				if (st.length < 10) {
-					isNTLM = false;
-					domain = "";
-				} else {
-					domain = st[8];
-					isNTLM = st[9].equals("true") ? true : false;
-				}
-
-			} else {
-				host = st[0];
-				try {
-					port = Integer.valueOf(st[1]);
-				} catch (Exception e) {
-					port = -1;
-				}
-				intranetAddr = st[2];
-				user = st[3];
-				password = st[4];
-				isAuth = st[5].equals("true") ? true : false;
-				proxyType = st[6];
-				ssid = st[7];
-				isAutoConnect = st[8].equals("true") ? true : false;
-				domain = st[9];
-				isNTLM = st[10].equals("true") ? true : false;
-			}
-
+			mProfile.decodeJson(profileString);
 		}
+		
+		hostText.setText(mProfile.getHost());
+		portText.setText(Integer.toString(mProfile.getPort()));
+		intranetAddrText.setText(mProfile.getIntranetAddr());
+		userText.setText(mProfile.getUser());
+		passwordText.setText(mProfile.getPassword());
+		domainText.setText(mProfile.getDomain());
+		isAuthCheck.setChecked(mProfile.isAuth());
+		isNTLMCheck.setChecked(mProfile.isNTLM());
+		proxyTypeList.setValue(mProfile.getProxyType());
+		isAutoConnectCheck.setChecked(mProfile.isAutoConnect());
+		ssidList.setValue(mProfile.getSsid());
+		isAutoSetProxyCheck.setChecked(mProfile.isAutoSetProxy());
 
-		Log.d(TAG, host + "|" + port + "|" + intranetAddr + "|" + user + "|"
-				+ password + "|" + (isAuth ? "true" : "false") + "|"
-				+ proxyType + "|" + ssid + "|"
-				+ (isAutoConnect ? "true" : "false") + "|" + domain + "|"
-				+ (isNTLM ? "true" : "false"));
-
-		hostText.setText(host);
-		portText.setText(port != -1 ? Integer.toString(port) : "");
-		intranetAddrText.setText(intranetAddr);
-		userText.setText(user);
-		passwordText.setText(password);
-		domainText.setText(domain);
-		isAuthCheck.setChecked(isAuth);
-		isNTLMCheck.setChecked(isNTLM);
-		proxyTypeList.setValue(proxyType);
-		isAutoConnectCheck.setChecked(isAutoConnect);
-		ssidList.setValue(ssid);
-
-		ed = settings.edit();
-		ed.putString("host", host.equals("null") ? "" : host);
-		ed.putString("port", port != -1 ? Integer.toString(port) : "");
-		ed.putString("intranetAddr", intranetAddr);
-		ed.putString("user", user.equals("null") ? "" : user);
-		ed.putString("password", password.equals("null") ? "" : password);
-		ed.putBoolean("isSocks", isAuth);
-		ed.putBoolean("isNTLM", isNTLM);
-		ed.putString("domain", domain);
-		ed.putString("proxyType", proxyType);
-		ed.putBoolean("isAutoConnect", isAutoConnect);
-		ed.putString("ssid", ssid);
-		ed.commit();
+		mProfile.setProfile(settings);
 
 	}
 
