@@ -48,6 +48,8 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
+import com.flurry.android.FlurryAgent;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -496,6 +498,8 @@ public class ProxyDroidService extends Service {
 	public void onDestroy() {
 
 		stopForegroundCompat(1);
+		
+		FlurryAgent.onEndSession(this);
 
 		notifyAlert(getString(R.string.forward_stop),
 				getString(R.string.service_stopped),
@@ -624,8 +628,10 @@ public class ProxyDroidService extends Service {
 	public void onStart(Intent intent, int startId) {
 
 		super.onStart(intent, startId);
+		
+		FlurryAgent.onStartSession(this, "AV372I7R5YYD52NWPUPE");
 
-		Log.e(TAG, "Service Start");
+		Log.d(TAG, "Service Start");
 
 		Bundle bundle = intent.getExtras();
 		host = bundle.getString("host");
