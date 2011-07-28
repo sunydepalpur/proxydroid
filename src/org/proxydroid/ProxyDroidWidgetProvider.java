@@ -82,7 +82,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 					R.layout.proxydroid_appwidget);
 			views.setOnClickPendingIntent(R.id.serviceToggle, pendingIntent);
 
-			if (isWorked(context, SERVICE_NAME)) {
+			if (Utils.isWorked(context)) {
 				views.setImageViewResource(R.id.serviceToggle, R.drawable.on);
 				Log.d(TAG, "Service running");
 			} else {
@@ -94,30 +94,6 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 			// Widget
 			appWidgetManager.updateAppWidget(appWidgetId, views);
 		}
-	}
-
-	public boolean isWorked(Context context, String service) {
-		ActivityManager myManager = (ActivityManager) context
-				.getSystemService(Context.ACTIVITY_SERVICE);
-		ArrayList<RunningServiceInfo> runningService = (ArrayList<RunningServiceInfo>) myManager
-				.getRunningServices(30);
-		for (int i = 0; i < runningService.size(); i++) {
-			if (runningService.get(i).service.getClassName().toString()
-					.equals(service)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private String validateIntrnet(String ia) {
-
-		boolean valid = Pattern.matches("[0-9]\\.[0-9]\\.[0-9]\\.[0-9]/[0-9]",
-				ia);
-		if (valid)
-			return ia;
-		else
-			return "";
 	}
 
 	@Override
@@ -139,7 +115,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 
 			Log.d(TAG, "Proxy switch action");
 			// do some really cool stuff here
-			if (isWorked(context, SERVICE_NAME)) {
+			if (Utils.isWorked(context)) {
 				// Service is working, so stop it
 				try {
 					context.stopService(new Intent(context,

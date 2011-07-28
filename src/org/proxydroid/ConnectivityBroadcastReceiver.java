@@ -65,20 +65,6 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
 	private static final String TAG = "ConnectivityBroadcastReceiver";
 
-	public boolean isWorked(Context context, String service) {
-		ActivityManager myManager = (ActivityManager) context
-				.getSystemService(Context.ACTIVITY_SERVICE);
-		ArrayList<RunningServiceInfo> runningService = (ArrayList<RunningServiceInfo>) myManager
-				.getRunningServices(30);
-		for (int i = 0; i < runningService.size(); i++) {
-			if (runningService.get(i).service.getClassName().toString()
-					.equals(service)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	@Override
 	public synchronized void onReceive(Context context, Intent intent) {
 		String action = intent.getAction();
@@ -92,7 +78,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		
+
 		Profile mProfile = new Profile();
 		mProfile.getProfile(settings);
 
@@ -106,13 +92,15 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		// Load all profiles
 		String[] profileValues = settings.getString("profileValues", "").split(
 				"\\|");
+		
+		String curSSID = onlineSSID(context, mProfile.getSsid());
 
 		// Test on each profile
 		for (String profile : profileValues) {
 			String profileString = settings.getString(profile, "");
 			mProfile.decodeJson(profileString);
 			if (mProfile.isAutoConnect()
-					&& isOnline(context, mProfile.getSsid())) {
+					&& curSSID != null) {
 
 				// XXX: Switch profile first
 				ed = settings.edit();
@@ -130,7 +118,9 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 		if (networkInfo == null) {
-			context.stopService(new Intent(context, ProxyDroidService.class));
+			if (Utils.isWorked(context)) {
+				context.stopService(new Intent(context, ProxyDroidService.class));
+			}
 		} else {
 
 			String lastSSID = settings.getString("lastSSID", "-1");
@@ -143,25 +133,29 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 					if (wInfo != null) {
 						String current = wInfo.getSSID();
 						if (current != null && !current.equals(lastSSID)) {
-							context.stopService(new Intent(context,
-									ProxyDroidService.class));
+							if (Utils.isWorked(context)) {
+								context.stopService(new Intent(context,
+										ProxyDroidService.class));
+							}
 						}
 					}
 				}
 			} else {
 				if (!lastSSID.equals("2G/3G")) {
-					context.stopService(new Intent(context,
-							ProxyDroidService.class));
+					if (Utils.isWorked(context)) {
+						context.stopService(new Intent(context,
+								ProxyDroidService.class));
+					}
 				}
 			}
 		}
 
 		mProfile.getProfile(settings);
-		if (isOnline(context, mProfile.getSsid())) {
-			if (!isWorked(context, ProxyDroid.SERVICE_NAME)) {
+		if (curSSID != null) {
+			if (!Utils.isWorked(context)) {
 				ProxyDroidReceiver pdr = new ProxyDroidReceiver();
 				ed = settings.edit();
-				ed.putString("lastSSID", mProfile.getSsid());
+				ed.putString("lastSSID", curSSID);
 				ed.commit();
 				pdr.onReceive(context, intent);
 			}
@@ -169,37 +163,37 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
 	}
 
-	public boolean isOnline(Context context, String ssid) {
+	public String onlineSSID(Context context, String ssid) {
 		String ssids[] = ListPreferenceMultiSelect.parseStoredValue(ssid);
 		if (ssids == null)
-			return false;
+			return null;
 		if (ssids.length < 1)
-			return false;
+			return null;
 		ConnectivityManager manager = (ConnectivityManager) context
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 		if (networkInfo == null)
-			return false;
+			return null;
 		if (!networkInfo.getTypeName().equals("WIFI")) {
 			for (String item : ssids) {
 				if (item.equals("2G/3G"))
-					return true;
+					return "2G/3G";
 			}
-			return false;
+			return null;
 		}
 		WifiManager wm = (WifiManager) context
 				.getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wInfo = wm.getConnectionInfo();
 		if (wInfo == null)
-			return false;
+			return null;
 		String current = wInfo.getSSID();
 		if (current == null || current.equals(""))
-			return false;
+			return null;
 		for (String item : ssids) {
 			if (item.equals(current))
-				return true;
+				return item;
 		}
-		return false;
+		return null;
 	}
 
 }

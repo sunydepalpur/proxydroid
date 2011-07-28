@@ -96,7 +96,6 @@ public class ProxyDroid extends PreferenceActivity implements
 		OnSharedPreferenceChangeListener {
 
 	private static final String TAG = "ProxyDroid";
-	public static final String SERVICE_NAME = "org.proxydroid.ProxyDroidService";
 
 	private ProgressDialog pd = null;
 
@@ -228,19 +227,6 @@ public class ProxyDroid extends PreferenceActivity implements
 		return false;
 	}
 
-	public boolean isWorked(String service) {
-		ActivityManager myManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-		ArrayList<RunningServiceInfo> runningService = (ArrayList<RunningServiceInfo>) myManager
-				.getRunningServices(30);
-		for (int i = 0; i < runningService.size(); i++) {
-			if (runningService.get(i).service.getClassName().toString()
-					.equals(service)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	private void loadProfileList() {
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(this);
@@ -341,7 +327,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		Editor edit = settings.edit();
 
-		if (this.isWorked(SERVICE_NAME)) {
+		if (Utils.isWorked(this)) {
 			edit.putBoolean("isRunning", true);
 		} else {
 			if (settings.getBoolean("isRunning", false)) {
@@ -553,7 +539,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	/** Called when connect button is clicked. */
 	public boolean serviceStart() {
 
-		if (isWorked(SERVICE_NAME)) {
+		if (Utils.isWorked(this)) {
 
 			try {
 				stopService(new Intent(ProxyDroid.this, ProxyDroidService.class));
@@ -768,7 +754,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		Editor edit = settings.edit();
 
-		if (this.isWorked(SERVICE_NAME)) {
+		if (Utils.isWorked(this)) {
 			if (settings.getBoolean("isConnecting", false))
 				isRunningCheck.setEnabled(false);
 			edit.putBoolean("isRunning", true);
