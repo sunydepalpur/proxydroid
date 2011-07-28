@@ -180,11 +180,13 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 		if (networkInfo == null)
 			return false;
-		if (!networkInfo.getTypeName().equals("WIFI"))
-			if (ssid.equals("2G/3G"))
-				return true;
-			else
-				return false;
+		if (!networkInfo.getTypeName().equals("WIFI")) {
+			for (String item : ssids) {
+				if (item.equals("2G/3G"))
+					return true;
+			}
+			return false;
+		}
 		WifiManager wm = (WifiManager) context
 				.getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wInfo = wm.getConnectionInfo();
