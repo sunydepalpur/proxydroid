@@ -50,6 +50,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.flurry.android.FlurryAgent;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
@@ -98,10 +99,10 @@ public class ProxyDroid extends PreferenceActivity implements
 	public static final String SERVICE_NAME = "org.proxydroid.ProxyDroidService";
 
 	private ProgressDialog pd = null;
-	
+
 	private String profile;
 	public static boolean isRoot = false;
-	
+
 	private Profile mProfile = new Profile();
 
 	private CheckBoxPreference isAutoConnectCheck;
@@ -121,17 +122,17 @@ public class ProxyDroid extends PreferenceActivity implements
 	private ListPreference proxyTypeList;
 	private CheckBoxPreference isRunningCheck;
 	private Preference proxyedApps;
-	
+
 	private static final int MSG_UPDATE_FINISHED = 0;
-	
+
 	final Handler handler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MSG_UPDATE_FINISHED:
 				Toast.makeText(ProxyDroid.this,
-						getString(R.string.update_finished),
-						Toast.LENGTH_LONG).show();
+						getString(R.string.update_finished), Toast.LENGTH_LONG)
+						.show();
 				break;
 			}
 			super.handleMessage(msg);
@@ -269,6 +270,18 @@ public class ProxyDroid extends PreferenceActivity implements
 		ssidList.setEntryValues(ssidEntries);
 	}
 
+	@Override
+	public void onStart() {
+		super.onStart();
+		FlurryAgent.onStartSession(this, "AV372I7R5YYD52NWPUPE");
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		FlurryAgent.onEndSession(this);
+	}
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -397,7 +410,7 @@ public class ProxyDroid extends PreferenceActivity implements
 					Editor edit = settings.edit();
 					edit.putBoolean(version, true);
 					edit.commit();
-					
+
 					handler.sendEmptyMessage(MSG_UPDATE_FINISHED);
 				}
 			}.start();
@@ -412,7 +425,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		// Store current settings first
 		String oldProfile = settings.getString("profile", "1");
-		
+
 		Profile mProfile = new Profile();
 		mProfile.getProfile(settings);
 
@@ -434,7 +447,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		String mDomain = mProfile.getDomain();
 		String mProxyType = mProfile.getProxyType();
 		String mIntranetAddr = mProfile.getIntranetAddr();
-		
+
 		int mPort = mProfile.getPort();
 
 		// Load all profiles
@@ -449,12 +462,12 @@ public class ProxyDroid extends PreferenceActivity implements
 
 			String profileString = settings.getString(p, "");
 			String[] st = profileString.split("\\|");
-			
-			mName =  getProfileName(p);
+
+			mName = getProfileName(p);
 
 			if (st.length < 6)
 				return;
-			
+
 			// tricks for old editions
 			if (st.length < 11) {
 				mHost = st[0];
@@ -505,15 +518,15 @@ public class ProxyDroid extends PreferenceActivity implements
 				mDomain = st[9];
 				mIsNTLM = st[10].equals("true") ? true : false;
 			}
-			
+
 			Profile tmpProfile = new Profile();
-			
+
 			tmpProfile.setAuth(mIsAuth);
 			tmpProfile.setAutoConnect(mIsAutoConnect);
 			tmpProfile.setAutoSetProxy(mIsAutoSetProxy);
 			tmpProfile.setDNSProxy(mIsDNSProxy);
 			tmpProfile.setNTLM(mIsNTLM);
-			
+
 			tmpProfile.setName(mName);
 			tmpProfile.setHost(mHost);
 			tmpProfile.setIntranetAddr(mIntranetAddr);
@@ -522,9 +535,9 @@ public class ProxyDroid extends PreferenceActivity implements
 			tmpProfile.setDomain(mDomain);
 			tmpProfile.setProxyType(mProxyType);
 			tmpProfile.setSsid(mSsid);
-			
+
 			tmpProfile.setPort(mPort);
-			
+
 			ed = settings.edit();
 			ed.putString(p, tmpProfile.toString());
 			ed.commit();
@@ -553,7 +566,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		
+
 		mProfile.getProfile(settings);
 
 		try {
@@ -561,17 +574,17 @@ public class ProxyDroid extends PreferenceActivity implements
 			Intent it = new Intent(ProxyDroid.this, ProxyDroidService.class);
 			Bundle bundle = new Bundle();
 			bundle.putString("host", mProfile.getHost());
-			bundle.putString("user",  mProfile.getUser());
+			bundle.putString("user", mProfile.getUser());
 			bundle.putString("intranetAddr", mProfile.getIntranetAddr());
 			bundle.putString("password", mProfile.getPassword());
 			bundle.putString("domain", mProfile.getDomain());
-			
+
 			bundle.putString("proxyType", mProfile.getProxyType());
 			bundle.putBoolean("isAutoSetProxy", mProfile.isAutoSetProxy());
 			bundle.putBoolean("isAuth", mProfile.isAuth());
 			bundle.putBoolean("isNTLM", mProfile.isNTLM());
 			bundle.putBoolean("isDNSProxy", mProfile.isDNSProxy());
-			
+
 			bundle.putInt("port", mProfile.getPort());
 
 			it.putExtras(bundle);
@@ -589,22 +602,21 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		
+
 		mProfile.getProfile(settings);
 		Editor ed = settings.edit();
 		ed.putString(oldProfileName, mProfile.toString());
 		ed.commit();
-		
-		
+
 		String profileString = settings.getString(profile, "");
-		
+
 		if (profileString.equals("")) {
 			mProfile.init();
 			mProfile.setName(getProfileName(profile));
 		} else {
 			mProfile.decodeJson(profileString);
 		}
-		
+
 		hostText.setText(mProfile.getHost());
 		intranetAddrText.setText(mProfile.getIntranetAddr());
 		userText.setText(mProfile.getUser());
@@ -612,15 +624,15 @@ public class ProxyDroid extends PreferenceActivity implements
 		domainText.setText(mProfile.getDomain());
 		proxyTypeList.setValue(mProfile.getProxyType());
 		ssidList.setValue(mProfile.getSsid());
-		
+
 		isAuthCheck.setChecked(mProfile.isAuth());
 		isNTLMCheck.setChecked(mProfile.isNTLM());
 		isAutoConnectCheck.setChecked(mProfile.isAutoConnect());
 		isAutoSetProxyCheck.setChecked(mProfile.isAutoSetProxy());
 		isDNSProxyCheck.setChecked(mProfile.isDNSProxy());
-		
+
 		portText.setText(Integer.toString(mProfile.getPort()));
-		
+
 		Log.d(TAG, mProfile.toString());
 
 		mProfile.setProfile(settings);
