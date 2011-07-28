@@ -121,7 +121,7 @@ public class Profile implements Serializable {
 
 	private String validateIntrnet(String ia) {
 
-		boolean valid = Pattern.matches("[0-9]\\.[0-9]\\.[0-9]\\.[0-9]/[0-9]",
+		boolean valid = Pattern.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}/[0-9]{1,2}",
 				ia);
 		if (valid)
 			return ia;
