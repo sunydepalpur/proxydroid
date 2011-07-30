@@ -276,7 +276,8 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 			if (aInfo.packageName != null
 					&& aInfo.packageName.equals("org.proxydroid")) {
 				apps[appIdx].setProxyed(true);
-			} else if (Arrays.binarySearch(tordApps, apps[appIdx].getUsername()) >= 0) {
+			} else if (Arrays
+					.binarySearch(tordApps, apps[appIdx].getUsername()) >= 0) {
 				apps[appIdx].setProxyed(true);
 			} else {
 				apps[appIdx].setProxyed(false);
@@ -326,7 +327,10 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 			apps[appIdx].setEnabled(aInfo.enabled);
 			apps[appIdx].setUid(aInfo.uid);
 			apps[appIdx].setUsername(pMgr.getNameForUid(apps[appIdx].getUid()));
-			apps[appIdx].setProcname(aInfo.processName);
+			if (aInfo.processName != null)
+				apps[appIdx].setProcname(aInfo.processName);
+			else
+				apps[appIdx].setProcname("Unknown");
 			apps[appIdx].setName(pMgr.getApplicationLabel(aInfo).toString());
 			if (pMgr.getApplicationIcon(aInfo) != null)
 				apps[appIdx].setIcon(pMgr.getApplicationIcon(aInfo));
