@@ -289,7 +289,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 		return apps;
 	}
 
-	public static ProxyedApp[] getApps(Context context) {
+	public ProxyedApp[] getApps(Context context) {
 
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(context);
