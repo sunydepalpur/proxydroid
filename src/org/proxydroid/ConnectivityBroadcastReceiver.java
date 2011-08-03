@@ -150,7 +150,6 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 			}
 		}
 
-		mProfile.getProfile(settings);
 		if (curSSID != null) {
 			if (!Utils.isWorked(context)) {
 				ProxyDroidReceiver pdr = new ProxyDroidReceiver();
