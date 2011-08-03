@@ -93,12 +93,13 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		String[] profileValues = settings.getString("profileValues", "").split(
 				"\\|");
 		
-		String curSSID = onlineSSID(context, mProfile.getSsid());
+		String curSSID = null;
 
 		// Test on each profile
 		for (String profile : profileValues) {
 			String profileString = settings.getString(profile, "");
 			mProfile.decodeJson(profileString);
+			curSSID = onlineSSID(context, mProfile.getSsid());
 			if (mProfile.isAutoConnect()
 					&& curSSID != null) {
 
@@ -122,7 +123,6 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 				context.stopService(new Intent(context, ProxyDroidService.class));
 			}
 		} else {
-
 			String lastSSID = settings.getString("lastSSID", "-1");
 
 			if (networkInfo.getTypeName().equals("WIFI")) {
