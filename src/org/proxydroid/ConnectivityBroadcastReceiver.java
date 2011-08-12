@@ -94,6 +94,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 				"\\|");
 		
 		String curSSID = null;
+		boolean autoConnect = false;
 
 		// Test on each profile
 		for (String profile : profileValues) {
@@ -107,6 +108,8 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 				ed = settings.edit();
 				ed.putString("profile", profile);
 				ed.commit();
+				
+				autoConnect = true;
 
 				// Then switch profile values
 				mProfile.setProfile(settings);
@@ -150,7 +153,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 			}
 		}
 
-		if (curSSID != null) {
+		if (autoConnect && curSSID != null) {
 			if (!Utils.isWorked(context)) {
 				ProxyDroidReceiver pdr = new ProxyDroidReceiver();
 				ed = settings.edit();
