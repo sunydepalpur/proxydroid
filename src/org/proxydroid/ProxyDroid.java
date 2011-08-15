@@ -121,6 +121,8 @@ public class ProxyDroid extends PreferenceActivity implements
 	private ListPreference proxyTypeList;
 	private CheckBoxPreference isRunningCheck;
 	private Preference proxyedApps;
+	
+	private AdView adView;
 
 	private static final int MSG_UPDATE_FINISHED = 0;
 
@@ -276,7 +278,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		setContentView(R.layout.main);
 		addPreferencesFromResource(R.xml.proxydroid_preference);
 		// Create the adView
-		AdView adView = new AdView(this, AdSize.BANNER, "a14db2c016cb9b6");
+		adView = new AdView(this, AdSize.BANNER, "a14db2c016cb9b6");
 		// Lookup your LinearLayout assuming it’s been given
 		// the attribute android:id="@+id/mainLayout"
 		LinearLayout layout = (LinearLayout) findViewById(R.id.ad);
@@ -533,6 +535,9 @@ public class ProxyDroid extends PreferenceActivity implements
 	/** Called when the activity is closed. */
 	@Override
 	public void onDestroy() {
+		
+		adView.destroy();
+		
 		super.onDestroy();
 	}
 
