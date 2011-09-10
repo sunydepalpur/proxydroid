@@ -280,8 +280,9 @@ public class DNSProxy implements Runnable {
 			byte[] question = new byte[reqLength - 12];
 			System.arraycopy(request, 12, question, 0, reqLength - 12);
 			requestDomain = parseDomain(question);
-			requestDomain = requestDomain.substring(0,
-					requestDomain.length() - 1);
+			if (requestDomain.length() > 1)
+				requestDomain = requestDomain.substring(0,
+						requestDomain.length() - 1);
 		}
 		return requestDomain;
 	}
@@ -444,8 +445,9 @@ public class DNSProxy implements Runnable {
 
 					Log.d(TAG, "DNS cache hit");
 
-				} else if (questDomain.toLowerCase().contains("gaednsproxy1.appspot.com")) { // for
-																				// appspot.com
+				} else if (questDomain.toLowerCase().contains(
+						"gaednsproxy1.appspot.com")) { // for
+					// appspot.com
 					byte[] ips = parseIPString(dnsRelay);
 					byte[] answer = createDNSResponse(udpreq, ips);
 					addToCache(questDomain, answer);
@@ -573,7 +575,7 @@ public class DNSProxy implements Runnable {
 		String ip = null;
 
 		DomainValidator dv = DomainValidator.getInstance();
-		
+
 		/* Not support reverse domain name query */
 		if (domain.endsWith("in-addr.arpa") || !dv.isValid(domain)) {
 			return createDNSResponse(quest, parseIPString("127.0.0.1"));
