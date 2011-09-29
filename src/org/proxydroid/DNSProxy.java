@@ -445,9 +445,8 @@ public class DNSProxy implements Runnable {
 
 					Log.d(TAG, "DNS cache hit");
 
-				} else if (questDomain.toLowerCase().contains(
-						"gaednsproxy1.appspot.com")) { // for
-					// appspot.com
+				} else if (questDomain.toLowerCase().endsWith(".appspot.com")) {
+					// for appspot.com
 					byte[] ips = parseIPString(dnsRelay);
 					byte[] answer = createDNSResponse(udpreq, ips);
 					addToCache(questDomain, answer);

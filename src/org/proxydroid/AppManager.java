@@ -52,6 +52,8 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 
 	private ProgressDialog pd = null;
 	private ListAdapter adapter;
+	
+	private ImageLoader dm;
 
 	private static final int MSG_LOAD_START = 1;
 	private static final int MSG_LOAD_FINISH = 2;
@@ -115,6 +117,8 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 		super.onCreate(savedInstanceState);
 
 		this.setContentView(R.layout.layout_apps);
+		
+		dm = ImageLoaderFactory.getImageLoader(this);
 
 		this.overlay = (TextView) View.inflate(this, R.layout.overlay, null);
 		getWindowManager()
@@ -183,7 +187,6 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 							.findViewById(R.id.itemtext);
 
 					entry.text.setOnClickListener(mAppManager);
-					entry.text.setOnClickListener(mAppManager);
 
 					convertView.setTag(entry);
 
@@ -194,8 +197,11 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 				}
 
 				final ProxyedApp app = apps[position];
-
-				entry.icon.setImageDrawable(app.getIcon());
+				
+				entry.icon.setTag(app.getUid());
+				
+				dm.DisplayImage(app.getUid(),
+						(Activity) convertView.getContext(), entry.icon);
 
 				entry.text.setText(app.getName());
 
@@ -204,7 +210,6 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 				box.setChecked(app.isProxyed());
 
 				entry.text.setTag(box);
-				entry.icon.setTag(box);
 
 				return convertView;
 			}
@@ -334,7 +339,6 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 			tApp.setUsername(pMgr.getNameForUid(tApp.getUid()));
 			tApp.setProcname(aInfo.processName);
 			tApp.setName(pMgr.getApplicationLabel(aInfo).toString());
-			tApp.setIcon(pMgr.getApplicationIcon(aInfo));
 
 			// check if this application is allowed
 			if (Arrays.binarySearch(tordApps, tApp.getUsername()) >= 0) {
