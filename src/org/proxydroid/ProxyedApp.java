@@ -1,6 +1,11 @@
 package org.proxydroid;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 public class ProxyedApp {
 
@@ -9,7 +14,6 @@ public class ProxyedApp {
 	private String username;
 	private String procname;
 	private String name;
-	private Drawable icon;
 	
 	private boolean proxyed = false;
 	
@@ -86,12 +90,4 @@ public class ProxyedApp {
 		this.name = name;
 	}
 	
-
-	public Drawable getIcon() {
-		return icon;
-	}
-	
-	public void setIcon(Drawable icon) {
-		this.icon = icon;
-	}
 }
