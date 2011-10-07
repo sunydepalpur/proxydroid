@@ -390,11 +390,11 @@ public class ProxyDroid extends PreferenceActivity implements
 					updateProfiles();
 
 					CopyAssets();
-					runCommand("chmod 777 /data/data/org.proxydroid/iptables");
-					runCommand("chmod 777 /data/data/org.proxydroid/redsocks");
-					runCommand("chmod 777 /data/data/org.proxydroid/proxy.sh");
-					runCommand("chmod 777 /data/data/org.proxydroid/cntlm");
-					runCommand("chmod 777 /data/data/org.proxydroid/tproxy");
+					runCommand("chmod 755 /data/data/org.proxydroid/iptables");
+					runCommand("chmod 755 /data/data/org.proxydroid/redsocks");
+					runCommand("chmod 755 /data/data/org.proxydroid/proxy.sh");
+					runCommand("chmod 755 /data/data/org.proxydroid/cntlm");
+					runCommand("chmod 755 /data/data/org.proxydroid/tproxy");
 					Editor edit = settings.edit();
 					edit.putBoolean(version, true);
 					edit.commit();
@@ -1169,11 +1169,11 @@ public class ProxyDroid extends PreferenceActivity implements
 				runRootCommand("kill -9 `cat /data/data/org.proxydroid/tproxy.pid`");
 
 				CopyAssets();
-				runCommand("chmod 777 /data/data/org.proxydroid/iptables");
-				runCommand("chmod 777 /data/data/org.proxydroid/redsocks");
-				runCommand("chmod 777 /data/data/org.proxydroid/proxy.sh");
-				runCommand("chmod 777 /data/data/org.proxydroid/cntlm");
-				runCommand("chmod 777 /data/data/org.proxydroid/tproxy");
+				runCommand("chmod 755 /data/data/org.proxydroid/iptables");
+				runCommand("chmod 755 /data/data/org.proxydroid/redsocks");
+				runCommand("chmod 755 /data/data/org.proxydroid/proxy.sh");
+				runCommand("chmod 755 /data/data/org.proxydroid/cntlm");
+				runCommand("chmod 755 /data/data/org.proxydroid/tproxy");
 			}
 		}.start();
 	}
