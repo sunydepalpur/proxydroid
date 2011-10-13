@@ -114,6 +114,7 @@
 	<string name="change_name">Rename</string>
 	<string name="alert_dialog_ok">OK</string>
 	<string name="alert_dialog_cancel">Cancel</string>
+	<string name="use_system_iptables">Use your system\'s IPTABLES</string>
 
 	<!-- settings notification category -->
 	<string name="notif_cat">Notification settings</string>

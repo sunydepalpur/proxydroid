@@ -40,6 +40,7 @@ package org.proxydroid;
 
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -121,7 +122,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private ListPreference proxyTypeList;
 	private CheckBoxPreference isRunningCheck;
 	private Preference proxyedApps;
-	
+
 	private AdView adView;
 
 	private static final int MSG_UPDATE_FINISHED = 0;
@@ -390,6 +391,7 @@ public class ProxyDroid extends PreferenceActivity implements
 					updateProfiles();
 
 					CopyAssets();
+
 					runCommand("chmod 755 /data/data/org.proxydroid/iptables");
 					runCommand("chmod 755 /data/data/org.proxydroid/redsocks");
 					runCommand("chmod 755 /data/data/org.proxydroid/proxy.sh");
@@ -535,9 +537,9 @@ public class ProxyDroid extends PreferenceActivity implements
 	/** Called when the activity is closed. */
 	@Override
 	public void onDestroy() {
-		
+
 		adView.destroy();
-		
+
 		super.onDestroy();
 	}
 
@@ -997,6 +999,8 @@ public class ProxyDroid extends PreferenceActivity implements
 				.setIcon(android.R.drawable.ic_menu_info_details);
 		menu.add(Menu.NONE, Menu.FIRST + 4, 4, getString(R.string.change_name))
 				.setIcon(android.R.drawable.ic_menu_edit);
+		menu.add(Menu.NONE, Menu.FIRST + 5, 5, getString(R.string.use_system_iptables))
+		.setIcon(android.R.drawable.ic_menu_revert);
 
 		// return true才会起作用
 		return true;
@@ -1026,6 +1030,20 @@ public class ProxyDroid extends PreferenceActivity implements
 			break;
 		case Menu.FIRST + 4:
 			rename();
+			break;
+		case Menu.FIRST + 5:
+			// Use system's instead
+			File inFile = new File("/system/bin/iptables");
+			if (inFile.exists()) {
+				try {
+					InputStream in = new FileInputStream(inFile);
+					OutputStream out = new FileOutputStream(
+							"/data/data/org.proxydroid/iptables");
+					copyFile(in, out);
+				} catch (IOException e) {
+					// Ignore
+				}
+			}
 			break;
 		}
 
