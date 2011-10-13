@@ -991,15 +991,15 @@ public class ProxyDroid extends PreferenceActivity implements
 		 * 2、Id，这个很重要，Android根据这个Id来确定不同的菜单 3、顺序，那个菜单现在在前面由这个参数的大小决定
 		 * 4、文本，菜单的显示文本
 		 */
-		menu.add(Menu.NONE, Menu.FIRST + 1, 1, getString(R.string.recovery))
+		menu.add(Menu.NONE, Menu.FIRST + 1, 2, getString(R.string.recovery))
 				.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-		menu.add(Menu.NONE, Menu.FIRST + 2, 2, getString(R.string.profile_del))
+		menu.add(Menu.NONE, Menu.FIRST + 2, 3, getString(R.string.profile_del))
 				.setIcon(android.R.drawable.ic_menu_delete);
-		menu.add(Menu.NONE, Menu.FIRST + 3, 3, getString(R.string.about))
+		menu.add(Menu.NONE, Menu.FIRST + 3, 4, getString(R.string.about))
 				.setIcon(android.R.drawable.ic_menu_info_details);
-		menu.add(Menu.NONE, Menu.FIRST + 4, 4, getString(R.string.change_name))
+		menu.add(Menu.NONE, Menu.FIRST + 4, 5, getString(R.string.change_name))
 				.setIcon(android.R.drawable.ic_menu_edit);
-		menu.add(Menu.NONE, Menu.FIRST + 5, 5, getString(R.string.use_system_iptables))
+		menu.add(Menu.NONE, Menu.FIRST + 5, 1, getString(R.string.use_system_iptables))
 		.setIcon(android.R.drawable.ic_menu_revert);
 
 		// return true才会起作用
