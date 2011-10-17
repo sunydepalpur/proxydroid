@@ -82,7 +82,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 					R.layout.proxydroid_appwidget);
 			views.setOnClickPendingIntent(R.id.serviceToggle, pendingIntent);
 
-			if (Utils.isWorked(context)) {
+			if (Utils.isWorked()) {
 				views.setImageViewResource(R.id.serviceToggle, R.drawable.on);
 				Log.d(TAG, "Service running");
 			} else {
@@ -115,7 +115,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 
 			Log.d(TAG, "Proxy switch action");
 			// do some really cool stuff here
-			if (Utils.isWorked(context)) {
+			if (Utils.isWorked()) {
 				// Service is working, so stop it
 				try {
 					context.stopService(new Intent(context,

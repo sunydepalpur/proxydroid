@@ -330,7 +330,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		Editor edit = settings.edit();
 
-		if (Utils.isWorked(this)) {
+		if (Utils.isWorked()) {
 			edit.putBoolean("isRunning", true);
 		} else {
 			if (settings.getBoolean("isRunning", false)) {
@@ -546,7 +546,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	/** Called when connect button is clicked. */
 	public boolean serviceStart() {
 
-		if (Utils.isWorked(this)) {
+		if (Utils.isWorked()) {
 
 			try {
 				stopService(new Intent(ProxyDroid.this, ProxyDroidService.class));
@@ -761,7 +761,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		Editor edit = settings.edit();
 
-		if (Utils.isWorked(this)) {
+		if (Utils.isWorked()) {
 			if (settings.getBoolean("isConnecting", false))
 				isRunningCheck.setEnabled(false);
 			edit.putBoolean("isRunning", true);

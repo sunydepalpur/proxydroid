@@ -15,20 +15,8 @@ import android.util.Log;
 
 class Utils {
 	
-	public static final String SERVICE_NAME = "org.proxydroid.ProxyDroidService";
-	
-	public static boolean isWorked(Context context) {
-		ActivityManager myManager = (ActivityManager) context
-				.getSystemService(Context.ACTIVITY_SERVICE);
-		ArrayList<RunningServiceInfo> runningService = (ArrayList<RunningServiceInfo>) myManager
-				.getRunningServices(30);
-		for (int i = 0; i < runningService.size(); i++) {
-			if (runningService.get(i).service.getClassName().toString()
-					.equals(SERVICE_NAME)) {
-				return true;
-			}
-		}
-		return false;
+	public static boolean isWorked() {
+		return ProxyDroidService.isServiceStarted();
 	}
 	
     public static void CopyStream(InputStream is, OutputStream os)

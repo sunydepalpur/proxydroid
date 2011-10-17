@@ -40,6 +40,7 @@ package org.proxydroid;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -150,6 +151,38 @@ public class ProxyDroidService extends Service {
 			// Should not happen.
 			Log.w("ApiDemos", "Unable to invoke method", e);
 		}
+	}
+	
+	/* This is a hack
+	 * see http://www.mail-archive.com/android-developers@googlegroups.com/msg18298.html
+	 * we are not really able to decide if the service was started.
+	 * So we remember a week reference to it. We set it if we are running and clear it
+	 * if we are stopped. If anything goes wrong, the reference will hopefully vanish
+	 */	
+	private static WeakReference<ProxyDroidService> sRunningInstance = null;
+	public final static boolean isServiceStarted()
+	{
+		final boolean isServiceStarted;
+		if ( sRunningInstance == null )
+		{
+			isServiceStarted = false;
+		}
+		else if ( sRunningInstance.get() == null )
+		{
+			isServiceStarted = false;
+			sRunningInstance = null;
+		}
+		else
+		{
+			isServiceStarted = true;
+		}
+		return isServiceStarted;
+	}
+	private void markServiceStarted(){
+		sRunningInstance = new WeakReference<ProxyDroidService>( this );
+	}
+	private void markServiceStopped(){
+		sRunningInstance = null;
 	}
 
 	private void initHasRedirectSupported() {
@@ -540,6 +573,8 @@ public class ProxyDroidService extends Service {
 		}
 
 		super.onDestroy();
+		
+		markServiceStopped();
 	}
 
 	private void onDisconnect() {
@@ -707,6 +742,8 @@ public class ProxyDroidService extends Service {
 
 			}
 		}).start();
+		
+		markServiceStarted();
 	}
 
 }

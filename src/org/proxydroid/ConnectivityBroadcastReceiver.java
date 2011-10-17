@@ -122,7 +122,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 		if (networkInfo == null) {
-			if (Utils.isWorked(context)) {
+			if (Utils.isWorked()) {
 				context.stopService(new Intent(context, ProxyDroidService.class));
 			}
 		} else {
@@ -136,7 +136,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 					if (wInfo != null) {
 						String current = wInfo.getSSID();
 						if (current != null && !current.equals(lastSSID)) {
-							if (Utils.isWorked(context)) {
+							if (Utils.isWorked()) {
 								context.stopService(new Intent(context,
 										ProxyDroidService.class));
 							}
@@ -145,7 +145,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 				}
 			} else {
 				if (!lastSSID.equals("2G/3G")) {
-					if (Utils.isWorked(context)) {
+					if (Utils.isWorked()) {
 						context.stopService(new Intent(context,
 								ProxyDroidService.class));
 					}
@@ -154,7 +154,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		}
 
 		if (autoConnect && curSSID != null) {
-			if (!Utils.isWorked(context)) {
+			if (!Utils.isWorked()) {
 				ProxyDroidReceiver pdr = new ProxyDroidReceiver();
 				ed = settings.edit();
 				ed.putString("lastSSID", curSSID);
