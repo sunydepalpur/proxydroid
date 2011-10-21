@@ -160,6 +160,8 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 
 		Arrays.sort(apps, new Comparator<ProxyedApp>() {
 			public int compare(ProxyedApp o1, ProxyedApp o2) {
+				if (o1.getName() == null || o2.getName() == null)
+					return 1;
 				if (o1.isProxyed() == o2.isProxyed())
 					return o1.getName().compareTo(o2.getName());
 				if (o1.isProxyed())
