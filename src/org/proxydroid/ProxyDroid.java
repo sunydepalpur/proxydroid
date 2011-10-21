@@ -1040,7 +1040,12 @@ public class ProxyDroid extends PreferenceActivity implements
 					OutputStream out = new FileOutputStream(
 							"/data/data/org.proxydroid/iptables");
 					copyFile(in, out);
-				} catch (IOException e) {
+					in.close();
+					in = null;
+					out.flush();
+					out.close();
+					out = null;
+				} catch (Exception e) {
 					// Ignore
 				}
 			}
