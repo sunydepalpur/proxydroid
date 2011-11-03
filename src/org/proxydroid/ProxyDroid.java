@@ -38,18 +38,13 @@
 
 package org.proxydroid;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.flurry.android.FlurryAgent;
 import com.google.ads.AdRequest;
@@ -57,12 +52,8 @@ import com.google.ads.AdSize;
 import com.google.ads.AdView;
 import com.ksmaze.android.preference.ListPreferenceMultiSelect;
 
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -140,50 +131,6 @@ public class ProxyDroid extends PreferenceActivity implements
 			super.handleMessage(msg);
 		}
 	};
-
-	public static boolean runCommand(String command) {
-		Process process = null;
-		try {
-			process = Runtime.getRuntime().exec(command);
-			process.waitFor();
-		} catch (Exception e) {
-			Log.e(TAG, e.getMessage());
-			return false;
-		} finally {
-			try {
-				process.destroy();
-			} catch (Exception e) {
-				// nothing
-			}
-		}
-		return true;
-	}
-
-	public static boolean runRootCommand(String command) {
-		Process process = null;
-		DataOutputStream os = null;
-		try {
-			process = Runtime.getRuntime().exec("su");
-			os = new DataOutputStream(process.getOutputStream());
-			os.writeBytes(command + "\n");
-			os.writeBytes("exit\n");
-			os.flush();
-			process.waitFor();
-		} catch (Exception e) {
-			Log.e(TAG, e.getMessage());
-			return false;
-		} finally {
-			try {
-				if (os != null) {
-					os.close();
-				}
-				process.destroy();
-			} catch (Exception e) {
-				// nothing
-			}
-		}
-		return true;
-	}
 
 	private void CopyAssets() {
 		AssetManager assetManager = getAssets();
@@ -350,13 +297,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			enableAll();
 		}
 
-		if (!runRootCommand("")) {
-			isRoot = false;
-		} else {
-			isRoot = true;
-		}
-
-		if (!isRoot) {
+		if (!Utils.isRoot()) {
 
 			isAutoSetProxyCheck.setChecked(false);
 			isAutoSetProxyCheck.setEnabled(false);
@@ -392,11 +333,11 @@ public class ProxyDroid extends PreferenceActivity implements
 
 					CopyAssets();
 
-					runCommand("chmod 755 /data/data/org.proxydroid/iptables");
-					runCommand("chmod 755 /data/data/org.proxydroid/redsocks");
-					runCommand("chmod 755 /data/data/org.proxydroid/proxy.sh");
-					runCommand("chmod 755 /data/data/org.proxydroid/cntlm");
-					runCommand("chmod 755 /data/data/org.proxydroid/tproxy");
+					Utils.runCommand("chmod 755 /data/data/org.proxydroid/iptables");
+					Utils.runCommand("chmod 755 /data/data/org.proxydroid/redsocks");
+					Utils.runCommand("chmod 755 /data/data/org.proxydroid/proxy.sh");
+					Utils.runCommand("chmod 755 /data/data/org.proxydroid/cntlm");
+					Utils.runCommand("chmod 755 /data/data/org.proxydroid/tproxy");
 					Editor edit = settings.edit();
 					edit.putBoolean(version, true);
 					edit.commit();
@@ -999,8 +940,9 @@ public class ProxyDroid extends PreferenceActivity implements
 				.setIcon(android.R.drawable.ic_menu_info_details);
 		menu.add(Menu.NONE, Menu.FIRST + 4, 5, getString(R.string.change_name))
 				.setIcon(android.R.drawable.ic_menu_edit);
-		menu.add(Menu.NONE, Menu.FIRST + 5, 1, getString(R.string.use_system_iptables))
-		.setIcon(android.R.drawable.ic_menu_revert);
+		menu.add(Menu.NONE, Menu.FIRST + 5, 1,
+				getString(R.string.use_system_iptables)).setIcon(
+				android.R.drawable.ic_menu_revert);
 
 		// return true才会起作用
 		return true;
@@ -1185,18 +1127,17 @@ public class ProxyDroid extends PreferenceActivity implements
 					// Nothing
 				}
 
-				runRootCommand(ProxyDroidService.BASE
-						+ "iptables -t nat -F OUTPUT");
+				Utils.runRootCommand(Utils.getIptables() + " -t nat -F OUTPUT");
 
-				runRootCommand(ProxyDroidService.BASE + "proxy.sh stop");
-				runRootCommand("kill -9 `cat /data/data/org.proxydroid/tproxy.pid`");
+				Utils.runRootCommand(ProxyDroidService.BASE + "proxy.sh stop");
+				Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/tproxy.pid`");
 
 				CopyAssets();
-				runCommand("chmod 755 /data/data/org.proxydroid/iptables");
-				runCommand("chmod 755 /data/data/org.proxydroid/redsocks");
-				runCommand("chmod 755 /data/data/org.proxydroid/proxy.sh");
-				runCommand("chmod 755 /data/data/org.proxydroid/cntlm");
-				runCommand("chmod 755 /data/data/org.proxydroid/tproxy");
+				Utils.runCommand("chmod 755 /data/data/org.proxydroid/iptables");
+				Utils.runCommand("chmod 755 /data/data/org.proxydroid/redsocks");
+				Utils.runCommand("chmod 755 /data/data/org.proxydroid/proxy.sh");
+				Utils.runCommand("chmod 755 /data/data/org.proxydroid/cntlm");
+				Utils.runCommand("chmod 755 /data/data/org.proxydroid/tproxy");
 			}
 		}.start();
 	}
