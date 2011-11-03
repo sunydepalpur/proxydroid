@@ -335,12 +335,10 @@ public class ProxyDroidService extends Service {
 				dnsThread.start();
 
 				if (hasRedirectSupport)
-					cmd.append(Utils.getIptables()
-							+ " -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to "
+					cmd.append("iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to "
 							+ dnsPort + "\n");
 				else
-					cmd.append(Utils.getIptables()
-							+ " -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 127.0.0.1:"
+					cmd.append("iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 127.0.0.1:"
 							+ dnsPort + "\n");
 
 			}
@@ -397,7 +395,7 @@ public class ProxyDroidService extends Service {
 				rules = rules.replace("-p tcp", "-p tcp " + "! -d "
 						+ intranetAddr);
 			}
-			
+
 			rules = rules.replace("iptables", Utils.getIptables());
 
 			if (proxyType.equals("http") && isNTLM)
