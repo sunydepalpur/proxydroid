@@ -84,25 +84,17 @@ public class ProxyDroidService extends Service {
 	private static final int MSG_CONNECT_SUCCESS = 2;
 	private static final int MSG_CONNECT_FAIL = 3;
 
-	final static String CMD_IPTABLES_REDIRECT_ADD_HTTP = BASE
-			+ "iptables -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
-			+ BASE
+	final static String CMD_IPTABLES_REDIRECT_ADD_HTTP = "iptables -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
 			+ "iptables -t nat -A OUTPUT -p tcp --dport 443 -j REDIRECT --to 8124\n"
-			+ BASE
 			+ "iptables -t nat -A OUTPUT -p tcp --dport 5228 -j REDIRECT --to 8124\n";
 
-	final static String CMD_IPTABLES_DNAT_ADD_HTTP = BASE
-			+ "iptables -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
-			+ BASE
+	final static String CMD_IPTABLES_DNAT_ADD_HTTP = "iptables -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
 			+ "iptables -t nat -A OUTPUT -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:8124\n"
-			+ BASE
 			+ "iptables -t nat -A OUTPUT -p tcp --dport 5228 -j DNAT --to-destination 127.0.0.1:8124\n";
 
-	final static String CMD_IPTABLES_REDIRECT_ADD_SOCKS = BASE
-			+ "iptables -t nat -A OUTPUT -p tcp -j REDIRECT --to 8123\n";
+	final static String CMD_IPTABLES_REDIRECT_ADD_SOCKS = "iptables -t nat -A OUTPUT -p tcp -j REDIRECT --to 8123\n";
 
-	final static String CMD_IPTABLES_DNAT_ADD_SOCKS = BASE
-			+ "iptables -t nat -A OUTPUT -p tcp -j DNAT --to-destination 127.0.0.1:8123\n";
+	final static String CMD_IPTABLES_DNAT_ADD_SOCKS = "iptables -t nat -A OUTPUT -p tcp -j DNAT --to-destination 127.0.0.1:8123\n";
 
 	private static final String TAG = "ProxyDroidService";
 
@@ -152,36 +144,35 @@ public class ProxyDroidService extends Service {
 			Log.w("ApiDemos", "Unable to invoke method", e);
 		}
 	}
-	
-	/* This is a hack
-	 * see http://www.mail-archive.com/android-developers@googlegroups.com/msg18298.html
-	 * we are not really able to decide if the service was started.
-	 * So we remember a week reference to it. We set it if we are running and clear it
-	 * if we are stopped. If anything goes wrong, the reference will hopefully vanish
-	 */	
+
+	/*
+	 * This is a hack see
+	 * http://www.mail-archive.com/android-developers@googlegroups
+	 * .com/msg18298.html we are not really able to decide if the service was
+	 * started. So we remember a week reference to it. We set it if we are
+	 * running and clear it if we are stopped. If anything goes wrong, the
+	 * reference will hopefully vanish
+	 */
 	private static WeakReference<ProxyDroidService> sRunningInstance = null;
-	public final static boolean isServiceStarted()
-	{
+
+	public final static boolean isServiceStarted() {
 		final boolean isServiceStarted;
-		if ( sRunningInstance == null )
-		{
+		if (sRunningInstance == null) {
 			isServiceStarted = false;
-		}
-		else if ( sRunningInstance.get() == null )
-		{
+		} else if (sRunningInstance.get() == null) {
 			isServiceStarted = false;
 			sRunningInstance = null;
-		}
-		else
-		{
+		} else {
 			isServiceStarted = true;
 		}
 		return isServiceStarted;
 	}
-	private void markServiceStarted(){
-		sRunningInstance = new WeakReference<ProxyDroidService>( this );
+
+	private void markServiceStarted() {
+		sRunningInstance = new WeakReference<ProxyDroidService>(this);
 	}
-	private void markServiceStopped(){
+
+	private void markServiceStopped() {
 		sRunningInstance = null;
 	}
 
@@ -193,10 +184,11 @@ public class ProxyDroidService extends Service {
 		String command;
 		String line = null;
 
-		command = "/data/data/org.proxydroid/iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 8153";
+		command = Utils.getIptables()
+				+ " -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 8153";
 
 		try {
-			process = Runtime.getRuntime().exec("su");
+			process = Runtime.getRuntime().exec(Utils.getRoot());
 			es = new DataInputStream(process.getErrorStream());
 			os = new DataOutputStream(process.getOutputStream());
 			os.writeBytes(command + "\n");
@@ -227,7 +219,7 @@ public class ProxyDroidService extends Service {
 		}
 
 		// flush the check command
-		runRootCommand(command.replace("-A", "-D"));
+		Utils.runRootCommand(command.replace("-A", "-D"));
 	}
 
 	/**
@@ -274,33 +266,6 @@ public class ProxyDroidService extends Service {
 		setForeground(false);
 	}
 
-	public static boolean runRootCommand(String command) {
-		Process process = null;
-		DataOutputStream os = null;
-		Log.d(TAG, command);
-		try {
-			process = Runtime.getRuntime().exec("su");
-			os = new DataOutputStream(process.getOutputStream());
-			os.writeBytes(command + "\n");
-			os.writeBytes("exit\n");
-			os.flush();
-			process.waitFor();
-		} catch (Exception e) {
-			Log.e(TAG, e.getMessage());
-			return false;
-		} finally {
-			try {
-				if (os != null) {
-					os.close();
-				}
-				process.destroy();
-			} catch (Exception e) {
-				// nothing
-			}
-		}
-		return true;
-	}
-
 	public boolean runNTLMProxy(String command) {
 		NTLMProcess = null;
 		DataOutputStream os = null;
@@ -336,9 +301,9 @@ public class ProxyDroidService extends Service {
 			Log.e(TAG, "Forward Successful");
 
 			if (isAuth && isNTLM) {
-				runRootCommand(BASE
+				Utils.runRootCommand(BASE
 						+ "tproxy -P /data/data/org.proxydroid/tproxy.pid -s 8125 127.0.0.1 8025");
-				runRootCommand(BASE
+				Utils.runRootCommand(BASE
 						+ "proxy.sh start http 127.0.0.1 8025 false");
 				new Thread() {
 					@Override
@@ -353,8 +318,8 @@ public class ProxyDroidService extends Service {
 					}
 				}.start();
 			} else {
-				runRootCommand(BASE + "proxy.sh start" + " " + proxyType + " "
-						+ host + " " + port + " " + auth + " \"" + user
+				Utils.runRootCommand(BASE + "proxy.sh start" + " " + proxyType
+						+ " " + host + " " + port + " " + auth + " \"" + user
 						+ "\" \"" + password + "\"");
 			}
 
@@ -370,14 +335,12 @@ public class ProxyDroidService extends Service {
 				dnsThread.start();
 
 				if (hasRedirectSupport)
-					cmd.append(BASE
-							+ "iptables "
-							+ "-t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to "
+					cmd.append(Utils.getIptables()
+							+ " -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to "
 							+ dnsPort + "\n");
 				else
-					cmd.append(BASE
-							+ "iptables "
-							+ "-t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 127.0.0.1:"
+					cmd.append(Utils.getIptables()
+							+ " -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 127.0.0.1:"
 							+ dnsPort + "\n");
 
 			}
@@ -434,14 +397,16 @@ public class ProxyDroidService extends Service {
 				rules = rules.replace("-p tcp", "-p tcp " + "! -d "
 						+ intranetAddr);
 			}
+			
+			rules = rules.replace("iptables", Utils.getIptables());
 
 			if (proxyType.equals("http") && isNTLM)
-				runRootCommand(rules.replace("8123", "8125"));
+				Utils.runRootCommand(rules.replace("8123", "8125"));
 			else if (proxyType.equals("http"))
-				runRootCommand(rules);
+				Utils.runRootCommand(rules);
 			else
-				runRootCommand(rules.replace("-p tcp", "-p tcp" + " ! --dport "
-						+ port));
+				Utils.runRootCommand(rules.replace("-p tcp", "-p tcp"
+						+ " ! --dport " + port));
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting up port forward during connect", e);
@@ -531,7 +496,7 @@ public class ProxyDroidService extends Service {
 	public void onDestroy() {
 
 		stopForegroundCompat(1);
-		
+
 		FlurryAgent.onEndSession(this);
 
 		notifyAlert(getString(R.string.forward_stop),
@@ -573,20 +538,20 @@ public class ProxyDroidService extends Service {
 		}
 
 		super.onDestroy();
-		
+
 		markServiceStopped();
 	}
 
 	private void onDisconnect() {
 
-		runRootCommand(BASE + "iptables -t nat -F OUTPUT");
+		Utils.runRootCommand(Utils.getIptables() + " -t nat -F OUTPUT");
 
 		if (isNTLM) {
-			runRootCommand("kill -9 `cat /data/data/org.proxydroid/tproxy.pid`");
-			runRootCommand("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`");
+			Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/tproxy.pid`");
+			Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`");
 		}
 
-		runRootCommand(BASE + "proxy.sh stop");
+		Utils.runRootCommand(BASE + "proxy.sh stop");
 
 	}
 
@@ -663,7 +628,7 @@ public class ProxyDroidService extends Service {
 	public void onStart(Intent intent, int startId) {
 
 		super.onStart(intent, startId);
-		
+
 		FlurryAgent.onStartSession(this, "AV372I7R5YYD52NWPUPE");
 
 		Log.d(TAG, "Service Start");
@@ -742,7 +707,7 @@ public class ProxyDroidService extends Service {
 
 			}
 		}).start();
-		
+
 		markServiceStarted();
 	}
 
