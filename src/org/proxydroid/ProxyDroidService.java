@@ -123,13 +123,16 @@ public class ProxyDroidService extends Service {
 
 	private ProxyedApp apps[];
 
+	private static final Class<?>[] mSetForegroundSignature = new Class[] { boolean.class };
 	private static final Class<?>[] mStartForegroundSignature = new Class[] {
 			int.class, Notification.class };
 	private static final Class<?>[] mStopForegroundSignature = new Class[] { boolean.class };
 
+	private Method mSetForeground;
 	private Method mStartForeground;
 	private Method mStopForeground;
 
+	private Object[] mSetForegroundArgs = new Object[1];
 	private Object[] mStartForegroundArgs = new Object[2];
 	private Object[] mStopForegroundArgs = new Object[1];
 
@@ -236,7 +239,8 @@ public class ProxyDroidService extends Service {
 		}
 
 		// Fall back on the old API.
-		setForeground(true);
+		mSetForegroundArgs[0] = Boolean.TRUE;
+		invokeMethod(mSetForeground, mSetForegroundArgs);
 		notificationManager.notify(id, notification);
 	}
 
@@ -263,7 +267,8 @@ public class ProxyDroidService extends Service {
 		// Fall back on the old API. Note to cancel BEFORE changing the
 		// foreground state, since we could be killed at that point.
 		notificationManager.cancel(id);
-		setForeground(false);
+		mSetForegroundArgs[0] = Boolean.FALSE;
+		invokeMethod(mSetForeground, mSetForegroundArgs);
 	}
 
 	public boolean runNTLMProxy(String command) {
@@ -486,6 +491,14 @@ public class ProxyDroidService extends Service {
 		} catch (NoSuchMethodException e) {
 			// Running on an older platform.
 			mStartForeground = mStopForeground = null;
+		}
+		
+		try {
+			mSetForeground = getClass().getMethod("setForeground",
+					mSetForegroundSignature);
+		} catch (NoSuchMethodException e) {
+			throw new IllegalStateException(
+					"OS doesn't have Service.startForeground OR Service.setForeground!");
 		}
 	}
 
