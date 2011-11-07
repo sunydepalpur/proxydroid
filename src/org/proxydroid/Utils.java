@@ -27,6 +27,8 @@ class Utils {
 
 	private static boolean initialized = false;
 	private static int isRoot = -1;
+	
+	private static String shell = null;
 	private static String root_shell = null;
 	private static String iptables = null;
 
@@ -55,6 +57,15 @@ class Utils {
 		}
 
 	}
+	
+	public static String getShell() {
+		if (shell == null) {
+			shell = DEFAULT_SHELL;
+			if (!new File(shell).exists())
+				shell = "sh";
+		}
+		return shell;
+	}
 
 	// always return a string
 	public static String getRoot() {
@@ -62,7 +73,7 @@ class Utils {
 		if (isRoot())
 			return root_shell;
 		else
-			return DEFAULT_SHELL;
+			return getShell();
 	}
 
 	public static String getIptables() {
@@ -194,7 +205,7 @@ class Utils {
 		DataOutputStream os = null;
 		Log.d(TAG, command);
 		try {
-			process = Runtime.getRuntime().exec(DEFAULT_SHELL);
+			process = Runtime.getRuntime().exec(getShell());
 			os = new DataOutputStream(process.getOutputStream());
 			os.writeBytes(command + "\n");
 			os.writeBytes("exit\n");
