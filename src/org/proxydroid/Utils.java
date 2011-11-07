@@ -22,8 +22,8 @@ class Utils {
 	public final static String DEFAULT_ROOT = "/system/bin/su";
 	public final static String ALTERNATIVE_ROOT = "/system/xbin/su";
 
-	public final static String DEFAULT_IPTABLES = "/system/bin/iptables";
-	public final static String ALTERNATIVE_IPTABLES = "/data/data/org.proxydroid/iptables";
+	public final static String DEFAULT_IPTABLES = "/data/data/org.proxydroid/iptables";
+	public final static String ALTERNATIVE_IPTABLES = "/system/bin/iptables";
 	
 	private static boolean initialized = false;
 	private static int isRoot = -1;
