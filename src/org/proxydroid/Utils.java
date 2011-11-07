@@ -15,7 +15,7 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 class Utils {
-	
+
 	public final static String TAG = "ProxyDroid";
 	public final static String DEFAULT_SHELL = "/system/bin/sh";
 
@@ -24,12 +24,12 @@ class Utils {
 
 	public final static String DEFAULT_IPTABLES = "/data/data/org.proxydroid/iptables";
 	public final static String ALTERNATIVE_IPTABLES = "/system/bin/iptables";
-	
+
 	private static boolean initialized = false;
 	private static int isRoot = -1;
 	private static String root_shell = null;
 	private static String iptables = null;
-	
+
 	public static String getSignature(Context ctx) {
 		Signature sig = null;
 		try {
@@ -45,7 +45,7 @@ class Utils {
 			return null;
 		return sig.toCharsString();
 	}
-	
+
 	public static boolean isInitialized() {
 		if (initialized)
 			return true;
@@ -53,7 +53,7 @@ class Utils {
 			initialized = true;
 			return false;
 		}
-			
+
 	}
 
 	// always return a string
@@ -135,12 +135,7 @@ class Utils {
 			return;
 
 		// Check iptables binary
-		if (new File(DEFAULT_IPTABLES).exists()) {
-			iptables = DEFAULT_IPTABLES;
-		} else {
-			iptables = ALTERNATIVE_IPTABLES;
-			return;
-		}
+		iptables = DEFAULT_IPTABLES;
 
 		Process process = null;
 		DataInputStream es = null;
@@ -154,7 +149,7 @@ class Utils {
 			process = Runtime.getRuntime().exec(getRoot());
 			es = new DataInputStream(process.getInputStream());
 			os = new DataOutputStream(process.getOutputStream());
-			os.writeBytes(iptables + " --version");
+			os.writeBytes(iptables + " --version\n");
 			os.writeBytes(iptables + " -L -t nat\n");
 			os.writeBytes("exit\n");
 			os.flush();
@@ -255,47 +250,46 @@ class Utils {
 		}
 		return true;
 	}
-	
+
 	public static boolean isWorked() {
 		return ProxyDroidService.isServiceStarted();
 	}
-	
-    public static void CopyStream(InputStream is, OutputStream os)
-    {
-        final int buffer_size=1024;
-        try
-        {
-            byte[] bytes=new byte[buffer_size];
-            for(;;)
-            {
-              int count=is.read(bytes, 0, buffer_size);
-              if(count==-1)
-                  break;
-              os.write(bytes, 0, count);
-            }
-        }
-        catch(Exception ex){}
-    }
-    
-	
-    public static Drawable getAppIcon(Context c, int uid) {
-        PackageManager pm = c.getPackageManager();
-        Drawable appIcon = c.getResources().getDrawable(R.drawable.sym_def_app_icon);
-        String[] packages = pm.getPackagesForUid(uid);
 
-        if (packages != null) {
-            if (packages.length == 1) {
-                try {
-                    ApplicationInfo appInfo = pm.getApplicationInfo(packages[0], 0);
-                    appIcon = pm.getApplicationIcon(appInfo);
-                } catch (NameNotFoundException e) {
-                	Log.e(c.getPackageName(), "No package found matching with the uid " + uid);
-                }
-            }
-        } else {
-            Log.e(c.getPackageName(), "Package not found for uid " + uid);
-        }
+	public static void CopyStream(InputStream is, OutputStream os) {
+		final int buffer_size = 1024;
+		try {
+			byte[] bytes = new byte[buffer_size];
+			for (;;) {
+				int count = is.read(bytes, 0, buffer_size);
+				if (count == -1)
+					break;
+				os.write(bytes, 0, count);
+			}
+		} catch (Exception ex) {
+		}
+	}
 
-        return appIcon;
-    }
+	public static Drawable getAppIcon(Context c, int uid) {
+		PackageManager pm = c.getPackageManager();
+		Drawable appIcon = c.getResources().getDrawable(
+				R.drawable.sym_def_app_icon);
+		String[] packages = pm.getPackagesForUid(uid);
+
+		if (packages != null) {
+			if (packages.length == 1) {
+				try {
+					ApplicationInfo appInfo = pm.getApplicationInfo(
+							packages[0], 0);
+					appIcon = pm.getApplicationIcon(appInfo);
+				} catch (NameNotFoundException e) {
+					Log.e(c.getPackageName(),
+							"No package found matching with the uid " + uid);
+				}
+			}
+		} else {
+			Log.e(c.getPackageName(), "Package not found for uid " + uid);
+		}
+
+		return appIcon;
+	}
 }
