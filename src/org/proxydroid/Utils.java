@@ -195,6 +195,8 @@ class Utils {
 
 		if (!compatible || !version) {
 			iptables = ALTERNATIVE_IPTABLES;
+			if (!new File(iptables).exists())
+				iptables = "iptables";
 		}
 
 	}
