@@ -547,8 +547,8 @@ public class DNSProxy implements Runnable {
 		try {
 			URL aURL = new URL(url);
 			HttpURLConnection conn = (HttpURLConnection) aURL.openConnection();
-			conn.setConnectTimeout(2000);
-			conn.setConnectTimeout(5000);
+			conn.setConnectTimeout(30000);
+			conn.setConnectTimeout(30000);
 			conn.connect();
 			is = conn.getInputStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
