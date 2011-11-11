@@ -93,8 +93,7 @@ class Utils {
 		} else if (new File(ALTERNATIVE_ROOT).exists()) {
 			root_shell = ALTERNATIVE_ROOT;
 		} else {
-			isRoot = 0;
-			return false;
+			root_shell = "su";
 		}
 
 		Process process = null;
