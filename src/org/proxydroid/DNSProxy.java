@@ -539,7 +539,7 @@ public class DNSProxy implements Runnable {
 
 		InputStream is;
 
-		String url = "http://gaednsproxy1.appspot.com/?d="
+		String url = "http://gaednsproxy.appspot.com/?d="
 				+ URLEncoder.encode(Base64.encodeBytes(Base64
 						.encodeBytesToBytes(domain.getBytes())));
 		Log.d(TAG, "DNS Relay URL: " + url);

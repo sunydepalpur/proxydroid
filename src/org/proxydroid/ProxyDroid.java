@@ -92,7 +92,6 @@ public class ProxyDroid extends PreferenceActivity implements
 	private ProgressDialog pd = null;
 
 	private String profile;
-	public static boolean isRoot = false;
 
 	private Profile mProfile = new Profile();
 
