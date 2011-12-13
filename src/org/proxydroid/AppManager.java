@@ -264,7 +264,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 
 		Iterator<ApplicationInfo> itAppInfo = lAppInfo.iterator();
 
-		ProxyedApp[] apps = new ProxyedApp[lAppInfo.size()];
+		Vector<ProxyedApp> vectorApps = new Vector<ProxyedApp>();
 
 		ApplicationInfo aInfo = null;
 
@@ -276,27 +276,28 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 			// ignore all system apps
 			if (aInfo.uid < 10000)
 				continue;
-			
-			apps[appIdx] = new ProxyedApp();
 
-			apps[appIdx].setUid(aInfo.uid);
+			ProxyedApp app = new ProxyedApp();
 
-			apps[appIdx].setUsername(pMgr.getNameForUid(apps[appIdx].getUid()));
+			app.setUid(aInfo.uid);
+
+			app.setUsername(pMgr.getNameForUid(app.getUid()));
 
 			// check if this application is allowed
 			if (aInfo.packageName != null
 					&& aInfo.packageName.equals("org.proxydroid")) {
-				apps[appIdx].setProxyed(true);
-			} else if (Arrays
-					.binarySearch(tordApps, apps[appIdx].getUsername()) >= 0) {
-				apps[appIdx].setProxyed(true);
+				app.setProxyed(true);
+			} else if (Arrays.binarySearch(tordApps, app.getUsername()) >= 0) {
+				app.setProxyed(true);
 			} else {
-				apps[appIdx].setProxyed(false);
+				app.setProxyed(false);
 			}
 
-			appIdx++;
+			vectorApps.add(app);
+
 		}
 
+		ProxyedApp[] apps = new ProxyedApp[vectorApps.size()];
 		return apps;
 	}
 
@@ -330,7 +331,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 
 		while (itAppInfo.hasNext()) {
 			aInfo = itAppInfo.next();
-			
+
 			// ignore system apps
 			if (aInfo.uid < 10000)
 				continue;
@@ -361,7 +362,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 			vectorApps.add(tApp);
 		}
 
-		apps = new ProxyedApp[lAppInfo.size()];
+		apps = new ProxyedApp[vectorApps.size()];
 		vectorApps.toArray(apps);
 
 	}
