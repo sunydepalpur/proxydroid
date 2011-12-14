@@ -107,11 +107,11 @@ public class ProxyDroid extends PreferenceActivity implements
 	private EditTextPreference userText;
 	private EditTextPreference passwordText;
 	private EditTextPreference domainText;
-	private EditTextPreference intranetAddrText;
 	private ListPreferenceMultiSelect ssidList;
 	private ListPreference proxyTypeList;
 	private CheckBoxPreference isRunningCheck;
 	private Preference proxyedApps;
+	private Preference bypassAddrs;
 
 	private AdView adView;
 
@@ -240,7 +240,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		userText = (EditTextPreference) findPreference("user");
 		passwordText = (EditTextPreference) findPreference("password");
 		domainText = (EditTextPreference) findPreference("domain");
-		intranetAddrText = (EditTextPreference) findPreference("intranetAddr");
+		bypassAddrs = (Preference) findPreference("bypassAddrs");
 		ssidList = (ListPreferenceMultiSelect) findPreference("ssid");
 		proxyTypeList = (ListPreference) findPreference("proxyType");
 		proxyedApps = (Preference) findPreference("proxyedApps");
@@ -376,7 +376,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		String mPassword = mProfile.getPassword();
 		String mDomain = mProfile.getDomain();
 		String mProxyType = mProfile.getProxyType();
-		String mIntranetAddr = mProfile.getIntranetAddr();
+		String mbypassAddrs = mProfile.getBypassAddrs();
 
 		int mPort = mProfile.getPort();
 
@@ -406,7 +406,7 @@ public class ProxyDroid extends PreferenceActivity implements
 				} catch (Exception e) {
 					mPort = -1;
 				}
-				mIntranetAddr = "";
+				mbypassAddrs = "";
 				mUser = st[2];
 				mPassword = st[3];
 				mIsAuth = st[4].equals("true") ? true : false;
@@ -438,7 +438,7 @@ public class ProxyDroid extends PreferenceActivity implements
 				} catch (Exception e) {
 					mPort = -1;
 				}
-				mIntranetAddr = st[2];
+				mbypassAddrs = st[2];
 				mUser = st[3];
 				mPassword = st[4];
 				mIsAuth = st[5].equals("true") ? true : false;
@@ -459,7 +459,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 			tmpProfile.setName(mName);
 			tmpProfile.setHost(mHost);
-			tmpProfile.setIntranetAddr(mIntranetAddr);
+			tmpProfile.setBypassAddrs(mbypassAddrs);
 			tmpProfile.setUser(mUser);
 			tmpProfile.setPassword(mPassword);
 			tmpProfile.setDomain(mDomain);
@@ -508,7 +508,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			Bundle bundle = new Bundle();
 			bundle.putString("host", mProfile.getHost());
 			bundle.putString("user", mProfile.getUser());
-			bundle.putString("intranetAddr", mProfile.getIntranetAddr());
+			bundle.putString("bypassAddrs", mProfile.getBypassAddrs());
 			bundle.putString("password", mProfile.getPassword());
 			bundle.putString("domain", mProfile.getDomain());
 
@@ -551,7 +551,6 @@ public class ProxyDroid extends PreferenceActivity implements
 		}
 
 		hostText.setText(mProfile.getHost());
-		intranetAddrText.setText(mProfile.getIntranetAddr());
 		userText.setText(mProfile.getUser());
 		passwordText.setText(mProfile.getPassword());
 		domainText.setText(mProfile.getDomain());
@@ -596,7 +595,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		proxyTypeList.setEnabled(false);
 		proxyedApps.setEnabled(false);
 		profileList.setEnabled(false);
-		intranetAddrText.setEnabled(false);
+		bypassAddrs.setEnabled(false);
 
 		isAuthCheck.setEnabled(false);
 		isNTLMCheck.setEnabled(false);
@@ -608,7 +607,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private void enableAll() {
 		hostText.setEnabled(true);
 		portText.setEnabled(true);
-		intranetAddrText.setEnabled(true);
+		bypassAddrs.setEnabled(true);
 
 		proxyTypeList.setEnabled(true);
 		if (isAuthCheck.isChecked()) {
@@ -635,6 +634,10 @@ public class ProxyDroid extends PreferenceActivity implements
 			Preference preference) {
 
 		if (preference.getKey() != null
+				&& preference.getKey().equals("bypassAddrs")) {
+			Intent intent = new Intent(this, BypassListActivity.class);
+			startActivity(intent);
+		} else if (preference.getKey() != null
 				&& preference.getKey().equals("proxyedApps")) {
 			Intent intent = new Intent(this, AppManager.class);
 			startActivity(intent);
@@ -734,9 +737,9 @@ public class ProxyDroid extends PreferenceActivity implements
 		if (!settings.getString("user", "").equals(""))
 			userText.setSummary(settings.getString("user",
 					getString(R.string.user_summary)));
-		if (!settings.getString("intranetAddr", "").equals(""))
-			intranetAddrText.setSummary(settings.getString("intranetAddr",
-					getString(R.string.set_intranet_summary)));
+		if (!settings.getString("bypassAddrs", "").equals(""))
+			bypassAddrs.setSummary(settings.getString("bypassAddrs",
+					getString(R.string.set_bypass_summary)));
 		if (!settings.getString("port", "-1").equals("-1")
 				&& !settings.getString("port", "-1").equals(""))
 			portText.setSummary(settings.getString("port",
@@ -891,12 +894,12 @@ public class ProxyDroid extends PreferenceActivity implements
 				domainText.setSummary(getString(R.string.domain_summary));
 			else
 				domainText.setSummary(settings.getString("domain", ""));
-		else if (key.equals("intranetAddr"))
-			if (settings.getString("intranetAddr", "").equals(""))
-				intranetAddrText
-						.setSummary(getString(R.string.set_intranet_summary));
+		else if (key.equals("bypassAddrs"))
+			if (settings.getString("bypassAddrs", "").equals(""))
+				bypassAddrs
+						.setSummary(getString(R.string.set_bypass_summary));
 			else
-				intranetAddrText.setSummary(settings.getString("intranetAddr",
+				bypassAddrs.setSummary(settings.getString("bypassAddrs",
 						""));
 		else if (key.equals("port"))
 			if (settings.getString("port", "-1").equals("-1")
@@ -1001,7 +1004,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		final View textEntryView = factory.inflate(
 				R.layout.alert_dialog_text_entry, null);
 		final EditText profileName = (EditText) textEntryView
-				.findViewById(R.id.profile_name_edit);
+				.findViewById(R.id.text_edit);
 		profileName.setText(getProfileName(profile));
 
 		AlertDialog ad = new AlertDialog.Builder(this)
@@ -1012,7 +1015,7 @@ public class ProxyDroid extends PreferenceActivity implements
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
 								EditText profileName = (EditText) textEntryView
-										.findViewById(R.id.profile_name_edit);
+										.findViewById(R.id.text_edit);
 								SharedPreferences settings = PreferenceManager
 										.getDefaultSharedPreferences(ProxyDroid.this);
 								String name = profileName.getText().toString();

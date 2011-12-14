@@ -20,7 +20,7 @@
     android:orientation="vertical">
 
     <EditText
-        android:id="@+id/profile_name_edit"
+        android:id="@+id/text_edit"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
         android:layout_marginLeft="20dip"
