@@ -83,6 +83,8 @@ public class ProxyDroidService extends Service {
 	private static final int MSG_CONNECT_FINISH = 1;
 	private static final int MSG_CONNECT_SUCCESS = 2;
 	private static final int MSG_CONNECT_FAIL = 3;
+	
+	final static String CMD_IPTABLES_RETURN = "iptables -t nat -A OUTPUT -p tcp -d 0.0.0.0 -j RETURN\n";
 
 	final static String CMD_IPTABLES_REDIRECT_ADD_HTTP = "iptables -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
 			+ "iptables -t nat -A OUTPUT -p tcp --dport 443 -j REDIRECT --to 8124\n"
@@ -100,7 +102,7 @@ public class ProxyDroidService extends Service {
 
 	private String host;
 	private int port;
-	private String intranetAddr = "";
+	private String bypassAddrs = "";
 	private String user;
 	private String password;
 	private String domain;
@@ -347,6 +349,12 @@ public class ProxyDroidService extends Service {
 							+ dnsPort + "\n");
 
 			}
+			
+			if (bypassAddrs != null &&  !bypassAddrs.equals("")) {
+				String[] addrs = Profile.decodeAddrs(bypassAddrs);
+				for (String addr : addrs)
+					cmd.append(CMD_IPTABLES_RETURN.replace("0.0.0.0", addr));
+			}
 
 			String redirectCmd = CMD_IPTABLES_REDIRECT_ADD_HTTP;
 			String dnatCmd = CMD_IPTABLES_DNAT_ADD_HTTP;
@@ -374,32 +382,6 @@ public class ProxyDroidService extends Service {
 			}
 
 			String rules = cmd.toString();
-
-			if (intranetAddr == null || intranetAddr.equals("")) {
-				// Reference:
-				// http://en.wikipedia.org/wiki/Private_network#Private_IPv4_address_spaces
-				if (localIp != null) {
-					String[] prefix = localIp.split("\\.");
-					if (prefix.length == 4) {
-						String intranet = localIp;
-						if (localIp.startsWith("192.168."))
-							intranet = "192.168.0.0/16";
-						else if (localIp.startsWith("10."))
-							intranet = "10.0.0.0/8";
-						else if (localIp.startsWith("172.")) {
-							int prefix2 = Integer.valueOf(prefix[1]);
-							if (prefix2 <= 31 && prefix2 >= 16) {
-								intranet = "172.16.0.0/12";
-							}
-						}
-						rules = rules.replace("-p tcp", "-p tcp " + "! -d "
-								+ intranet);
-					}
-				}
-			} else {
-				rules = rules.replace("-p tcp", "-p tcp " + "! -d "
-						+ intranetAddr);
-			}
 
 			rules = rules.replace("iptables", Utils.getIptables());
 
@@ -646,7 +628,7 @@ public class ProxyDroidService extends Service {
 
 		Bundle bundle = intent.getExtras();
 		host = bundle.getString("host");
-		intranetAddr = bundle.getString("intranetAddr");
+		bypassAddrs = bundle.getString("bypassAddrs");
 		proxyType = bundle.getString("proxyType");
 		port = bundle.getInt("port");
 		isAutoSetProxy = bundle.getBoolean("isAutoSetProxy");

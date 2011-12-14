@@ -61,7 +61,7 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 			Bundle bundle = new Bundle();
 			bundle.putString("host", mProfile.getHost());
 			bundle.putString("user", mProfile.getUser());
-			bundle.putString("intranetAddr", mProfile.getIntranetAddr());
+			bundle.putString("bypassAddrs", mProfile.getBypassAddrs());
 			bundle.putString("password", mProfile.getPassword());
 			bundle.putString("domain", mProfile.getDomain());
 

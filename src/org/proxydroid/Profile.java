@@ -18,6 +18,7 @@
 package org.proxydroid;
 
 import java.io.Serializable;
+import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.json.simple.JSONObject;
@@ -37,7 +38,7 @@ public class Profile implements Serializable {
 	private String host;
 	private String proxyType;
 	private int port;
-	private String intranetAddr;
+	private String bypassAddrs;
 	private String user;
 	private String password;
 	private boolean isAutoConnect = false;
@@ -61,10 +62,9 @@ public class Profile implements Serializable {
 		user = settings.getString("user", "");
 		password = settings.getString("password", "");
 		ssid = settings.getString("ssid", "");
-		intranetAddr = settings.getString("intranetAddr", "");
-		intranetAddr = validateIntrnet(intranetAddr);
+		bypassAddrs = settings.getString("bypassAddrs", "");
 		domain = settings.getString("domain", "");
-		
+
 		isAuth = settings.getBoolean("isAuth", false);
 		isNTLM = settings.getBoolean("isNTLM", false);
 		isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
@@ -89,7 +89,7 @@ public class Profile implements Serializable {
 		ed.putString("profileName", name);
 		ed.putString("host", host);
 		ed.putString("port", Integer.toString(port));
-		ed.putString("intranetAddr", intranetAddr);
+		ed.putString("bypassAddrs", bypassAddrs);
 		ed.putString("user", user);
 		ed.putString("password", password);
 		ed.putBoolean("isAuth", isAuth);
@@ -115,18 +115,8 @@ public class Profile implements Serializable {
 		isAutoConnect = false;
 		ssid = "";
 		isNTLM = false;
-		intranetAddr = "";
+		bypassAddrs = "";
 		isDNSProxy = false;
-	}
-
-	private String validateIntrnet(String ia) {
-
-		boolean valid = Pattern.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}/[0-9]{1,2}",
-				ia);
-		if (valid)
-			return ia;
-		else
-			return "";
 	}
 
 	@Override
@@ -144,14 +134,14 @@ public class Profile implements Serializable {
 		obj.put("user", user);
 		obj.put("password", password);
 		obj.put("domain", domain);
-		obj.put("intranetAddr", intranetAddr);
-		
+		obj.put("bypassAddrs", bypassAddrs);
+
 		obj.put("isAuth", isAuth);
 		obj.put("isNTLM", isNTLM);
 		obj.put("isAutoConnect", isAutoConnect);
 		obj.put("isAutoSetProxy", isAutoSetProxy);
 		obj.put("isDNSProxy", isDNSProxy);
-		
+
 		obj.put("port", port);
 		return obj;
 	}
@@ -210,16 +200,51 @@ public class Profile implements Serializable {
 		user = jd.getString("user", "");
 		password = jd.getString("password", "");
 		domain = jd.getString("domain", "");
-		intranetAddr = jd.getString("intranetAddr", "");
-		
+		bypassAddrs = jd.getString("bypassAddrs", "");
+
 		port = jd.getInt("port", 3128);
-		
+
 		isAuth = jd.getBoolean("isAuth", false);
 		isNTLM = jd.getBoolean("isNTLM", false);
 		isAutoConnect = jd.getBoolean("isAutoConnect", false);
 		isAutoSetProxy = jd.getBoolean("isAutoSetProxy", false);
 		isDNSProxy = jd.getBoolean("isDNSProxy", false);
 
+	}
+	
+	public static boolean validateAddr(String ia) {
+
+		boolean valid1 = Pattern.matches(
+				"[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}/[0-9]{1,2}",
+				ia);
+		boolean valid2 = Pattern.matches(
+				"[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}", ia);
+		if (valid1 || valid2)
+			return true;
+		else
+			return false;
+	}
+
+	public static String[] decodeAddrs(String addrs) {
+		String[] list = addrs.split("\\|");
+		Vector<String> ret = new Vector<String>();
+		for (String addr : list)
+			if (validateAddr(addr))
+				ret.add(addr);
+		return ret.toArray(new String[ret.size()]);
+	}
+
+	public static String encodeAddrs(String[] addrs) {
+		
+		if (addrs.length == 0)
+			return "";
+		
+		StringBuffer sb = new StringBuffer();
+		for (String addr : addrs)
+			if (validateAddr(addr))
+				sb.append(addr + "|");
+		String ret = sb.substring(0, sb.length() - 1);
+		return ret;
 	}
 
 	/**
@@ -298,18 +323,18 @@ public class Profile implements Serializable {
 	}
 
 	/**
-	 * @return the intranetAddr
+	 * @return the bypassAddrs
 	 */
-	public String getIntranetAddr() {
-		return intranetAddr;
+	public String getBypassAddrs() {
+		return bypassAddrs;
 	}
 
 	/**
-	 * @param intranetAddr
-	 *            the intranetAddr to set
+	 * @param bypassAddrs
+	 *            the bypassAddrs to set
 	 */
-	public void setIntranetAddr(String intranetAddr) {
-		this.intranetAddr = intranetAddr;
+	public void setBypassAddrs(String bypassAddrs) {
+		this.bypassAddrs = bypassAddrs;
 	}
 
 	/**

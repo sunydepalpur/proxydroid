@@ -23,9 +23,8 @@
 			android:defaultValue="" android:key="ssid" android:title="@string/ssid"
 			android:dialogTitle="@string/ssid" android:summary="@string/ssid_summary"
 			android:entries="@array/ssid_default_entries" android:entryValues="@array/ssid_default_values" />
-		<EditTextPreference android:summary="@string/set_intranet_summary"
-			android:title="@string/set_intranet" android:key="intranetAddr"
-			android:defaultValue="X.X.X.X/X"></EditTextPreference>
+		<Preference android:summary="@string/set_bypass_summary"
+			android:title="@string/set_bypass" android:key="bypassAddrs" ></Preference>
 	</PreferenceCategory>
 
 	<PreferenceCategory android:title="@string/user_cat">
