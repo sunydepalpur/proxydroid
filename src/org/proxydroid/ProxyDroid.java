@@ -297,10 +297,6 @@ public class ProxyDroid extends PreferenceActivity implements
 		}
 
 		if (!Utils.isRoot()) {
-
-			isAutoSetProxyCheck.setChecked(false);
-			isAutoSetProxyCheck.setEnabled(false);
-			proxyedApps.setEnabled(false);
 			showAToast(getString(R.string.require_root_alert));
 		}
 
@@ -328,8 +324,6 @@ public class ProxyDroid extends PreferenceActivity implements
 					SharedPreferences settings = PreferenceManager
 							.getDefaultSharedPreferences(ProxyDroid.this);
 
-					updateProfiles();
-
 					CopyAssets();
 
 					Utils.runCommand("chmod 755 /data/data/org.proxydroid/iptables");
@@ -349,135 +343,10 @@ public class ProxyDroid extends PreferenceActivity implements
 
 	}
 
-	private void updateProfiles() {
-		SharedPreferences settings = PreferenceManager
-				.getDefaultSharedPreferences(this);
-
-		// Store current settings first
-		String oldProfile = settings.getString("profile", "1");
-
-		Profile mProfile = new Profile();
-		mProfile.getProfile(settings);
-
-		Editor ed = settings.edit();
-		ed.putString(oldProfile, mProfile.toString());
-		ed.commit();
-
-		boolean mIsAutoConnect = mProfile.isAutoConnect();
-		boolean mIsAutoSetProxy = mProfile.isAutoSetProxy();
-		boolean mIsAuth = mProfile.isAuth();
-		boolean mIsNTLM = mProfile.isNTLM();
-		boolean mIsDNSProxy = mProfile.isDNSProxy();
-
-		String mName = mProfile.getName();
-		String mHost = mProfile.getHost();
-		String mUser = mProfile.getUser();
-		String mSsid = mProfile.getSsid();
-		String mPassword = mProfile.getPassword();
-		String mDomain = mProfile.getDomain();
-		String mProxyType = mProfile.getProxyType();
-		String mbypassAddrs = mProfile.getBypassAddrs();
-
-		int mPort = mProfile.getPort();
-
-		// Load all profiles
-		String[] mProfileValues = settings.getString("profileValues", "")
-				.split("\\|");
-
-		// Test on each profile
-		for (String p : mProfileValues) {
-
-			if (p.equals("0"))
-				continue;
-
-			String profileString = settings.getString(p, "");
-			String[] st = profileString.split("\\|");
-
-			mName = getProfileName(p);
-
-			if (st.length < 6)
-				return;
-
-			// tricks for old editions
-			if (st.length < 11) {
-				mHost = st[0];
-				try {
-					mPort = Integer.valueOf(st[1]);
-				} catch (Exception e) {
-					mPort = -1;
-				}
-				mbypassAddrs = "";
-				mUser = st[2];
-				mPassword = st[3];
-				mIsAuth = st[4].equals("true") ? true : false;
-				mProxyType = st[5];
-
-				// tricks for old editions
-				if (st.length < 8) {
-					mIsAutoConnect = false;
-					mSsid = "";
-				} else {
-					mSsid = st[6];
-					mIsAutoConnect = st[7].equals("true") ? true : false;
-
-				}
-
-				// tricks for old editions
-				if (st.length < 10) {
-					mIsNTLM = false;
-					mDomain = "";
-				} else {
-					mDomain = st[8];
-					mIsNTLM = st[9].equals("true") ? true : false;
-				}
-
-			} else {
-				mHost = st[0];
-				try {
-					mPort = Integer.valueOf(st[1]);
-				} catch (Exception e) {
-					mPort = -1;
-				}
-				mbypassAddrs = st[2];
-				mUser = st[3];
-				mPassword = st[4];
-				mIsAuth = st[5].equals("true") ? true : false;
-				mProxyType = st[6];
-				mSsid = st[7];
-				mIsAutoConnect = st[8].equals("true") ? true : false;
-				mDomain = st[9];
-				mIsNTLM = st[10].equals("true") ? true : false;
-			}
-
-			Profile tmpProfile = new Profile();
-
-			tmpProfile.setAuth(mIsAuth);
-			tmpProfile.setAutoConnect(mIsAutoConnect);
-			tmpProfile.setAutoSetProxy(mIsAutoSetProxy);
-			tmpProfile.setDNSProxy(mIsDNSProxy);
-			tmpProfile.setNTLM(mIsNTLM);
-
-			tmpProfile.setName(mName);
-			tmpProfile.setHost(mHost);
-			tmpProfile.setBypassAddrs(mbypassAddrs);
-			tmpProfile.setUser(mUser);
-			tmpProfile.setPassword(mPassword);
-			tmpProfile.setDomain(mDomain);
-			tmpProfile.setProxyType(mProxyType);
-			tmpProfile.setSsid(mSsid);
-
-			tmpProfile.setPort(mPort);
-
-			ed = settings.edit();
-			ed.putString(p, tmpProfile.toString());
-			ed.commit();
-		}
-	}
-
 	/** Called when the activity is closed. */
 	@Override
 	public void onDestroy() {
-
+		
 		adView.destroy();
 
 		super.onDestroy();
