@@ -350,6 +350,8 @@ public class ProxyDroidService extends Service {
 
 			}
 			
+			cmd.append(CMD_IPTABLES_RETURN.replace("0.0.0.0", host));
+			
 			if (bypassAddrs != null &&  !bypassAddrs.equals("")) {
 				String[] addrs = Profile.decodeAddrs(bypassAddrs);
 				for (String addr : addrs)
