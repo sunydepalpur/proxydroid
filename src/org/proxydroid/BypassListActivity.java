@@ -59,6 +59,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -103,6 +104,7 @@ public class BypassListActivity extends Activity implements OnClickListener,
 				bypassList.remove(msg.arg1);
 				break;
 			}
+			refreshList();
 			super.handleMessage(msg);
 		}
 	};
@@ -112,7 +114,6 @@ public class BypassListActivity extends Activity implements OnClickListener,
 		switch (arg0.getId()) {
 		case R.id.addBypassAddr:
 			editAddr(MSG_ADD_ADDR, -1);
-			refreshList();
 			break;
 		}
 	}
@@ -136,24 +137,22 @@ public class BypassListActivity extends Activity implements OnClickListener,
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		editAddr(MSG_EDIT_ADDR, position);
-		refreshList();
 	}
 
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view,
 			int position, long id) {
 		delAddr(position);
-		refreshList();
 		return true;
 	}
 
 	private void delAddr(final int idx) {
 		
-		String addr = bypassList.get(idx);
+		final String addr = bypassList.get(idx);
 		
 		AlertDialog ad = new AlertDialog
 				.Builder(this)
-				.setTitle(R.string.bypass_del_title + " " + addr + "?")
+				.setTitle(addr)
 				.setMessage(R.string.bypass_del_text)
 				.setPositiveButton(R.string.alert_dialog_ok,
 						new DialogInterface.OnClickListener() {
@@ -163,7 +162,8 @@ public class BypassListActivity extends Activity implements OnClickListener,
 								Message msg = new Message();
 								msg.what = MSG_DEL_ADDR;
 								msg.arg1 = idx;
-								msg.obj = null;
+								msg.obj = addr;
+								handler.sendMessage(msg);
 							}
 						})
 				.setNegativeButton(R.string.alert_dialog_cancel,
@@ -240,8 +240,10 @@ public class BypassListActivity extends Activity implements OnClickListener,
 		String[] addrs = Profile.decodeAddrs(profile.getBypassAddrs());
 		bypassList = new ArrayList<String>();
 
-		for (String addr : addrs)
+		for (String addr : addrs) {
 			bypassList.add(addr);
+//			Log.d(TAG, addr);
+		}
 
 		final LayoutInflater inflater = getLayoutInflater();
 
@@ -251,14 +253,15 @@ public class BypassListActivity extends Activity implements OnClickListener,
 				String addr;
 				if (convertView == null) {
 					// Inflate a new view
-					convertView = inflater.inflate(R.layout.layout_apps_item,
+					convertView = inflater.inflate(R.layout.bypass_list_item,
 							parent, false);
 				}
 
 				TextView item = (TextView) convertView
 						.findViewById(R.id.bypasslistItemText);
 				addr = bypassList.get(position);
-				item.setText(addr);
+				if (addr != null)
+					item.setText(addr);
 
 				return convertView;
 			}

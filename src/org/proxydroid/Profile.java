@@ -97,7 +97,7 @@ public class Profile implements Serializable {
 		ed.putString("domain", domain);
 		ed.putString("proxyType", proxyType);
 		ed.putBoolean("isAutoConnect", isAutoConnect);
-		ed.putBoolean("isAutoSetProxyCheck", isAutoSetProxy);
+		ed.putBoolean("isAutoSetProxy", isAutoSetProxy);
 		ed.putBoolean("isDNSProxy", isDNSProxy);
 		ed.putString("ssid", ssid);
 		ed.commit();

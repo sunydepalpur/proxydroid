@@ -141,8 +141,10 @@ class Utils {
 
 	private static void checkIptables() {
 
-		if (!isRoot())
+		if (!isRoot()) {
+			iptables = "iptables";
 			return;
+		}
 
 		// Check iptables binary
 		iptables = DEFAULT_IPTABLES;

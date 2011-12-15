@@ -383,6 +383,8 @@ public class ProxyDroidService extends Service {
 
 			String rules = cmd.toString();
 
+			Log.d(TAG, rules);
+			
 			rules = rules.replace("iptables", Utils.getIptables());
 
 			if (proxyType.equals("http") && isNTLM)
