@@ -31,6 +31,18 @@ class Utils {
 	private static String shell = null;
 	private static String root_shell = null;
 	private static String iptables = null;
+	
+	
+	public static String preserve(String s) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (c == '\'')
+				sb.append(c);
+			sb.append(c);
+		}
+		return sb.toString();
+	}
 
 	public static String getSignature(Context ctx) {
 		Signature sig = null;
