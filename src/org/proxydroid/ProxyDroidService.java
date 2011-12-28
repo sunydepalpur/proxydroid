@@ -307,7 +307,8 @@ public class ProxyDroidService extends Service {
 		try {
 			Log.e(TAG, "Forward Successful");
 			
-			password = Utils.preserve(password);
+			final String u = Utils.preserve(user);
+			final String p = Utils.preserve(password);
 
 			if (isAuth && isNTLM) {
 				Utils.runRootCommand(BASE
@@ -320,16 +321,16 @@ public class ProxyDroidService extends Service {
 						runNTLMProxy(BASE
 								+ "cntlm -P "
 								+ BASE
-								+ "cntlm.pid -l 8025 -u "
-								+ user
+								+ "cntlm.pid -l 8025 -u \""
+								+ u + "\""
 								+ (!domain.equals("") ? "@" + domain : "@local")
-								+ " -p '" + password + "' " + host + ":" + port);
+								+ " -p \"" + p + "\" " + host + ":" + port);
 					}
 				}.start();
 			} else {
 				Utils.runRootCommand(BASE + "proxy.sh start" + " " + proxyType
-						+ " " + host + " " + port + " " + auth + " \"" + user
-						+ "\" '" + password + "'");
+						+ " " + host + " " + port + " " + auth + " \"" + u
+						+ "\" \"" + p + "\"");
 			}
 
 			StringBuffer cmd = new StringBuffer();
