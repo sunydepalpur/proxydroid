@@ -181,52 +181,6 @@ public class ProxyDroidService extends Service {
 		sRunningInstance = null;
 	}
 
-	private void initHasRedirectSupported() {
-		Process process = null;
-		DataOutputStream os = null;
-		DataInputStream es = null;
-
-		String command;
-		String line = null;
-
-		command = Utils.getIptables()
-				+ " -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 8153";
-
-		try {
-			process = Runtime.getRuntime().exec(Utils.getRoot());
-			es = new DataInputStream(process.getErrorStream());
-			os = new DataOutputStream(process.getOutputStream());
-			os.writeBytes(command + "\n");
-			os.writeBytes("exit\n");
-			os.flush();
-			process.waitFor();
-
-			while (null != (line = es.readLine())) {
-				Log.d(TAG, line);
-				if (line.contains("No chain/target/match")) {
-					this.hasRedirectSupport = false;
-					break;
-				}
-			}
-		} catch (Exception e) {
-			Log.e(TAG, e.getMessage());
-		} finally {
-			try {
-				if (os != null) {
-					os.close();
-				}
-				if (es != null)
-					es.close();
-				process.destroy();
-			} catch (Exception e) {
-				// nothing
-			}
-		}
-
-		// flush the check command
-		Utils.runRootCommand(command.replace("-A", "-D"));
-	}
-
 	/**
 	 * This is a wrapper around the new startForeground method, using the older
 	 * APIs if it is not available.
@@ -668,7 +622,7 @@ public class ProxyDroidService extends Service {
 
 				handler.sendEmptyMessage(MSG_CONNECT_START);
 
-				initHasRedirectSupported();
+				hasRedirectSupport = Utils.getHasRedirectSupport();
 
 				if (getAddress() && handleCommand()) {
 					// Connection and forward successful
