@@ -545,12 +545,15 @@ public class DNSProxy implements Runnable {
 				+ URLEncoder.encode(Base64.encodeBytes(Base64
 						.encodeBytesToBytes(domain.getBytes())));
 		Log.d(TAG, "DNS Relay URL: " + url);
+		String host = "gaednsproxy.appspot.com";
+		url = url.replace(host, dnsRelay);
 
 		try {
 			URL aURL = new URL(url);
 			HttpURLConnection conn = (HttpURLConnection) aURL.openConnection();
-			conn.setConnectTimeout(30000);
-			conn.setConnectTimeout(30000);
+			conn.setRequestProperty("Host", host);
+			conn.setConnectTimeout(10 * 1000);
+			conn.setReadTimeout(20 * 1000);
 			conn.connect();
 			is = conn.getInputStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
