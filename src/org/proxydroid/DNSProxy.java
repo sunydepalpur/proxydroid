@@ -443,7 +443,8 @@ public class DNSProxy implements Runnable {
 					sendDns(dnsCache.get(questDomain).getDnsResponse(), dnsq,
 							srvSocket);
 
-					Log.d(TAG, "DNS cache hit");
+					Log.d(TAG, "DNS cache hit for " + questDomain + ": "
+							+ dnsCache.get(questDomain).getIPString());
 
 				} else if (questDomain.toLowerCase().endsWith(".appspot.com")) {
 					// for appspot.com
@@ -476,11 +477,11 @@ public class DNSProxy implements Runnable {
 									addToCache(questDomain, answer);
 									sendDns(answer, dnsq, srvSocket);
 									Log.d(TAG,
-											"Success to get DNS response，length:"
-													+ answer.length
-													+ "  cost："
-													+ (System
-															.currentTimeMillis() - startTime)
+											"Success to get DNS response for "
+													+ questDomain
+													+ "，length: "
+													+ answer.length + " "
+													+ (System.currentTimeMillis() - startTime)
 													/ 1000 + "s");
 								} else {
 									Log.e(TAG,
@@ -488,6 +489,7 @@ public class DNSProxy implements Runnable {
 								}
 							} catch (Exception e) {
 								// Nothing
+								Log.e(TAG, "Failed to resolve " + questDomain + ": " + e.getLocalizedMessage(), e);
 							}
 							synchronized (DNSProxy.this) {
 								domains.remove(questDomain);
