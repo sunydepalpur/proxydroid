@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.HttpURLConnection;
@@ -30,6 +31,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
+
+import com.github.droidfu.http.BetterHttp;
+import com.github.droidfu.http.BetterHttpRequest;
+import com.github.droidfu.http.BetterHttpResponse;
 
 import android.util.Log;
 
@@ -166,8 +171,12 @@ public class DNSProxy implements Runnable {
 	private static final String CANT_RESOLVE = "Error";
 
 	public DNSProxy(String name, int port) {
+		
 		this.name = name;
 		this.srvPort = port;
+		
+		BetterHttp.setupHttpClient();
+		BetterHttp.setSocketTimeout(10 * 1000);
 
 		domains = new HashSet<String>();
 
@@ -552,21 +561,34 @@ public class DNSProxy implements Runnable {
 		String host = "gaednsproxy.appspot.com";
 		url = url.replace(host, dnsRelay);
 
+//		try {
+//			URL aURL = new URL(url);
+//			HttpURLConnection conn = (HttpURLConnection) aURL.openConnection();
+//			conn.setRequestProperty("Host", host);
+//			conn.setConnectTimeout(10 * 1000);
+//			conn.setReadTimeout(20 * 1000);
+//			conn.connect();
+//			is = conn.getInputStream();
+//			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+//			ip = br.readLine();
+//		} catch (SocketException e) {
+//			Log.e(TAG, "Failed to request URI: " + url, e);
+//		} catch (IOException e) {
+//			Log.e(TAG, "Failed to request URI: " + url, e);
+//		} catch (NullPointerException e) {
+//			Log.e(TAG, "Failed to request URI: " + url, e);
+//		}
+		
+		BetterHttpRequest conn = BetterHttp.get(url, host);
+		
 		try {
-			URL aURL = new URL(url);
-			HttpURLConnection conn = (HttpURLConnection) aURL.openConnection();
-			conn.setRequestProperty("Host", host);
-			conn.setConnectTimeout(10 * 1000);
-			conn.setReadTimeout(20 * 1000);
-			conn.connect();
-			is = conn.getInputStream();
+			BetterHttpResponse resp = conn.send();
+			is = resp.getResponseBody();
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
 			ip = br.readLine();
-		} catch (SocketException e) {
+		} catch (ConnectException e) {
 			Log.e(TAG, "Failed to request URI: " + url, e);
 		} catch (IOException e) {
-			Log.e(TAG, "Failed to request URI: " + url, e);
-		} catch (NullPointerException e) {
 			Log.e(TAG, "Failed to request URI: " + url, e);
 		}
 
