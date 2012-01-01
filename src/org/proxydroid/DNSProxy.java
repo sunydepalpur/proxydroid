@@ -462,10 +462,14 @@ public class DNSProxy implements Runnable {
 							domains.add(questDomain);
 					}
 
-					while (threadNum >= MAX_THREAD_NUM) {
-						Thread.sleep(2000);
-					}
+//					while (threadNum >= MAX_THREAD_NUM) {
+//						Thread.sleep(2000);
+//					}
 
+					if (threadNum >= MAX_THREAD_NUM) {
+						continue;
+					}
+					
 					threadNum++;
 
 					new Thread() {
@@ -519,9 +523,9 @@ public class DNSProxy implements Runnable {
 				break;
 			} catch (IOException e) {
 				Log.e(TAG, "IO Exception", e);
-			} catch (InterruptedException e) {
-				Log.e(TAG, "Interrupted", e);
-				break;
+//			} catch (InterruptedException e) {
+//				Log.e(TAG, "Interrupted", e);
+//				break;
 			}
 		}
 
