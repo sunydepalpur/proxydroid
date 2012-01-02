@@ -275,10 +275,10 @@ public class ProxyDroidService extends Service {
 						runNTLMProxy(BASE
 								+ "cntlm -P "
 								+ BASE
-								+ "cntlm.pid -l 8025 -u \""
-								+ u + "\""
+								+ "cntlm.pid -l 8025 -u "
+								+ u
 								+ (!domain.equals("") ? "@" + domain : "@local")
-								+ " -p \"" + p + "\" " + host + ":" + port);
+								+ " -p " + p + " " + host + ":" + port);
 					}
 				}.start();
 			} else {
