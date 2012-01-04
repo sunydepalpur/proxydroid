@@ -227,31 +227,6 @@ public class ProxyDroidService extends Service {
 		invokeMethod(mSetForeground, mSetForegroundArgs);
 	}
 
-	public boolean runNTLMProxy(String command) {
-		NTLMProcess = null;
-		DataOutputStream os = null;
-		Log.d(TAG, command);
-		try {
-			NTLMProcess = Runtime.getRuntime().exec(command);
-			os = new DataOutputStream(NTLMProcess.getOutputStream());
-			os.flush();
-			NTLMProcess.waitFor();
-		} catch (Exception e) {
-			Log.e(TAG, e.getMessage());
-			return false;
-		} finally {
-			try {
-				if (os != null) {
-					os.close();
-				}
-				NTLMProcess.destroy();
-			} catch (Exception e) {
-				// nothing
-			}
-		}
-		return true;
-	}
-
 	/**
 	 * Internal method to request actual PTY terminal once we've finished
 	 * authentication. If called before authenticated, it will just fail.
@@ -272,13 +247,13 @@ public class ProxyDroidService extends Service {
 				new Thread() {
 					@Override
 					public void run() {
-						runNTLMProxy(BASE
+						Utils.runRootCommand(BASE
 								+ "cntlm -P "
 								+ BASE
 								+ "cntlm.pid -l 8025 -u "
 								+ u
 								+ (!domain.equals("") ? "@" + domain : "@local")
-								+ " -p " + p + " " + host + ":" + port);
+								+ " -p " + p + " " + host + ":" + port, 0);
 					}
 				}.start();
 			} else {
