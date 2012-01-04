@@ -204,20 +204,24 @@ public class BypassListActivity extends Activity implements OnClickListener,
 									int whichButton) {
 								/* User clicked OK so do some stuff */
 
-								EditText addrText = (EditText) textEntryView
-										.findViewById(R.id.text_edit);
-
-								String addr = addrText.getText().toString();
-								addr = Profile.validateAddr(addr);
-								if (addr != null) {
-									Message m = new Message();
-									m.what = msg;
-									m.arg1 = idx;
-									m.obj = addr;
-									handler.sendMessage(m);
-								} else {
-									handler.sendEmptyMessage(MSG_ERR_ADDR);
-								}
+								new Thread() {
+									public void run() {
+										EditText addrText = (EditText) textEntryView
+												.findViewById(R.id.text_edit);
+										String addr = addrText.getText()
+												.toString();
+										addr = Profile.validateAddr(addr);
+										if (addr != null) {
+											Message m = new Message();
+											m.what = msg;
+											m.arg1 = idx;
+											m.obj = addr;
+											handler.sendMessage(m);
+										} else {
+											handler.sendEmptyMessage(MSG_ERR_ADDR);
+										}
+									}
+								}.start();
 
 							}
 						})
