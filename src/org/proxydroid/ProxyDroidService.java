@@ -463,7 +463,7 @@ public class ProxyDroidService extends Service {
 
 		Utils.runRootCommand(Utils.getIptables() + " -t nat -F OUTPUT");
 
-		if (isNTLM) {
+		if (isAuth && isNTLM) {
 			Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`");
 		}
 
