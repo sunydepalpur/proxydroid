@@ -212,7 +212,7 @@ public class Profile implements Serializable {
 		isDNSProxy = jd.getBoolean("isDNSProxy", false);
 
 	}
-	
+
 	public static String validateAddr(String ia) {
 
 		boolean valid1 = Pattern.matches(
@@ -220,19 +220,30 @@ public class Profile implements Serializable {
 				ia);
 		boolean valid2 = Pattern.matches(
 				"[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}", ia);
-		
-		if (valid1 || valid2)
+
+		if (valid1 || valid2) {
+			
 			return ia;
-		else {
 			
+		} else {
+
 			String addrString = null;
-			
+
 			try {
 				InetAddress addr = InetAddress.getByName(ia);
 				addrString = addr.getHostAddress();
 			} catch (Exception ignore) {
+				addrString = null;
 			}
-			
+
+			if (addrString != null) {
+				boolean valid3 = Pattern.matches(
+						"[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}",
+						addrString);
+				if (!valid3)
+					addrString = null;
+			}
+
 			return addrString;
 		}
 	}
@@ -249,10 +260,10 @@ public class Profile implements Serializable {
 	}
 
 	public static String encodeAddrs(String[] addrs) {
-		
+
 		if (addrs.length == 0)
 			return "";
-		
+
 		StringBuffer sb = new StringBuffer();
 		for (String addr : addrs) {
 			String ta = validateAddr(addr);
