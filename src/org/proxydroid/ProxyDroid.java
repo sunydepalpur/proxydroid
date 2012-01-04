@@ -330,7 +330,6 @@ public class ProxyDroid extends PreferenceActivity implements
 					Utils.runCommand("chmod 755 /data/data/org.proxydroid/redsocks");
 					Utils.runCommand("chmod 755 /data/data/org.proxydroid/proxy.sh");
 					Utils.runCommand("chmod 755 /data/data/org.proxydroid/cntlm");
-					Utils.runCommand("chmod 755 /data/data/org.proxydroid/tproxy");
 					Editor edit = settings.edit();
 					edit.putBoolean(version, true);
 					edit.commit();
@@ -1001,14 +1000,12 @@ public class ProxyDroid extends PreferenceActivity implements
 				Utils.runRootCommand(Utils.getIptables() + " -t nat -F OUTPUT");
 
 				Utils.runRootCommand(ProxyDroidService.BASE + "proxy.sh stop");
-				Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/tproxy.pid`");
 
 				CopyAssets();
 				Utils.runCommand("chmod 755 /data/data/org.proxydroid/iptables");
 				Utils.runCommand("chmod 755 /data/data/org.proxydroid/redsocks");
 				Utils.runCommand("chmod 755 /data/data/org.proxydroid/proxy.sh");
 				Utils.runCommand("chmod 755 /data/data/org.proxydroid/cntlm");
-				Utils.runCommand("chmod 755 /data/data/org.proxydroid/tproxy");
 			}
 		}.start();
 	}
