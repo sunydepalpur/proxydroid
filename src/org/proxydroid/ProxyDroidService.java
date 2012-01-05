@@ -236,11 +236,23 @@ public class ProxyDroidService extends Service {
 		try {
 
 			if (proxyType.equals("http") && isAuth && isNTLM) {
-                Utils.runRootCommand(BASE
-                        + "proxy.sh start http 127.0.0.1 8025 false\n"
-                        + BASE + "cntlm -P " + BASE + "cntlm.pid -l 8025 -u "
-                        + user + (!domain.equals("") ? "@" + domain : "@local")
-                        + " -p " + password + " " + host + ":" + port + "\n");
+				Utils.runRootCommand(BASE
+						+ "proxy.sh start http 127.0.0.1 8025 false\n"
+						+ BASE
+						+ "cntlm -P "
+						+ BASE
+						+ "cntlm.pid -l 8025 -u "
+						+ user
+						+ (!domain.equals("") ? "@" + domain : "@local")
+						+ " -p "
+						+ password
+						+ " "
+						+ host
+						+ ":"
+						+ port
+						+ "\n"
+						+ BASE
+						+ "tproxy -P /data/data/org.proxydroid/tproxy.pid -s 8125 127.0.0.1 8025\n");
 			} else {
 				final String u = Utils.preserve(user);
 				final String p = Utils.preserve(password);
@@ -306,7 +318,7 @@ public class ProxyDroidService extends Service {
 			String rules = cmd.toString();
 
 			if (proxyType.equals("http") && isAuth && isNTLM)
-				rules = rules.replace("8123", "8124");
+				rules = rules.replace("8123", "8125");
 
 			rules = rules.replace("iptables", Utils.getIptables());
 
@@ -459,7 +471,8 @@ public class ProxyDroidService extends Service {
 		Utils.runRootCommand(Utils.getIptables() + " -t nat -F OUTPUT");
 
 		if (isAuth && isNTLM) {
-			Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n");
+			Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n"
+					+ "kill -9 `cat /data/data/org.proxydroid/tproxy.pid`\n");
 		}
 
 		Utils.runRootCommand(BASE + "proxy.sh stop");
