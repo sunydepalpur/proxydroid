@@ -119,7 +119,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private AdView adView;
 
 	private static final int MSG_UPDATE_FINISHED = 0;
-	
+
 	private BroadcastReceiver ssidReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -290,7 +290,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		loadProfileList();
 
 		loadNetworkList();
-		
+
 		registerReceiver(ssidReceiver, new IntentFilter(
 				android.net.ConnectivityManager.CONNECTIVITY_ACTION));
 
@@ -350,6 +350,7 @@ public class ProxyDroid extends PreferenceActivity implements
 					Utils.runCommand("chmod 755 /data/data/org.proxydroid/redsocks");
 					Utils.runCommand("chmod 755 /data/data/org.proxydroid/proxy.sh");
 					Utils.runCommand("chmod 755 /data/data/org.proxydroid/cntlm");
+					Utils.runCommand("chmod 755 /data/data/org.proxydroid/tproxy");
 					Editor edit = settings.edit();
 					edit.putBoolean(version, true);
 					edit.commit();
@@ -365,7 +366,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	/** Called when the activity is closed. */
 	@Override
 	public void onDestroy() {
-		
+
 		adView.destroy();
 		unregisterReceiver(ssidReceiver);
 
@@ -785,11 +786,10 @@ public class ProxyDroid extends PreferenceActivity implements
 				domainText.setSummary(settings.getString("domain", ""));
 		else if (key.equals("bypassAddrs"))
 			if (settings.getString("bypassAddrs", "").equals(""))
-				bypassAddrs
-						.setSummary(getString(R.string.set_bypass_summary));
+				bypassAddrs.setSummary(getString(R.string.set_bypass_summary));
 			else
-				bypassAddrs.setSummary(settings.getString("bypassAddrs",
-						"").replace("|", ", "));
+				bypassAddrs.setSummary(settings.getString("bypassAddrs", "")
+						.replace("|", ", "));
 		else if (key.equals("port"))
 			if (settings.getString("port", "-1").equals("-1")
 					|| settings.getString("port", "-1").equals(""))
@@ -1021,12 +1021,14 @@ public class ProxyDroid extends PreferenceActivity implements
 				Utils.runRootCommand(Utils.getIptables() + " -t nat -F OUTPUT");
 
 				Utils.runRootCommand(ProxyDroidService.BASE + "proxy.sh stop");
+				Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/tproxy.pid`");
 
 				CopyAssets();
 				Utils.runCommand("chmod 755 /data/data/org.proxydroid/iptables");
 				Utils.runCommand("chmod 755 /data/data/org.proxydroid/redsocks");
 				Utils.runCommand("chmod 755 /data/data/org.proxydroid/proxy.sh");
 				Utils.runCommand("chmod 755 /data/data/org.proxydroid/cntlm");
+				Utils.runCommand("chmod 755 /data/data/org.proxydroid/tproxy");
 			}
 		}.start();
 	}
