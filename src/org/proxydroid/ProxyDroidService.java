@@ -236,7 +236,11 @@ public class ProxyDroidService extends Service {
 		try {
 
 			if (proxyType.equals("http") && isAuth && isNTLM) {
-				Utils.runRootCommand(BASE + "proxy.sh start http 127.0.0.1 8025 false");
+                Utils.runRootCommand(BASE
+                        + "proxy.sh start http 127.0.0.1 8025 false\n"
+                        + BASE + "cntlm -P " + BASE + "cntlm.pid -l 8025 -u "
+                        + user + (!domain.equals("") ? "@" + domain : "@local")
+                        + " -p " + password + " " + host + ":" + port + "\n");
 			} else {
 				final String u = Utils.preserve(user);
 				final String p = Utils.preserve(password);
