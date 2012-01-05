@@ -42,6 +42,7 @@ public class Profile implements Serializable {
 	private String bypassAddrs;
 	private String user;
 	private String password;
+	private String proxyedApps;
 	private boolean isAutoConnect = false;
 	private boolean isAutoSetProxy = false;
 	private boolean isAuth = false;
@@ -64,6 +65,7 @@ public class Profile implements Serializable {
 		password = settings.getString("password", "");
 		ssid = settings.getString("ssid", "");
 		bypassAddrs = settings.getString("bypassAddrs", "");
+		proxyedApps = settings.getString("Proxyed", "");
 		domain = settings.getString("domain", "");
 
 		isAuth = settings.getBoolean("isAuth", false);
@@ -91,6 +93,7 @@ public class Profile implements Serializable {
 		ed.putString("host", host);
 		ed.putString("port", Integer.toString(port));
 		ed.putString("bypassAddrs", bypassAddrs);
+		ed.putString("Proxyed", proxyedApps);
 		ed.putString("user", user);
 		ed.putString("password", password);
 		ed.putBoolean("isAuth", isAuth);
@@ -117,6 +120,7 @@ public class Profile implements Serializable {
 		ssid = "";
 		isNTLM = false;
 		bypassAddrs = "";
+		proxyedApps = "";
 		isDNSProxy = false;
 	}
 
@@ -136,6 +140,7 @@ public class Profile implements Serializable {
 		obj.put("password", password);
 		obj.put("domain", domain);
 		obj.put("bypassAddrs", bypassAddrs);
+		obj.put("Proxyed", proxyedApps);
 
 		obj.put("isAuth", isAuth);
 		obj.put("isNTLM", isNTLM);
@@ -202,6 +207,7 @@ public class Profile implements Serializable {
 		password = jd.getString("password", "");
 		domain = jd.getString("domain", "");
 		bypassAddrs = jd.getString("bypassAddrs", "");
+		proxyedApps = jd.getString("Proxyed", "");
 
 		port = jd.getInt("port", 3128);
 
