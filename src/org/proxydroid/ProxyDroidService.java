@@ -296,7 +296,7 @@ public class ProxyDroidService extends Service {
 					apps = AppManager.getProxyedApps(this);
 
 				for (int i = 0; i < apps.length; i++) {
-					if (apps[i].isProxyed()) {
+					if (apps[i] != null && apps[i].isProxyed()) {
 						cmd.append((hasRedirectSupport ? redirectCmd : dnatCmd)
 								.replace("-t nat",
 										"-t nat -m owner --uid-owner "
@@ -307,15 +307,9 @@ public class ProxyDroidService extends Service {
 
 			String rules = cmd.toString();
 
-			Log.d(TAG, rules);
-
 			rules = rules.replace("iptables", Utils.getIptables());
 
-			if (proxyType.equals("http"))
-				Utils.runRootCommand(rules);
-			else
-				Utils.runRootCommand(rules.replace("-p tcp", "-p tcp"
-						+ " ! --dport " + port));
+			Utils.runRootCommand(rules);
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting up port forward during connect", e);
