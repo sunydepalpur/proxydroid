@@ -308,10 +308,10 @@ public class ProxyDroidService extends Service {
 
 			String rules = cmd.toString();
 
-			if (isAuth && isNTLM)
+			if (proxyType.equals("http") && isAuth && isNTLM)
 				Utils.runRootCommand(rules.replace("8123", "8125"));
-			else
-				rules = rules.replace("iptables", Utils.getIptables());
+
+			rules = rules.replace("iptables", Utils.getIptables());
 
 			Utils.runRootCommand(rules);
 
