@@ -234,9 +234,8 @@ public class ProxyDroidService extends Service {
 	private void enableProxy() {
 
 		try {
-			Log.e(TAG, "Forward Successful");
-
-			if (isAuth && isNTLM) {
+			
+			if (proxyType.equals("http") && isAuth && isNTLM) {
 				Utils.runRootCommand(BASE
 						+ "proxy.sh start http 127.0.0.1 8025 false\n"
 						+ BASE
@@ -309,7 +308,7 @@ public class ProxyDroidService extends Service {
 			String rules = cmd.toString();
 
 			if (proxyType.equals("http") && isAuth && isNTLM)
-				Utils.runRootCommand(rules.replace("8123", "8125"));
+				rules = rules.replace("8123", "8125");
 
 			rules = rules.replace("iptables", Utils.getIptables());
 
