@@ -140,5 +140,6 @@
     <string name="bypass_del_text">Remove this address?</string>
     <string name="ok_button">OK</string>
     <string name="cancel_button">Cancel</string>
+    <string name="err_addr">unknown domain name or incorrect format of IP address</string>
 
 </resources>

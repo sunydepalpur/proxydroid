@@ -54,14 +54,17 @@ import com.ksmaze.android.preference.ListPreferenceMultiSelect;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
+import android.net.ConnectivityManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -116,6 +119,20 @@ public class ProxyDroid extends PreferenceActivity implements
 	private AdView adView;
 
 	private static final int MSG_UPDATE_FINISHED = 0;
+
+	private BroadcastReceiver ssidReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+
+			if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+				Log.w(TAG, "onReceived() called uncorrectly");
+				return;
+			}
+
+			loadNetworkList();
+		}
+	};
 
 	final Handler handler = new Handler() {
 		@Override
@@ -274,6 +291,9 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		loadNetworkList();
 
+		registerReceiver(ssidReceiver, new IntentFilter(
+				android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+
 		Editor edit = settings.edit();
 
 		if (Utils.isWorked()) {
@@ -346,8 +366,9 @@ public class ProxyDroid extends PreferenceActivity implements
 	/** Called when the activity is closed. */
 	@Override
 	public void onDestroy() {
-		
+
 		adView.destroy();
+		unregisterReceiver(ssidReceiver);
 
 		super.onDestroy();
 	}
@@ -765,11 +786,10 @@ public class ProxyDroid extends PreferenceActivity implements
 				domainText.setSummary(settings.getString("domain", ""));
 		else if (key.equals("bypassAddrs"))
 			if (settings.getString("bypassAddrs", "").equals(""))
-				bypassAddrs
-						.setSummary(getString(R.string.set_bypass_summary));
+				bypassAddrs.setSummary(getString(R.string.set_bypass_summary));
 			else
-				bypassAddrs.setSummary(settings.getString("bypassAddrs",
-						"").replace("|", ", "));
+				bypassAddrs.setSummary(settings.getString("bypassAddrs", "")
+						.replace("|", ", "));
 		else if (key.equals("port"))
 			if (settings.getString("port", "-1").equals("-1")
 					|| settings.getString("port", "-1").equals(""))
