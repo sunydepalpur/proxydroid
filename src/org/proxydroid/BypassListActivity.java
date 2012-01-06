@@ -73,6 +73,7 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class BypassListActivity extends Activity implements OnClickListener,
 		OnItemClickListener, OnItemLongClickListener {
@@ -82,6 +83,7 @@ public class BypassListActivity extends Activity implements OnClickListener,
 	private static final int MSG_ADD_ADDR = 1;
 	private static final int MSG_EDIT_ADDR = 2;
 	private static final int MSG_DEL_ADDR = 3;
+	private static final int MSG_ERR_ADDR = 4;
 
 	private ListAdapter adapter;
 	private ArrayList<String> bypassList;
@@ -92,6 +94,9 @@ public class BypassListActivity extends Activity implements OnClickListener,
 		public void handleMessage(Message msg) {
 			String addr;
 			switch (msg.what) {
+			case MSG_ERR_ADDR:
+				Toast.makeText(BypassListActivity.this, R.string.err_addr, Toast.LENGTH_LONG).show();
+				break;
 			case MSG_ADD_ADDR:
 				addr = (String) msg.obj;
 				bypassList.add(addr);
@@ -199,17 +204,24 @@ public class BypassListActivity extends Activity implements OnClickListener,
 									int whichButton) {
 								/* User clicked OK so do some stuff */
 
-								EditText addrText = (EditText) textEntryView
-										.findViewById(R.id.text_edit);
-
-								String addr = addrText.getText().toString();
-								if (Profile.validateAddr(addr)) {
-									Message m = new Message();
-									m.what = msg;
-									m.arg1 = idx;
-									m.obj = addr;
-									handler.sendMessage(m);
-								}
+								new Thread() {
+									public void run() {
+										EditText addrText = (EditText) textEntryView
+												.findViewById(R.id.text_edit);
+										String addr = addrText.getText()
+												.toString();
+										addr = Profile.validateAddr(addr);
+										if (addr != null) {
+											Message m = new Message();
+											m.what = msg;
+											m.arg1 = idx;
+											m.obj = addr;
+											handler.sendMessage(m);
+										} else {
+											handler.sendEmptyMessage(MSG_ERR_ADDR);
+										}
+									}
+								}.start();
 
 							}
 						})

@@ -83,7 +83,7 @@ public class ProxyDroidService extends Service {
 	private static final int MSG_CONNECT_FINISH = 1;
 	private static final int MSG_CONNECT_SUCCESS = 2;
 	private static final int MSG_CONNECT_FAIL = 3;
-	
+
 	final static String CMD_IPTABLES_RETURN = "iptables -t nat -A OUTPUT -p tcp -d 0.0.0.0 -j RETURN\n";
 
 	final static String CMD_IPTABLES_REDIRECT_ADD_HTTP = "iptables -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
@@ -227,31 +227,6 @@ public class ProxyDroidService extends Service {
 		invokeMethod(mSetForeground, mSetForegroundArgs);
 	}
 
-	public boolean runNTLMProxy(String command) {
-		NTLMProcess = null;
-		DataOutputStream os = null;
-		Log.d(TAG, command);
-		try {
-			NTLMProcess = Runtime.getRuntime().exec(command);
-			os = new DataOutputStream(NTLMProcess.getOutputStream());
-			os.flush();
-			NTLMProcess.waitFor();
-		} catch (Exception e) {
-			Log.e(TAG, e.getMessage());
-			return false;
-		} finally {
-			try {
-				if (os != null) {
-					os.close();
-				}
-				NTLMProcess.destroy();
-			} catch (Exception e) {
-				// nothing
-			}
-		}
-		return true;
-	}
-
 	/**
 	 * Internal method to request actual PTY terminal once we've finished
 	 * authentication. If called before authenticated, it will just fail.
@@ -259,29 +234,29 @@ public class ProxyDroidService extends Service {
 	private void enableProxy() {
 
 		try {
-			Log.e(TAG, "Forward Successful");
-			
-			final String u = Utils.preserve(user);
-			final String p = Utils.preserve(password);
 
-			if (isAuth && isNTLM) {
+			if (proxyType.equals("http") && isAuth && isNTLM) {
 				Utils.runRootCommand(BASE
-						+ "tproxy -P /data/data/org.proxydroid/tproxy.pid -s 8125 127.0.0.1 8025");
-				Utils.runRootCommand(BASE
-						+ "proxy.sh start http 127.0.0.1 8025 false");
-				new Thread() {
-					@Override
-					public void run() {
-						runNTLMProxy(BASE
-								+ "cntlm -P "
-								+ BASE
-								+ "cntlm.pid -l 8025 -u "
-								+ u
-								+ (!domain.equals("") ? "@" + domain : "@local")
-								+ " -p " + p + " " + host + ":" + port);
-					}
-				}.start();
+						+ "proxy.sh start http 127.0.0.1 8025 false\n"
+						+ BASE
+						+ "cntlm -P "
+						+ BASE
+						+ "cntlm.pid -l 8025 -u "
+						+ user
+						+ (!domain.equals("") ? "@" + domain : "@local")
+						+ " -p "
+						+ password
+						+ " "
+						+ host
+						+ ":"
+						+ port
+						+ "\n"
+						+ BASE
+						+ "tproxy -P /data/data/org.proxydroid/tproxy.pid -s 8125 127.0.0.1 8025\n");
 			} else {
+				final String u = Utils.preserve(user);
+				final String p = Utils.preserve(password);
+
 				Utils.runRootCommand(BASE + "proxy.sh start" + " " + proxyType
 						+ " " + host + " " + port + " " + auth + " \"" + u
 						+ "\" \"" + p + "\"");
@@ -306,10 +281,10 @@ public class ProxyDroidService extends Service {
 							+ dnsPort + "\n");
 
 			}
-			
+
 			cmd.append(CMD_IPTABLES_RETURN.replace("0.0.0.0", host));
-			
-			if (bypassAddrs != null &&  !bypassAddrs.equals("")) {
+
+			if (bypassAddrs != null && !bypassAddrs.equals("")) {
 				String[] addrs = Profile.decodeAddrs(bypassAddrs);
 				for (String addr : addrs)
 					cmd.append(CMD_IPTABLES_RETURN.replace("0.0.0.0", addr));
@@ -331,7 +306,7 @@ public class ProxyDroidService extends Service {
 					apps = AppManager.getProxyedApps(this);
 
 				for (int i = 0; i < apps.length; i++) {
-					if (apps[i].isProxyed()) {
+					if (apps[i] != null && apps[i].isProxyed()) {
 						cmd.append((hasRedirectSupport ? redirectCmd : dnatCmd)
 								.replace("-t nat",
 										"-t nat -m owner --uid-owner "
@@ -342,17 +317,12 @@ public class ProxyDroidService extends Service {
 
 			String rules = cmd.toString();
 
-			Log.d(TAG, rules);
-			
+			if (proxyType.equals("http") && isAuth && isNTLM)
+				rules = rules.replace("8123", "8125");
+
 			rules = rules.replace("iptables", Utils.getIptables());
 
-			if (proxyType.equals("http") && isNTLM)
-				Utils.runRootCommand(rules.replace("8123", "8125"));
-			else if (proxyType.equals("http"))
-				Utils.runRootCommand(rules);
-			else
-				Utils.runRootCommand(rules.replace("-p tcp", "-p tcp"
-						+ " ! --dport " + port));
+			Utils.runRootCommand(rules);
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting up port forward during connect", e);
@@ -435,7 +405,7 @@ public class ProxyDroidService extends Service {
 			// Running on an older platform.
 			mStartForeground = mStopForeground = null;
 		}
-		
+
 		try {
 			mSetForeground = getClass().getMethod("setForeground",
 					mSetForegroundSignature);
@@ -500,9 +470,9 @@ public class ProxyDroidService extends Service {
 
 		Utils.runRootCommand(Utils.getIptables() + " -t nat -F OUTPUT");
 
-		if (isNTLM) {
-			Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/tproxy.pid`");
-			Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`");
+		if (isAuth && isNTLM) {
+			Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n"
+					+ "kill -9 `cat /data/data/org.proxydroid/tproxy.pid`\n");
 		}
 
 		Utils.runRootCommand(BASE + "proxy.sh stop");

@@ -298,6 +298,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 		}
 
 		ProxyedApp[] apps = new ProxyedApp[vectorApps.size()];
+		vectorApps.toArray(apps);
 		return apps;
 	}
 

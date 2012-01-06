@@ -18,6 +18,7 @@
 package org.proxydroid;
 
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
@@ -41,6 +42,7 @@ public class Profile implements Serializable {
 	private String bypassAddrs;
 	private String user;
 	private String password;
+	private String proxyedApps;
 	private boolean isAutoConnect = false;
 	private boolean isAutoSetProxy = false;
 	private boolean isAuth = false;
@@ -63,6 +65,7 @@ public class Profile implements Serializable {
 		password = settings.getString("password", "");
 		ssid = settings.getString("ssid", "");
 		bypassAddrs = settings.getString("bypassAddrs", "");
+		proxyedApps = settings.getString("Proxyed", "");
 		domain = settings.getString("domain", "");
 
 		isAuth = settings.getBoolean("isAuth", false);
@@ -90,6 +93,7 @@ public class Profile implements Serializable {
 		ed.putString("host", host);
 		ed.putString("port", Integer.toString(port));
 		ed.putString("bypassAddrs", bypassAddrs);
+		ed.putString("Proxyed", proxyedApps);
 		ed.putString("user", user);
 		ed.putString("password", password);
 		ed.putBoolean("isAuth", isAuth);
@@ -116,6 +120,7 @@ public class Profile implements Serializable {
 		ssid = "";
 		isNTLM = false;
 		bypassAddrs = "";
+		proxyedApps = "";
 		isDNSProxy = false;
 	}
 
@@ -135,6 +140,7 @@ public class Profile implements Serializable {
 		obj.put("password", password);
 		obj.put("domain", domain);
 		obj.put("bypassAddrs", bypassAddrs);
+		obj.put("Proxyed", proxyedApps);
 
 		obj.put("isAuth", isAuth);
 		obj.put("isNTLM", isNTLM);
@@ -201,6 +207,7 @@ public class Profile implements Serializable {
 		password = jd.getString("password", "");
 		domain = jd.getString("domain", "");
 		bypassAddrs = jd.getString("bypassAddrs", "");
+		proxyedApps = jd.getString("Proxyed", "");
 
 		port = jd.getInt("port", 3128);
 
@@ -211,38 +218,64 @@ public class Profile implements Serializable {
 		isDNSProxy = jd.getBoolean("isDNSProxy", false);
 
 	}
-	
-	public static boolean validateAddr(String ia) {
+
+	public static String validateAddr(String ia) {
 
 		boolean valid1 = Pattern.matches(
 				"[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}/[0-9]{1,2}",
 				ia);
 		boolean valid2 = Pattern.matches(
 				"[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}", ia);
-		if (valid1 || valid2)
-			return true;
-		else
-			return false;
+
+		if (valid1 || valid2) {
+			
+			return ia;
+			
+		} else {
+
+			String addrString = null;
+
+			try {
+				InetAddress addr = InetAddress.getByName(ia);
+				addrString = addr.getHostAddress();
+			} catch (Exception ignore) {
+				addrString = null;
+			}
+
+			if (addrString != null) {
+				boolean valid3 = Pattern.matches(
+						"[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}",
+						addrString);
+				if (!valid3)
+					addrString = null;
+			}
+
+			return addrString;
+		}
 	}
 
 	public static String[] decodeAddrs(String addrs) {
 		String[] list = addrs.split("\\|");
 		Vector<String> ret = new Vector<String>();
-		for (String addr : list)
-			if (validateAddr(addr))
-				ret.add(addr);
+		for (String addr : list) {
+			String ta = validateAddr(addr);
+			if (ta != null)
+				ret.add(ta);
+		}
 		return ret.toArray(new String[ret.size()]);
 	}
 
 	public static String encodeAddrs(String[] addrs) {
-		
+
 		if (addrs.length == 0)
 			return "";
-		
+
 		StringBuffer sb = new StringBuffer();
-		for (String addr : addrs)
-			if (validateAddr(addr))
-				sb.append(addr + "|");
+		for (String addr : addrs) {
+			String ta = validateAddr(addr);
+			if (ta != null)
+				sb.append(ta + "|");
+		}
 		String ret = sb.substring(0, sb.length() - 1);
 		return ret;
 	}
