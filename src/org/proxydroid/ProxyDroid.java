@@ -502,12 +502,13 @@ public class ProxyDroid extends PreferenceActivity implements
 	private void enableAll() {
 		hostText.setEnabled(true);
 
-		if (!isPACCheck.isChecked())
+		if (!isPACCheck.isChecked()) {
 			portText.setEnabled(true);
+			proxyTypeList.setEnabled(true);
+		}
 
 		bypassAddrs.setEnabled(true);
 
-		proxyTypeList.setEnabled(true);
 		if (isAuthCheck.isChecked()) {
 			userText.setEnabled(true);
 			passwordText.setEnabled(true);
@@ -584,10 +585,13 @@ public class ProxyDroid extends PreferenceActivity implements
 		else
 			ssidList.setEnabled(false);
 
-		if (settings.getBoolean("isPAC", false))
+		if (settings.getBoolean("isPAC", false)) {
 			portText.setEnabled(false);
-		else
+			proxyTypeList.setEnabled(false);
+		} else {
 			portText.setEnabled(true);
+			proxyTypeList.setEnabled(true);
+		}
 
 		if (!settings.getBoolean("isAuth", false)) {
 			userText.setEnabled(false);
@@ -733,10 +737,13 @@ public class ProxyDroid extends PreferenceActivity implements
 		}
 
 		if (key.equals("isPAC")) {
-			if (settings.getBoolean("isPAC", false))
+			if (settings.getBoolean("isPAC", false)) {
 				portText.setEnabled(false);
-			else
+				proxyTypeList.setEnabled(false);
+			} else {
 				portText.setEnabled(true);
+				proxyTypeList.setEnabled(true);
+			}
 		}
 
 		if (key.equals("isAuth")) {
