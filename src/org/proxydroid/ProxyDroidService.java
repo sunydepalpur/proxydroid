@@ -38,17 +38,22 @@
 
 package org.proxydroid;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
+import java.util.List;
 
+import com.btr.proxy.selector.pac.PacProxySelector;
+import com.btr.proxy.selector.pac.PacScriptSource;
+import com.btr.proxy.selector.pac.Proxy;
+import com.btr.proxy.selector.pac.UrlPacScriptSource;
 import com.flurry.android.FlurryAgent;
 
 import android.app.Notification;
@@ -111,6 +116,7 @@ public class ProxyDroidService extends Service {
 	private boolean isAuth = false;
 	private boolean isNTLM = false;
 	private boolean isDNSProxy = false;
+	private boolean isPAC = false;
 
 	private DNSProxy dnsServer = null;
 	private int dnsPort = 0;
@@ -524,6 +530,35 @@ public class ProxyDroidService extends Service {
 
 	private boolean getAddress() {
 
+		if (isPAC) {
+			try {
+				PacScriptSource src = new UrlPacScriptSource(host);
+				PacProxySelector ps = new PacProxySelector(src);
+				URI uri = new URI("http://gaednsproxy.appspot.com");
+				List<Proxy> list = ps.select(uri);
+				if (list != null && list.size() != 0) {
+					
+					Proxy p = list.get(0);
+					
+					// No proxy means error
+					if (p.equals(Proxy.NO_PROXY))
+						return false;					
+					if (p.host == null || p.port == 0 || p.type == null)
+						return false;
+					
+					proxyType = p.type;
+					host = p.host;
+					port = p.port;
+
+				} else {
+					// No proxy means error
+					return false;
+				}
+			} catch (URISyntaxException ignore) {
+				return false;
+			}
+		}
+
 		String tmp = host;
 
 		try {
@@ -532,6 +567,9 @@ public class ProxyDroidService extends Service {
 			host = tmp;
 			return false;
 		}
+		
+		Log.d(TAG, "Proxy: " + host);
+		Log.d(TAG, "Local Port: " + port);
 
 		return true;
 	}
@@ -566,6 +604,7 @@ public class ProxyDroidService extends Service {
 		isAuth = bundle.getBoolean("isAuth");
 		isNTLM = bundle.getBoolean("isNTLM");
 		isDNSProxy = bundle.getBoolean("isDNSProxy");
+		isPAC = bundle.getBoolean("isPAC");
 
 		if (isAuth) {
 			auth = "true";
@@ -583,9 +622,6 @@ public class ProxyDroidService extends Service {
 			domain = "";
 
 		localIp = getLocalIpAddress();
-
-		Log.e(TAG, "GAE Proxy: " + host);
-		Log.e(TAG, "Local Port: " + port);
 
 		new Thread(new Runnable() {
 			public void run() {

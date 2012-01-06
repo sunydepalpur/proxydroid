@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="libs/FlurryAgent.jar"/>
 	<classpathentry kind="lib" path="libs/json_simple-1.1.jar"/>
 	<classpathentry kind="lib" path="libs/GoogleAdMobAdsSdk-4.3.1.jar"/>
+	<classpathentry kind="lib" path="libs/rhino1_7R2.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

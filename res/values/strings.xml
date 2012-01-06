@@ -43,8 +43,10 @@
 
     <!-- settings proxy category -->
     <string name="proxy_cat">Proxy Settings</string>
-    <string name="host">Host</string>
-    <string name="host_summary">The host name of Proxy service</string>
+    <string name="host">Host / PAC</string>
+    <string name="host_summary">The host name or pac url of your proxy service</string>
+    <string name="pac">PAC mode</string>
+    <string name="pac_summary">Enable PAC mode</string>
     <string name="proxy_summary">Proxy URL</string>
     <string name="port">Port</string>
     <string name="port_summary">The port number of your Proxy service</string>

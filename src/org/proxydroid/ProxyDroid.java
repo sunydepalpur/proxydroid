@@ -103,6 +103,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private CheckBoxPreference isAuthCheck;
 	private CheckBoxPreference isNTLMCheck;
 	private CheckBoxPreference isDNSProxyCheck;
+	private CheckBoxPreference isPACCheck;
 	private ListPreference profileList;
 
 	private EditTextPreference hostText;
@@ -268,6 +269,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isAuthCheck = (CheckBoxPreference) findPreference("isAuth");
 		isNTLMCheck = (CheckBoxPreference) findPreference("isNTLM");
 		isDNSProxyCheck = (CheckBoxPreference) findPreference("isDNSProxy");
+		isPACCheck = (CheckBoxPreference) findPreference("isPAC");
 		isAutoConnectCheck = (CheckBoxPreference) findPreference("isAutoConnect");
 
 		SharedPreferences settings = PreferenceManager
@@ -407,6 +409,7 @@ public class ProxyDroid extends PreferenceActivity implements
 			bundle.putBoolean("isAuth", mProfile.isAuth());
 			bundle.putBoolean("isNTLM", mProfile.isNTLM());
 			bundle.putBoolean("isDNSProxy", mProfile.isDNSProxy());
+			bundle.putBoolean("isPAC", mProfile.isPAC());
 
 			bundle.putInt("port", mProfile.getPort());
 
@@ -452,6 +455,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isAutoConnectCheck.setChecked(mProfile.isAutoConnect());
 		isAutoSetProxyCheck.setChecked(mProfile.isAutoSetProxy());
 		isDNSProxyCheck.setChecked(mProfile.isDNSProxy());
+		isPACCheck.setChecked(mProfile.isPAC());
 
 		portText.setText(Integer.toString(mProfile.getPort()));
 
@@ -492,11 +496,15 @@ public class ProxyDroid extends PreferenceActivity implements
 		isDNSProxyCheck.setEnabled(false);
 		isAutoSetProxyCheck.setEnabled(false);
 		isAutoConnectCheck.setEnabled(false);
+		isPACCheck.setEnabled(false);
 	}
 
 	private void enableAll() {
 		hostText.setEnabled(true);
-		portText.setEnabled(true);
+
+		if (!isPACCheck.isChecked())
+			portText.setEnabled(true);
+
 		bypassAddrs.setEnabled(true);
 
 		proxyTypeList.setEnabled(true);
@@ -574,6 +582,11 @@ public class ProxyDroid extends PreferenceActivity implements
 			ssidList.setEnabled(true);
 		else
 			ssidList.setEnabled(false);
+
+		if (settings.getBoolean("isPAC", false))
+			portText.setEnabled(false);
+		else
+			portText.setEnabled(true);
 
 		if (!settings.getBoolean("isAuth", false)) {
 			userText.setEnabled(false);
@@ -716,6 +729,13 @@ public class ProxyDroid extends PreferenceActivity implements
 				}
 				isRunningCheck.setEnabled(true);
 			}
+		}
+
+		if (key.equals("isPAC")) {
+			if (settings.getBoolean("isPAC", false))
+				portText.setEnabled(false);
+			else
+				portText.setEnabled(true);
 		}
 
 		if (key.equals("isAuth")) {

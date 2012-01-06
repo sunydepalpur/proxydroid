@@ -48,6 +48,7 @@ public class Profile implements Serializable {
 	private boolean isAuth = false;
 	private boolean isNTLM = false;
 	private boolean isDNSProxy = false;
+	private boolean isPAC = false;
 
 	private String domain;
 	private String ssid;
@@ -72,6 +73,7 @@ public class Profile implements Serializable {
 		isNTLM = settings.getBoolean("isNTLM", false);
 		isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
 		isDNSProxy = settings.getBoolean("isDNSProxy", false);
+		isPAC = settings.getBoolean("isPAC", false);
 		isAutoConnect = settings.getBoolean("isAutoConnect", false);
 
 		String portText = settings.getString("port", "");
@@ -102,6 +104,7 @@ public class Profile implements Serializable {
 		ed.putString("proxyType", proxyType);
 		ed.putBoolean("isAutoConnect", isAutoConnect);
 		ed.putBoolean("isAutoSetProxy", isAutoSetProxy);
+		ed.putBoolean("isPAC", isPAC);
 		ed.putBoolean("isDNSProxy", isDNSProxy);
 		ed.putString("ssid", ssid);
 		ed.commit();
@@ -122,6 +125,7 @@ public class Profile implements Serializable {
 		bypassAddrs = "";
 		proxyedApps = "";
 		isDNSProxy = false;
+		isPAC = false;
 	}
 
 	@Override
@@ -147,6 +151,7 @@ public class Profile implements Serializable {
 		obj.put("isAutoConnect", isAutoConnect);
 		obj.put("isAutoSetProxy", isAutoSetProxy);
 		obj.put("isDNSProxy", isDNSProxy);
+		obj.put("isPAC", isPAC);
 
 		obj.put("port", port);
 		return obj;
@@ -216,6 +221,7 @@ public class Profile implements Serializable {
 		isAutoConnect = jd.getBoolean("isAutoConnect", false);
 		isAutoSetProxy = jd.getBoolean("isAutoSetProxy", false);
 		isDNSProxy = jd.getBoolean("isDNSProxy", false);
+		isPAC = jd.getBoolean("isPAC", false);
 
 	}
 
@@ -488,6 +494,21 @@ public class Profile implements Serializable {
 	 */
 	public void setDNSProxy(boolean isDNSProxy) {
 		this.isDNSProxy = isDNSProxy;
+	}
+	
+	/**
+	 * @return the isPAC
+	 */
+	public boolean isPAC() {
+		return isPAC;
+	}
+
+	/**
+	 * @param isDNSProxy
+	 *            the isDNSProxy to set
+	 */
+	public void setPAC(boolean isPAC) {
+		this.isPAC = isPAC;
 	}
 
 }
