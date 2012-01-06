@@ -525,6 +525,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isAutoSetProxyCheck.setEnabled(true);
 		isAuthCheck.setEnabled(true);
 		isAutoConnectCheck.setEnabled(true);
+		isPACCheck.setEnabled(true);
 	}
 
 	@Override
