@@ -348,11 +348,12 @@ public class ProxyDroid extends PreferenceActivity implements
 
 					CopyAssets();
 
-					Utils.runCommand("chmod 755 /data/data/org.proxydroid/iptables");
-					Utils.runCommand("chmod 755 /data/data/org.proxydroid/redsocks");
-					Utils.runCommand("chmod 755 /data/data/org.proxydroid/proxy.sh");
-					Utils.runCommand("chmod 755 /data/data/org.proxydroid/cntlm");
-					Utils.runCommand("chmod 755 /data/data/org.proxydroid/tproxy");
+					Utils.runRootCommand("chmod 755 /data/data/org.proxydroid/iptables"
+							+ "chmod 755 /data/data/org.proxydroid/redsocks\n"
+							+ "chmod 755 /data/data/org.proxydroid/proxy.sh\n"
+							+ "chmod 755 /data/data/org.proxydroid/cntlm\n"
+							+ "chmod 755 /data/data/org.proxydroid/tproxy\n"
+							+ "chmod 755 /data/data/org.proxydroid/stunnel\n");
 					Editor edit = settings.edit();
 					edit.putBoolean(version, true);
 					edit.commit();
@@ -1046,17 +1047,19 @@ public class ProxyDroid extends PreferenceActivity implements
 					// Nothing
 				}
 
-				Utils.runRootCommand(Utils.getIptables() + " -t nat -F OUTPUT");
+				Utils.runRootCommand(Utils.getIptables()
+						+ " -t nat -F OUTPUT\n"
+						+ ProxyDroidService.BASE + "proxy.sh stop\n"
+						+ "kill -9 `cat /data/data/org.proxydroid/tproxy.pid`\n");
 
-				Utils.runRootCommand(ProxyDroidService.BASE + "proxy.sh stop");
-				Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/tproxy.pid`");
+				Utils.runRootCommand("chmod 755 /data/data/org.proxydroid/iptables"
+						+ "chmod 755 /data/data/org.proxydroid/redsocks\n"
+						+ "chmod 755 /data/data/org.proxydroid/proxy.sh\n"
+						+ "chmod 755 /data/data/org.proxydroid/cntlm\n"
+						+ "chmod 755 /data/data/org.proxydroid/tproxy\n"
+						+ "chmod 755 /data/data/org.proxydroid/stunnel\n");
 
 				CopyAssets();
-				Utils.runCommand("chmod 755 /data/data/org.proxydroid/iptables");
-				Utils.runCommand("chmod 755 /data/data/org.proxydroid/redsocks");
-				Utils.runCommand("chmod 755 /data/data/org.proxydroid/proxy.sh");
-				Utils.runCommand("chmod 755 /data/data/org.proxydroid/cntlm");
-				Utils.runCommand("chmod 755 /data/data/org.proxydroid/tproxy");
 			}
 		}.start();
 	}

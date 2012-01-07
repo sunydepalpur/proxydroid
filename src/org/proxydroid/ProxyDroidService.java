@@ -38,6 +38,7 @@
 
 package org.proxydroid;
 
+import java.io.FileOutputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -240,6 +241,27 @@ public class ProxyDroidService extends Service {
 	private void enableProxy() {
 
 		try {
+
+			if (proxyType.equals("https")) {
+
+				// Configure file for Stunnel
+				FileOutputStream fs = new FileOutputStream(BASE
+						+ "stunnel.conf");
+				String conf = "debug = 0\n" + "client = yes\n" + "pid = "
+						+ BASE + "stunnel.pid\n" + "[https]\n"
+						+ "accept = 8126\n" + "connect = " + host + ":" + port
+						+ "\n";
+				fs.write(conf.getBytes());
+				fs.flush();
+				fs.close();
+
+				// Start stunnel here
+				Utils.runRootCommand(BASE + "stunnel " + BASE + "stunnel.conf");
+
+				// Reset host / port
+				host = "127.0.0.1";
+				port = 8126;
+			}
 
 			if (proxyType.equals("http") && isAuth && isNTLM) {
 				Utils.runRootCommand(BASE
@@ -476,6 +498,10 @@ public class ProxyDroidService extends Service {
 
 		Utils.runRootCommand(Utils.getIptables() + " -t nat -F OUTPUT");
 
+		if (proxyType.equals("https")) {
+			Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/stunnel.pid`\n");
+		}
+
 		if (isAuth && isNTLM) {
 			Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n"
 					+ "kill -9 `cat /data/data/org.proxydroid/tproxy.pid`\n");
@@ -537,15 +563,15 @@ public class ProxyDroidService extends Service {
 				URI uri = new URI("http://gaednsproxy.appspot.com");
 				List<Proxy> list = ps.select(uri);
 				if (list != null && list.size() != 0) {
-					
+
 					Proxy p = list.get(0);
-					
+
 					// No proxy means error
 					if (p.equals(Proxy.NO_PROXY))
-						return false;					
+						return false;
 					if (p.host == null || p.port == 0 || p.type == null)
 						return false;
-					
+
 					proxyType = p.type;
 					host = p.host;
 					port = p.port;
@@ -567,7 +593,7 @@ public class ProxyDroidService extends Service {
 			host = tmp;
 			return false;
 		}
-		
+
 		Log.d(TAG, "Proxy: " + host);
 		Log.d(TAG, "Local Port: " + port);
 
