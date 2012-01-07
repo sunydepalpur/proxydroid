@@ -239,6 +239,9 @@ public class ProxyDroidService extends Service {
 	 * authentication. If called before authenticated, it will just fail.
 	 */
 	private void enableProxy() {
+		
+		String proxyHost = host;
+		int proxyPort = port;
 
 		try {
 
@@ -257,10 +260,12 @@ public class ProxyDroidService extends Service {
 
 				// Start stunnel here
 				Utils.runRootCommand(BASE + "stunnel " + BASE + "stunnel.conf");
-
+				
 				// Reset host / port
-				host = "127.0.0.1";
-				port = 8126;
+				proxyHost = "127.0.0.1";
+				proxyPort = 8126;
+				proxyType = "http";
+
 			}
 
 			if (proxyType.equals("http") && isAuth && isNTLM) {
@@ -275,9 +280,9 @@ public class ProxyDroidService extends Service {
 						+ " -p "
 						+ password
 						+ " "
-						+ host
+						+ proxyHost
 						+ ":"
-						+ port
+						+ proxyPort
 						+ "\n"
 						+ BASE
 						+ "tproxy -P /data/data/org.proxydroid/tproxy.pid -s 8125 127.0.0.1 8025\n");
@@ -286,7 +291,7 @@ public class ProxyDroidService extends Service {
 				final String p = Utils.preserve(password);
 
 				Utils.runRootCommand(BASE + "proxy.sh start" + " " + proxyType
-						+ " " + host + " " + port + " " + auth + " \"" + u
+						+ " " + proxyHost + " " + proxyPort + " " + auth + " \"" + u
 						+ "\" \"" + p + "\"");
 			}
 
