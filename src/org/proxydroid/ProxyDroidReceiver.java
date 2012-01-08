@@ -70,6 +70,7 @@ public class ProxyDroidReceiver extends BroadcastReceiver {
 			bundle.putBoolean("isAuth", mProfile.isAuth());
 			bundle.putBoolean("isNTLM", mProfile.isNTLM());
 			bundle.putBoolean("isDNSProxy", mProfile.isDNSProxy());
+			bundle.putBoolean("isPAC", mProfile.isPAC());
 
 			bundle.putInt("port", mProfile.getPort());
 

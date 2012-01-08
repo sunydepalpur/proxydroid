@@ -146,6 +146,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 				bundle.putBoolean("isAuth", mProfile.isAuth());
 				bundle.putBoolean("isNTLM", mProfile.isNTLM());
 				bundle.putBoolean("isDNSProxy", mProfile.isDNSProxy());
+				bundle.putBoolean("isPAC", mProfile.isPAC());
 
 				bundle.putInt("port", mProfile.getPort());
 

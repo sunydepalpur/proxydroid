@@ -487,6 +487,8 @@ public class ProxyDroidService extends Service {
 		Editor ed = settings.edit();
 		ed.putBoolean("isRunning", false);
 		ed.commit();
+		
+		Utils.setConnecting(false);
 
 		try {
 			notificationManager.cancel(0);
