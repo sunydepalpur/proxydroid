@@ -751,9 +751,11 @@ public class ProxyDroid extends PreferenceActivity implements
 				proxyTypeList.setEnabled(true);
 				hostText.setTitle(R.string.host);
 			}
-			hostText.setSummary(settings.getString("host", getString(settings
-					.getBoolean("isPAC", false) ? R.string.host_pac_summary
-					: R.string.host_summary)));
+			if (settings.getString("host", "").equals(""))
+				hostText.setSummary(settings.getBoolean("isPAC", false) ? R.string.host_pac_summary
+						: R.string.host_summary);
+			else
+				hostText.setSummary(settings.getString("host", ""));
 		}
 
 		if (key.equals("isAuth")) {
