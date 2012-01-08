@@ -145,5 +145,8 @@
     <string name="ok_button">OK</string>
     <string name="cancel_button">Cancel</string>
     <string name="err_addr">unknown domain name or incorrect format of IP address</string>
-
+    
+    <!-- Connection errors -->
+    <string name="msg_pac_error">Incorrect or unsupported PAC file</string>
+    <string name="msg_resolve_error">Incorrect or unknown proxy host name</string>
 </resources>
