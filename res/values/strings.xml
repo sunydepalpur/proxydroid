@@ -45,8 +45,8 @@
     <string name="proxy_cat">Proxy Settings</string>
     <string name="host">Host</string>
     <string name="host_summary">The host name of your proxy service</string>
-    <string name="pac">PAC</string>
-    <string name="pac_summary">The URL of your PAC file</string>
+    <string name="host_pac">PAC</string>
+    <string name="host_pac_summary">The URL of your PAC file</string>
     <string name="pac">Auto Setting</string>
     <string name="pac_summary">Get proxy settings from the PAC file automatically</string>
     <string name="proxy_summary">Proxy URL</string>

@@ -589,7 +589,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		if (settings.getBoolean("isPAC", false)) {
 			portText.setEnabled(false);
 			proxyTypeList.setEnabled(false);
-			hostText.setTitle(R.string.pac);
+			hostText.setTitle(R.string.host_pac);
 		} else {
 			portText.setEnabled(true);
 			proxyTypeList.setEnabled(true);
@@ -657,7 +657,7 @@ public class ProxyDroid extends PreferenceActivity implements
 					getString(R.string.port_summary)));
 		if (!settings.getString("host", "").equals("")) {
 			hostText.setSummary(settings.getString("host", getString(settings
-					.getBoolean("isPAC", false) ? R.string.pac_summary
+					.getBoolean("isPAC", false) ? R.string.host_pac_summary
 					: R.string.host_summary)));
 		}
 		if (!settings.getString("password", "").equals(""))
@@ -745,14 +745,14 @@ public class ProxyDroid extends PreferenceActivity implements
 			if (settings.getBoolean("isPAC", false)) {
 				portText.setEnabled(false);
 				proxyTypeList.setEnabled(false);
-				hostText.setTitle(R.string.pac);
+				hostText.setTitle(R.string.host_pac);
 			} else {
 				portText.setEnabled(true);
 				proxyTypeList.setEnabled(true);
 				hostText.setTitle(R.string.host);
 			}
 			hostText.setSummary(settings.getString("host", getString(settings
-					.getBoolean("isPAC", false) ? R.string.pac_summary
+					.getBoolean("isPAC", false) ? R.string.host_pac_summary
 					: R.string.host_summary)));
 		}
 
@@ -836,7 +836,7 @@ public class ProxyDroid extends PreferenceActivity implements
 				portText.setSummary(settings.getString("port", ""));
 		else if (key.equals("host"))
 			if (settings.getString("host", "").equals(""))
-				hostText.setSummary(settings.getBoolean("isPAC", false) ? R.string.pac_summary
+				hostText.setSummary(settings.getBoolean("isPAC", false) ? R.string.host_pac_summary
 						: R.string.host_summary);
 			else
 				hostText.setSummary(settings.getString("host", ""));
