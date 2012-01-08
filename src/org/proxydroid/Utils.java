@@ -202,6 +202,16 @@ class Utils {
 
 	private static String data_path = null;
 	
+	private static boolean isConnecting = false;
+	
+	public static boolean isConnecting () {
+		return isConnecting;
+	}
+	
+	public static void setConnecting(boolean value) {
+		isConnecting = value;
+	}
+	
 	public static String preserve(String s) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
