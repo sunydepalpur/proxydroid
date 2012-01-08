@@ -589,9 +589,11 @@ public class ProxyDroid extends PreferenceActivity implements
 		if (settings.getBoolean("isPAC", false)) {
 			portText.setEnabled(false);
 			proxyTypeList.setEnabled(false);
+			hostText.setTitle(R.string.pac);
 		} else {
 			portText.setEnabled(true);
 			proxyTypeList.setEnabled(true);
+			hostText.setTitle(R.string.host);
 		}
 
 		if (!settings.getBoolean("isAuth", false)) {
@@ -653,9 +655,11 @@ public class ProxyDroid extends PreferenceActivity implements
 				&& !settings.getString("port", "-1").equals(""))
 			portText.setSummary(settings.getString("port",
 					getString(R.string.port_summary)));
-		if (!settings.getString("host", "").equals(""))
-			hostText.setSummary(settings.getString("host",
-					getString(R.string.host_summary)));
+		if (!settings.getString("host", "").equals("")) {
+			hostText.setSummary(settings.getString("host", getString(settings
+					.getBoolean("isPAC", false) ? R.string.pac_summary
+					: R.string.host_summary)));
+		}
 		if (!settings.getString("password", "").equals(""))
 			passwordText.setSummary("*********");
 		if (!settings.getString("proxyType", "").equals(""))
@@ -741,10 +745,15 @@ public class ProxyDroid extends PreferenceActivity implements
 			if (settings.getBoolean("isPAC", false)) {
 				portText.setEnabled(false);
 				proxyTypeList.setEnabled(false);
+				hostText.setTitle(R.string.pac);
 			} else {
 				portText.setEnabled(true);
 				proxyTypeList.setEnabled(true);
+				hostText.setTitle(R.string.host);
 			}
+			hostText.setSummary(settings.getString("host", getString(settings
+					.getBoolean("isPAC", false) ? R.string.pac_summary
+					: R.string.host_summary)));
 		}
 
 		if (key.equals("isAuth")) {
@@ -827,7 +836,8 @@ public class ProxyDroid extends PreferenceActivity implements
 				portText.setSummary(settings.getString("port", ""));
 		else if (key.equals("host"))
 			if (settings.getString("host", "").equals(""))
-				hostText.setSummary(getString(R.string.host_summary));
+				hostText.setSummary(settings.getBoolean("isPAC", false) ? R.string.pac_summary
+						: R.string.host_summary);
 			else
 				hostText.setSummary(settings.getString("host", ""));
 		else if (key.equals("proxyType"))
@@ -1049,7 +1059,8 @@ public class ProxyDroid extends PreferenceActivity implements
 
 				Utils.runRootCommand(Utils.getIptables()
 						+ " -t nat -F OUTPUT\n"
-						+ ProxyDroidService.BASE + "proxy.sh stop\n"
+						+ ProxyDroidService.BASE
+						+ "proxy.sh stop\n"
 						+ "kill -9 `cat /data/data/org.proxydroid/tproxy.pid`\n");
 
 				Utils.runRootCommand("chmod 755 /data/data/org.proxydroid/iptables"
