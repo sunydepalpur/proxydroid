@@ -590,27 +590,18 @@ public class ProxyDroid extends PreferenceActivity implements
 			portText.setEnabled(false);
 			proxyTypeList.setEnabled(false);
 			hostText.setTitle(R.string.host_pac);
-		} else {
-			portText.setEnabled(true);
-			proxyTypeList.setEnabled(true);
-			hostText.setTitle(R.string.host);
+			hostText.setSummary(R.string.host_pac_summary);
 		}
 
 		if (!settings.getBoolean("isAuth", false)) {
 			userText.setEnabled(false);
 			passwordText.setEnabled(false);
 			isNTLMCheck.setEnabled(false);
-		} else {
-			userText.setEnabled(true);
-			passwordText.setEnabled(true);
-			isNTLMCheck.setEnabled(true);
 		}
 
 		if (!settings.getBoolean("isAuth", false)
 				|| !settings.getBoolean("isNTLM", false)) {
 			domainText.setEnabled(false);
-		} else {
-			domainText.setEnabled(true);
 		}
 
 		Editor edit = settings.edit();
