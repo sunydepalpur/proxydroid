@@ -76,7 +76,6 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
 		if (Utils.isConnecting())
 			return;
-		Utils.setConnecting(true);
 
 		Log.e(TAG, "Connection Test");
 
@@ -162,6 +161,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 				ed = settings.edit();
 				ed.putString("lastSSID", curSSID);
 				ed.commit();
+				Utils.setConnecting(true);
 				pdr.onReceive(context, intent);
 			}
 		}
