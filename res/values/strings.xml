@@ -43,10 +43,12 @@
 
     <!-- settings proxy category -->
     <string name="proxy_cat">Proxy Settings</string>
-    <string name="host">Host / PAC</string>
-    <string name="host_summary">The host name or pac url of your proxy service</string>
+    <string name="host">Host</string>
+    <string name="host_summary">The host name of your proxy service</string>
+    <string name="pac">PAC</string>
+    <string name="pac_summary">The URL of your PAC file</string>
     <string name="pac">Auto Setting</string>
-    <string name="pac_summary">Read proxy settings from PAC file automatically</string>
+    <string name="pac_summary">Get proxy settings from the PAC file automatically</string>
     <string name="proxy_summary">Proxy URL</string>
     <string name="port">Port</string>
     <string name="port_summary">The port number of your Proxy service</string>
@@ -145,8 +147,9 @@
     <string name="ok_button">OK</string>
     <string name="cancel_button">Cancel</string>
     <string name="err_addr">unknown domain name or incorrect format of IP address</string>
-    
+
     <!-- Connection errors -->
     <string name="msg_pac_error">Incorrect or unsupported PAC file</string>
     <string name="msg_resolve_error">Incorrect or unknown proxy host name</string>
+
 </resources>
