@@ -129,6 +129,12 @@ redsocks {
  $DIR/redsocks -p $DIR/redsocks.pid -c $DIR/redsocks.conf
  ;;
 stop)
+
+  killall -9 redsocks
+  killall -9 cntlm
+  killall -9 stunnel
+  killall -9 tproxy
+  
   kill -9 `cat $DIR/redsocks.pid`
   
   rm $DIR/redsocks.pid

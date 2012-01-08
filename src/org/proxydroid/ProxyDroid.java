@@ -1054,7 +1054,9 @@ public class ProxyDroid extends PreferenceActivity implements
 						+ " -t nat -F OUTPUT\n"
 						+ ProxyDroidService.BASE
 						+ "proxy.sh stop\n"
-						+ "kill -9 `cat /data/data/org.proxydroid/tproxy.pid`\n");
+						+ "kill -9 `cat /data/data/org.proxydroid/tproxy.pid`\n"
+						+ "kill -9 `cat /data/data/org.proxydroid/stunnel.pid`\n"
+						+ "kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n");
 
 				Utils.runRootCommand("chmod 755 /data/data/org.proxydroid/iptables"
 						+ "chmod 755 /data/data/org.proxydroid/redsocks\n"
