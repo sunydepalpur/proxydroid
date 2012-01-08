@@ -74,6 +74,10 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 			return;
 		}
 
+		if (Utils.isConnecting())
+			return;
+		Utils.setConnecting(true);
+
 		Log.e(TAG, "Connection Test");
 
 		SharedPreferences settings = PreferenceManager
@@ -92,7 +96,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		// Load all profiles
 		String[] profileValues = settings.getString("profileValues", "").split(
 				"\\|");
-		
+
 		String curSSID = null;
 		boolean autoConnect = false;
 
@@ -101,14 +105,13 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 			String profileString = settings.getString(profile, "");
 			mProfile.decodeJson(profileString);
 			curSSID = onlineSSID(context, mProfile.getSsid());
-			if (mProfile.isAutoConnect()
-					&& curSSID != null) {
+			if (mProfile.isAutoConnect() && curSSID != null) {
 
 				// XXX: Switch profile first
 				ed = settings.edit();
 				ed.putString("profile", profile);
 				ed.commit();
-				
+
 				autoConnect = true;
 
 				// Then switch profile values

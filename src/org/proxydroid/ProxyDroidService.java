@@ -526,6 +526,7 @@ public class ProxyDroidService extends Service {
 				break;
 			case MSG_CONNECT_FINISH:
 				ed.putBoolean("isConnecting", false);
+				Utils.setConnecting(false);
 				break;
 			case MSG_CONNECT_SUCCESS:
 				ed.putBoolean("isRunning", true);

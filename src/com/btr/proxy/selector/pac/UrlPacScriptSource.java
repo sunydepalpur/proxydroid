@@ -117,8 +117,8 @@ public class UrlPacScriptSource implements PacScriptSource {
 
 		HttpURLConnection con = (HttpURLConnection) new URL(url)
 				.openConnection(Proxy.NO_PROXY);
-		con.setConnectTimeout(5 * 1000);
-		con.setReadTimeout(10 * 1000);
+		con.setConnectTimeout(15 * 1000);
+		con.setReadTimeout(20 * 1000);
 		con.setInstanceFollowRedirects(true);
 		con.setRequestProperty("accept",
 				"application/x-ns-proxy-autoconfig, */*;q=0.8");
