@@ -588,7 +588,7 @@ public class ProxyDroidService extends Service {
 					// No proxy means error
 					if (p.equals(Proxy.NO_PROXY) || p.host == null
 							|| p.port == 0 || p.type == null) {
-						handler.sendEmptyMessage(MSG_CONNECT_PAC_ERROR);
+						handler.sendEmptyMessageDelayed(MSG_CONNECT_PAC_ERROR, 3000);
 						return false;
 					}
 
@@ -598,11 +598,11 @@ public class ProxyDroidService extends Service {
 
 				} else {
 					// No proxy means error
-					handler.sendEmptyMessage(MSG_CONNECT_PAC_ERROR);
+					handler.sendEmptyMessageDelayed(MSG_CONNECT_PAC_ERROR, 3000);
 					return false;
 				}
 			} catch (URISyntaxException ignore) {
-				handler.sendEmptyMessage(MSG_CONNECT_PAC_ERROR);
+				handler.sendEmptyMessageDelayed(MSG_CONNECT_PAC_ERROR, 3000);
 				return false;
 			}
 		}
@@ -613,7 +613,7 @@ public class ProxyDroidService extends Service {
 			host = InetAddress.getByName(host).getHostAddress();
 		} catch (UnknownHostException e) {
 			host = tmp;
-			handler.sendEmptyMessage(MSG_CONNECT_RESOLVE_ERROR);
+			handler.sendEmptyMessageDelayed(MSG_CONNECT_RESOLVE_ERROR, 3000);
 			return false;
 		}
 
