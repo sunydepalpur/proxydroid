@@ -76,6 +76,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 public class ProxyDroidService extends Service {
 
@@ -89,6 +90,8 @@ public class ProxyDroidService extends Service {
 	private static final int MSG_CONNECT_FINISH = 1;
 	private static final int MSG_CONNECT_SUCCESS = 2;
 	private static final int MSG_CONNECT_FAIL = 3;
+	private static final int MSG_CONNECT_PAC_ERROR = 4;
+	private static final int MSG_CONNECT_RESOLVE_ERROR = 5;
 
 	final static String CMD_IPTABLES_RETURN = "iptables -t nat -A OUTPUT -p tcp -d 0.0.0.0 -j RETURN\n";
 
@@ -239,7 +242,7 @@ public class ProxyDroidService extends Service {
 	 * authentication. If called before authenticated, it will just fail.
 	 */
 	private void enableProxy() {
-		
+
 		String proxyHost = host;
 		int proxyPort = port;
 
@@ -260,7 +263,7 @@ public class ProxyDroidService extends Service {
 
 				// Start stunnel here
 				Utils.runRootCommand(BASE + "stunnel " + BASE + "stunnel.conf");
-				
+
 				// Reset host / port
 				proxyHost = "127.0.0.1";
 				proxyPort = 8126;
@@ -291,8 +294,8 @@ public class ProxyDroidService extends Service {
 				final String p = Utils.preserve(password);
 
 				Utils.runRootCommand(BASE + "proxy.sh start" + " " + proxyType
-						+ " " + proxyHost + " " + proxyPort + " " + auth + " \"" + u
-						+ "\" \"" + p + "\"");
+						+ " " + proxyHost + " " + proxyPort + " " + auth
+						+ " \"" + u + "\" \"" + p + "\"");
 			}
 
 			StringBuffer cmd = new StringBuffer();
@@ -487,7 +490,7 @@ public class ProxyDroidService extends Service {
 		Editor ed = settings.edit();
 		ed.putBoolean("isRunning", false);
 		ed.commit();
-		
+
 		Utils.setConnecting(false);
 
 		try {
@@ -536,6 +539,14 @@ public class ProxyDroidService extends Service {
 			case MSG_CONNECT_FAIL:
 				ed.putBoolean("isRunning", false);
 				break;
+			case MSG_CONNECT_PAC_ERROR:
+				Toast.makeText(ProxyDroidService.this, R.string.msg_pac_error,
+						Toast.LENGTH_SHORT).show();
+				break;
+			case MSG_CONNECT_RESOLVE_ERROR:
+				Toast.makeText(ProxyDroidService.this,
+						R.string.msg_resolve_error, Toast.LENGTH_SHORT).show();
+				break;
 			}
 			ed.commit();
 			super.handleMessage(msg);
@@ -575,10 +586,11 @@ public class ProxyDroidService extends Service {
 					Proxy p = list.get(0);
 
 					// No proxy means error
-					if (p.equals(Proxy.NO_PROXY))
+					if (p.equals(Proxy.NO_PROXY) || p.host == null
+							|| p.port == 0 || p.type == null) {
+						handler.sendEmptyMessage(MSG_CONNECT_PAC_ERROR);
 						return false;
-					if (p.host == null || p.port == 0 || p.type == null)
-						return false;
+					}
 
 					proxyType = p.type;
 					host = p.host;
@@ -586,9 +598,11 @@ public class ProxyDroidService extends Service {
 
 				} else {
 					// No proxy means error
+					handler.sendEmptyMessage(MSG_CONNECT_PAC_ERROR);
 					return false;
 				}
 			} catch (URISyntaxException ignore) {
+				handler.sendEmptyMessage(MSG_CONNECT_PAC_ERROR);
 				return false;
 			}
 		}
@@ -599,6 +613,7 @@ public class ProxyDroidService extends Service {
 			host = InetAddress.getByName(host).getHostAddress();
 		} catch (UnknownHostException e) {
 			host = tmp;
+			handler.sendEmptyMessage(MSG_CONNECT_RESOLVE_ERROR);
 			return false;
 		}
 
