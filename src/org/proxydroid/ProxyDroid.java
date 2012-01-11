@@ -120,6 +120,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private AdView adView;
 
 	private static final int MSG_UPDATE_FINISHED = 0;
+	private static final int MSG_NO_ROOT = 1;
 
 	private BroadcastReceiver ssidReceiver = new BroadcastReceiver() {
 		@Override
@@ -143,6 +144,9 @@ public class ProxyDroid extends PreferenceActivity implements
 				Toast.makeText(ProxyDroid.this,
 						getString(R.string.update_finished), Toast.LENGTH_LONG)
 						.show();
+				break;
+			case MSG_NO_ROOT:
+				showAToast(getString(R.string.require_root_alert));
 				break;
 			}
 			super.handleMessage(msg);
@@ -291,8 +295,6 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		loadProfileList();
 
-		loadNetworkList();
-
 		registerReceiver(ssidReceiver, new IntentFilter(
 				android.net.ConnectivityManager.CONNECTIVITY_ACTION));
 
@@ -318,9 +320,16 @@ public class ProxyDroid extends PreferenceActivity implements
 			enableAll();
 		}
 
-		if (!Utils.isRoot()) {
-			showAToast(getString(R.string.require_root_alert));
-		}
+		new Thread() {
+			public void run() {
+				
+				loadNetworkList();
+				
+				if (!Utils.isRoot()) {
+					handler.sendEmptyMessage(MSG_NO_ROOT);
+				}
+			}
+		}.start();
 
 		String versionName;
 		try {
