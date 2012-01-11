@@ -505,20 +505,28 @@ public class ProxyDroidService extends Service {
 	}
 
 	private void onDisconnect() {
+		
+		final StringBuilder sb = new StringBuilder();
 
-		Utils.runRootCommand(Utils.getIptables() + " -t nat -F OUTPUT");
+		sb.append(Utils.getIptables() + " -t nat -F OUTPUT\n");
 
 		if (proxyType.equals("https")) {
-			Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/stunnel.pid`\n");
+			sb.append("kill -9 `cat /data/data/org.proxydroid/stunnel.pid`\n");
 		}
 
 		if (isAuth && isNTLM) {
-			Utils.runRootCommand("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n"
+			sb.append("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n"
 					+ "kill -9 `cat /data/data/org.proxydroid/tproxy.pid`\n");
 		}
 
-		Utils.runRootCommand(BASE + "proxy.sh stop");
-
+		sb.append(BASE + "proxy.sh stop\n");
+		
+		new Thread() {
+			public void run () {
+				Utils.runRootCommand(sb.toString());
+			}
+		}.start();
+		
 	}
 
 	final Handler handler = new Handler() {
