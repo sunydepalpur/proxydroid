@@ -357,12 +357,12 @@ public class ProxyDroid extends PreferenceActivity implements
 
 					CopyAssets();
 
-					Utils.runRootCommand("chmod 755 /data/data/org.proxydroid/iptables\n"
-							+ "chmod 755 /data/data/org.proxydroid/redsocks\n"
-							+ "chmod 755 /data/data/org.proxydroid/proxy.sh\n"
-							+ "chmod 755 /data/data/org.proxydroid/cntlm\n"
-							+ "chmod 755 /data/data/org.proxydroid/tproxy\n"
-							+ "chmod 755 /data/data/org.proxydroid/stunnel\n");
+					Utils.runRootCommand("chmod 700 /data/data/org.proxydroid/iptables\n"
+							+ "chmod 700 /data/data/org.proxydroid/redsocks\n"
+							+ "chmod 700 /data/data/org.proxydroid/proxy.sh\n"
+							+ "chmod 700 /data/data/org.proxydroid/cntlm\n"
+							+ "chmod 700 /data/data/org.proxydroid/tproxy\n"
+							+ "chmod 700 /data/data/org.proxydroid/stunnel\n");
 					Editor edit = settings.edit();
 					edit.putBoolean(version, true);
 					edit.commit();
@@ -1067,12 +1067,12 @@ public class ProxyDroid extends PreferenceActivity implements
 						+ "kill -9 `cat /data/data/org.proxydroid/stunnel.pid`\n"
 						+ "kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n");
 
-				Utils.runRootCommand("chmod 755 /data/data/org.proxydroid/iptables\n"
-						+ "chmod 755 /data/data/org.proxydroid/redsocks\n"
-						+ "chmod 755 /data/data/org.proxydroid/proxy.sh\n"
-						+ "chmod 755 /data/data/org.proxydroid/cntlm\n"
-						+ "chmod 755 /data/data/org.proxydroid/tproxy\n"
-						+ "chmod 755 /data/data/org.proxydroid/stunnel\n");
+				Utils.runRootCommand("chmod 700 /data/data/org.proxydroid/iptables\n"
+						+ "chmod 700 /data/data/org.proxydroid/redsocks\n"
+						+ "chmod 700 /data/data/org.proxydroid/proxy.sh\n"
+						+ "chmod 700 /data/data/org.proxydroid/cntlm\n"
+						+ "chmod 700 /data/data/org.proxydroid/tproxy\n"
+						+ "chmod 700 /data/data/org.proxydroid/stunnel\n");
 
 				CopyAssets();
 			}

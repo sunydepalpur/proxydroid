@@ -369,6 +369,13 @@ public class ProxyDroidService extends Service {
 	/** Called when the activity is first created. */
 	public boolean handleCommand() {
 
+        Utils.runRootCommand("chmod 700 /data/data/org.proxydroid/iptables\n"
+                + "chmod 700 /data/data/org.proxydroid/redsocks\n"
+                + "chmod 700 /data/data/org.proxydroid/proxy.sh\n"
+                + "chmod 700 /data/data/org.proxydroid/cntlm\n"
+                + "chmod 700 /data/data/org.proxydroid/tproxy\n"
+                + "chmod 700 /data/data/org.proxydroid/stunnel\n");
+
 		enableProxy();
 
 		return true;
