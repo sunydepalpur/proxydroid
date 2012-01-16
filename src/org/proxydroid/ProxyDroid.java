@@ -357,7 +357,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 					CopyAssets();
 
-					Utils.runRootCommand("chmod 755 /data/data/org.proxydroid/iptables"
+					Utils.runRootCommand("chmod 755 /data/data/org.proxydroid/iptables\n"
 							+ "chmod 755 /data/data/org.proxydroid/redsocks\n"
 							+ "chmod 755 /data/data/org.proxydroid/proxy.sh\n"
 							+ "chmod 755 /data/data/org.proxydroid/cntlm\n"
@@ -1067,7 +1067,7 @@ public class ProxyDroid extends PreferenceActivity implements
 						+ "kill -9 `cat /data/data/org.proxydroid/stunnel.pid`\n"
 						+ "kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n");
 
-				Utils.runRootCommand("chmod 755 /data/data/org.proxydroid/iptables"
+				Utils.runRootCommand("chmod 755 /data/data/org.proxydroid/iptables\n"
 						+ "chmod 755 /data/data/org.proxydroid/redsocks\n"
 						+ "chmod 755 /data/data/org.proxydroid/proxy.sh\n"
 						+ "chmod 755 /data/data/org.proxydroid/cntlm\n"
