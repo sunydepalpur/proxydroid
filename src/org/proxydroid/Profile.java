@@ -45,6 +45,7 @@ public class Profile implements Serializable {
 	private String proxyedApps;
 	private boolean isAutoConnect = false;
 	private boolean isAutoSetProxy = false;
+	private boolean isBypassApps = false;
 	private boolean isAuth = false;
 	private boolean isNTLM = false;
 	private boolean isDNSProxy = false;
@@ -72,6 +73,7 @@ public class Profile implements Serializable {
 		isAuth = settings.getBoolean("isAuth", false);
 		isNTLM = settings.getBoolean("isNTLM", false);
 		isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
+        isBypassApps = settings.getBoolean("isBypassApps", false);
 		isDNSProxy = settings.getBoolean("isDNSProxy", false);
 		isPAC = settings.getBoolean("isPAC", false);
 		isAutoConnect = settings.getBoolean("isAutoConnect", false);
@@ -104,6 +106,7 @@ public class Profile implements Serializable {
 		ed.putString("proxyType", proxyType);
 		ed.putBoolean("isAutoConnect", isAutoConnect);
 		ed.putBoolean("isAutoSetProxy", isAutoSetProxy);
+        ed.putBoolean("isBypassApps", isBypassApps);
 		ed.putBoolean("isPAC", isPAC);
 		ed.putBoolean("isDNSProxy", isDNSProxy);
 		ed.putString("ssid", ssid);
@@ -150,6 +153,7 @@ public class Profile implements Serializable {
 		obj.put("isNTLM", isNTLM);
 		obj.put("isAutoConnect", isAutoConnect);
 		obj.put("isAutoSetProxy", isAutoSetProxy);
+        obj.put("isBypassApps", isBypassApps);
 		obj.put("isDNSProxy", isDNSProxy);
 		obj.put("isPAC", isPAC);
 
@@ -220,6 +224,7 @@ public class Profile implements Serializable {
 		isNTLM = jd.getBoolean("isNTLM", false);
 		isAutoConnect = jd.getBoolean("isAutoConnect", false);
 		isAutoSetProxy = jd.getBoolean("isAutoSetProxy", false);
+        isBypassApps = jd.getBoolean("isBypassApps", false);
 		isDNSProxy = jd.getBoolean("isDNSProxy", false);
 		isPAC = jd.getBoolean("isPAC", false);
 
@@ -434,6 +439,21 @@ public class Profile implements Serializable {
 	 */
 	public void setAutoSetProxy(Boolean isAutoSetProxy) {
 		this.isAutoSetProxy = isAutoSetProxy;
+	}
+
+	/**
+	 * @return the isBypassApps
+	 */
+	public Boolean isBypassApps() {
+		return isBypassApps;
+	}
+
+	/**
+	 * @param isBypassApps
+	 *            the isBypassApps to set
+	 */
+	public void setBypassApps(Boolean isBypassApps) {
+		this.isBypassApps = isBypassApps;
 	}
 
 	/**

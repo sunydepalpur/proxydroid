@@ -114,6 +114,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private ListPreferenceMultiSelect ssidList;
 	private ListPreference proxyTypeList;
 	private CheckBoxPreference isRunningCheck;
+	private CheckBoxPreference isBypassAppsCheck;
 	private Preference proxyedApps;
 	private Preference bypassAddrs;
 
@@ -275,6 +276,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isDNSProxyCheck = (CheckBoxPreference) findPreference("isDNSProxy");
 		isPACCheck = (CheckBoxPreference) findPreference("isPAC");
 		isAutoConnectCheck = (CheckBoxPreference) findPreference("isAutoConnect");
+        isBypassAppsCheck = (CheckBoxPreference) findPreference("isBypassApps");
 
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(this);
@@ -416,6 +418,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 			bundle.putString("proxyType", mProfile.getProxyType());
 			bundle.putBoolean("isAutoSetProxy", mProfile.isAutoSetProxy());
+            bundle.putBoolean("isBypassApps", mProfile.isBypassApps());
 			bundle.putBoolean("isAuth", mProfile.isAuth());
 			bundle.putBoolean("isNTLM", mProfile.isNTLM());
 			bundle.putBoolean("isDNSProxy", mProfile.isDNSProxy());
@@ -507,6 +510,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isAutoSetProxyCheck.setEnabled(false);
 		isAutoConnectCheck.setEnabled(false);
 		isPACCheck.setEnabled(false);
+        isBypassAppsCheck.setEnabled(false);
 	}
 
 	private void enableAll() {
@@ -526,8 +530,10 @@ public class ProxyDroid extends PreferenceActivity implements
 			if (isNTLMCheck.isChecked())
 				domainText.setEnabled(true);
 		}
-		if (!isAutoSetProxyCheck.isChecked())
+		if (!isAutoSetProxyCheck.isChecked()) {
 			proxyedApps.setEnabled(true);
+            isBypassAppsCheck.setEnabled(true);
+        }
 		if (isAutoConnectCheck.isChecked())
 			ssidList.setEnabled(true);
 
@@ -585,10 +591,13 @@ public class ProxyDroid extends PreferenceActivity implements
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(this);
 
-		if (settings.getBoolean("isAutoSetProxy", false))
+		if (settings.getBoolean("isAutoSetProxy", false)) {
 			proxyedApps.setEnabled(false);
-		else
+            isBypassAppsCheck.setEnabled(false);
+        } else {
 			proxyedApps.setEnabled(true);
+            isBypassAppsCheck.setEnabled(true);
+        }
 
 		if (settings.getBoolean("isAutoConnect", false))
 			ssidList.setEnabled(true);
@@ -793,10 +802,13 @@ public class ProxyDroid extends PreferenceActivity implements
 		}
 
 		if (key.equals("isAutoSetProxy")) {
-			if (settings.getBoolean("isAutoSetProxy", false))
+			if (settings.getBoolean("isAutoSetProxy", false)) {
 				proxyedApps.setEnabled(false);
-			else
+                isBypassAppsCheck.setEnabled(false);
+            } else {
 				proxyedApps.setEnabled(true);
+                isBypassAppsCheck.setEnabled(true);
+            }
 		}
 
 		if (key.equals("isRunning")) {
