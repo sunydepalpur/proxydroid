@@ -406,9 +406,6 @@ class Utils {
 	
 	public static boolean runRootCommand(String command, int timeout) {
 
-		if (!isRoot())
-			return false;
-
 		Log.d(TAG, command);
 
 		runScript(command, null, timeout, true);
