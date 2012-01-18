@@ -88,9 +88,11 @@
 
     <!-- settings proxyed apps category -->
     <string name="proxyed_apps">Individual Proxy</string>
-    <string name="proxyed_apps_summary">Set individual proxy for apps (needs ROOT
+    <string name="proxyed_apps_summary">Select apps for proxying or bypassing (needs ROOT
 		permission and
 		IPTABLES support)</string>
+    <string name="bypass_apps">Bypass Mode</string>
+    <string name="bypass_apps_summary">Enable this option to bypass selected apps instead of proxying</string>
     <string name="proxyed_help">Select apps to use with ProxyDroid:</string>
 
     <!-- menu bar category -->

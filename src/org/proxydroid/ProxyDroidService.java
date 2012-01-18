@@ -131,6 +131,7 @@ public class ProxyDroidService extends Service {
 
 	private boolean hasRedirectSupport = true;
 	private boolean isAutoSetProxy = false;
+    private boolean isBypassApps = false;
 	private String localIp;
 
 	private ProxyedApp apps[];
@@ -334,7 +335,24 @@ public class ProxyDroidService extends Service {
 				dnatCmd = CMD_IPTABLES_DNAT_ADD_SOCKS;
 			}
 
-			if (isAutoSetProxy) {
+            if (isBypassApps) {
+				// for host specified apps
+				if (apps == null || apps.length <= 0)
+					apps = AppManager.getProxyedApps(this);
+
+				for (int i = 0; i < apps.length; i++) {
+					if (apps[i] != null && apps[i].isProxyed()) {
+						cmd.append(CMD_IPTABLES_RETURN
+                                    .replace("-d 0.0.0.0", "")
+                                    .replace("-t nat",
+                                        "-t nat -m owner --uid-owner "
+                                        + apps[i].getUid()));
+					}
+				}
+
+            }
+
+			if (isAutoSetProxy || isBypassApps) {
 				cmd.append(hasRedirectSupport ? redirectCmd : dnatCmd);
 			} else {
 				// for host specified apps
@@ -665,6 +683,7 @@ public class ProxyDroidService extends Service {
 		proxyType = bundle.getString("proxyType");
 		port = bundle.getInt("port");
 		isAutoSetProxy = bundle.getBoolean("isAutoSetProxy");
+        isBypassApps = bundle.getBoolean("isBypassApps");
 		isAuth = bundle.getBoolean("isAuth");
 		isNTLM = bundle.getBoolean("isNTLM");
 		isDNSProxy = bundle.getBoolean("isDNSProxy");
