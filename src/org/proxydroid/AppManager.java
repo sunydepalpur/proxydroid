@@ -240,7 +240,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 		// Log.d(getClass().getName(),"Exiting Preferences");
 	}
 
-	public static ProxyedApp[] getProxyedApps(Context context) {
+	public static ProxyedApp[] getProxyedApps(Context context, boolean self) {
 
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(context);
@@ -286,14 +286,16 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 			// check if this application is allowed
 			if (aInfo.packageName != null
 					&& aInfo.packageName.equals("org.proxydroid")) {
-				app.setProxyed(true);
+                if (self)
+    				app.setProxyed(true);
 			} else if (Arrays.binarySearch(tordApps, app.getUsername()) >= 0) {
 				app.setProxyed(true);
 			} else {
 				app.setProxyed(false);
 			}
 
-			vectorApps.add(app);
+            if (app.isProxyed())
+    			vectorApps.add(app);
 
 		}
 
