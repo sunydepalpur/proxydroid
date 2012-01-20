@@ -467,6 +467,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isNTLMCheck.setChecked(mProfile.isNTLM());
 		isAutoConnectCheck.setChecked(mProfile.isAutoConnect());
 		isAutoSetProxyCheck.setChecked(mProfile.isAutoSetProxy());
+        isBypassAppsCheck.setChecked(mProfile.isBypassApps());
 		isDNSProxyCheck.setChecked(mProfile.isDNSProxy());
 		isPACCheck.setChecked(mProfile.isPAC());
 
