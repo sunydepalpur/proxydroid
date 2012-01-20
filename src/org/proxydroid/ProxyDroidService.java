@@ -256,7 +256,8 @@ public class ProxyDroidService extends Service {
 						+ "stunnel.conf");
 				String conf = "debug = 0\n" + "client = yes\n" + "pid = "
 						+ BASE + "stunnel.pid\n" + "[https]\n"
-						+ "accept = 8126\n" + "connect = " + host + ":" + port
+                        + "sslVersion = all\n"
+						+ "accept = 127.0.0.1:8126\n" + "connect = " + host + ":" + port
 						+ "\n";
 				fs.write(conf.getBytes());
 				fs.flush();
@@ -338,7 +339,7 @@ public class ProxyDroidService extends Service {
             if (isBypassApps) {
 				// for host specified apps
 				if (apps == null || apps.length <= 0)
-					apps = AppManager.getProxyedApps(this);
+					apps = AppManager.getProxyedApps(this, false);
 
 				for (int i = 0; i < apps.length; i++) {
 					if (apps[i] != null && apps[i].isProxyed()) {
@@ -357,7 +358,7 @@ public class ProxyDroidService extends Service {
 			} else {
 				// for host specified apps
 				if (apps == null || apps.length <= 0)
-					apps = AppManager.getProxyedApps(this);
+					apps = AppManager.getProxyedApps(this, true);
 
 				for (int i = 0; i < apps.length; i++) {
 					if (apps[i] != null && apps[i].isProxyed()) {
