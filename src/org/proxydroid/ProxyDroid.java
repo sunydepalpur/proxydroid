@@ -295,40 +295,18 @@ public class ProxyDroid extends PreferenceActivity implements
 			profileList.setDefaultValue("1");
 		}
 
-		loadProfileList();
-
 		registerReceiver(ssidReceiver, new IntentFilter(
 				android.net.ConnectivityManager.CONNECTIVITY_ACTION));
 
-		Editor edit = settings.edit();
-
-		if (Utils.isWorked()) {
-			edit.putBoolean("isRunning", true);
-		} else {
-			if (settings.getBoolean("isRunning", false)) {
-				// showAToast(getString(R.string.crash_alert));
-				recovery();
-			}
-			edit.putBoolean("isRunning", false);
-		}
-
-		edit.commit();
-
-		if (settings.getBoolean("isRunning", false)) {
-			isRunningCheck.setChecked(true);
-			disableAll();
-		} else {
-			isRunningCheck.setChecked(false);
-			enableAll();
-		}
-
 		new Thread() {
 			public void run() {
+
+                loadProfileList();
 				
 				loadNetworkList();
 				
 				if (!Utils.isRoot()) {
-					handler.sendEmptyMessage(MSG_NO_ROOT);
+					handler.sendEmptyMessageDelayed(MSG_NO_ROOT, 1000);
 				}
 			}
 		}.start();
@@ -480,17 +458,19 @@ public class ProxyDroid extends PreferenceActivity implements
 	}
 
 	private void showAToast(String msg) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(msg)
-				.setCancelable(false)
-				.setNegativeButton(getString(R.string.ok_iknow),
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								dialog.cancel();
-							}
-						});
-		AlertDialog alert = builder.create();
-		alert.show();
+        if (!isFinishing()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(msg)
+                .setCancelable(false)
+                .setNegativeButton(getString(R.string.ok_iknow),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
 	}
 
 	private void disableAll() {
@@ -631,7 +611,6 @@ public class ProxyDroid extends PreferenceActivity implements
 			edit.putBoolean("isRunning", true);
 		} else {
 			if (settings.getBoolean("isRunning", false)) {
-				showAToast(getString(R.string.crash_alert));
 				recovery();
 			}
 			edit.putBoolean("isRunning", false);

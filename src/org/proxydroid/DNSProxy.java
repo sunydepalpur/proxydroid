@@ -327,7 +327,7 @@ public class DNSProxy implements Runnable {
 			for (DnsResponse resp : dnsCache.values()) {
 				// 检查缓存时效(十天)
 				if ((System.currentTimeMillis() - resp.getTimestamp()) > 864000000L) {
-					Log.d(TAG, "删除" + resp.getRequest() + "记录");
+					Log.d(TAG, "Delete a record: " + resp.getRequest());
 					tmpCache.remove(resp.getRequest());
 				}
 			}
