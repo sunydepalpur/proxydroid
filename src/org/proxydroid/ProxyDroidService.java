@@ -674,6 +674,10 @@ public class ProxyDroidService extends Service {
 
 		super.onStart(intent, startId);
 
+        if (intent == null || intent.getExtras() == null) {
+            return;
+        }
+
 		FlurryAgent.onStartSession(this, "AV372I7R5YYD52NWPUPE");
 
 		Log.d(TAG, "Service Start");
