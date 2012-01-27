@@ -77,12 +77,18 @@ public class ImageLoader {
 
 		// removes all instances of this ImageView
 		public void Clean(ImageView image) {
-			for (int j = 0; j < photosToLoad.size();) {
-				if (photosToLoad.get(j).imageView == image)
-					photosToLoad.remove(j);
-				else
-					++j;
-			}
+            synchronized (this) {
+                try {
+                    for (int j = 0; j < photosToLoad.size();) {
+                        if (photosToLoad.get(j).imageView == image)
+                            photosToLoad.remove(j);
+                        else
+                            ++j;
+                    }
+                } catch (java.lang.ArrayIndexOutOfBoundsException ignore) {
+                    // Nothing
+                }
+            }
 		}
 	}
 
