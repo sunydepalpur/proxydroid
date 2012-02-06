@@ -46,6 +46,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.proxydroid.utils.Constraints;
+import org.proxydroid.utils.Utils;
+
 import com.flurry.android.FlurryAgent;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;

@@ -1,4 +1,4 @@
-package org.proxydroid;
+package org.proxydroid.utils;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -11,6 +11,11 @@ import java.util.ArrayList;
 
 import java.lang.NoClassDefFoundError;
 
+import org.proxydroid.Exec;
+import org.proxydroid.ProxyDroidService;
+import org.proxydroid.R;
+import org.proxydroid.R.drawable;
+
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -20,7 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.util.Log;
 
-class Utils {
+public class Utils {
 	
 	/**
 	 * Internal thread used to execute scripts (as root or not).
@@ -279,7 +284,7 @@ class Utils {
 				data_path = Environment.getExternalStorageDirectory()
 						.getAbsolutePath();
 			} else {
-				data_path = ctx.getFilesDir().getAbsolutePath();
+				data_path = "/sdcard";
 			}
 
 			Log.d(TAG, "Python Data Path: " + data_path);

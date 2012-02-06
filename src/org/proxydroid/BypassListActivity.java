@@ -49,12 +49,26 @@
 
 package org.proxydroid;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+
+import org.proxydroid.utils.Constraints;
+import org.proxydroid.utils.Utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -80,10 +94,13 @@ public class BypassListActivity extends Activity implements OnClickListener,
 
 	private static final String TAG = BypassListActivity.class.getName();
 
+	private static final int MSG_ERR_ADDR = 0;
 	private static final int MSG_ADD_ADDR = 1;
 	private static final int MSG_EDIT_ADDR = 2;
 	private static final int MSG_DEL_ADDR = 3;
-	private static final int MSG_ERR_ADDR = 4;
+	private static final int MSG_PRESET_ADDR = 4;
+	private static final int MSG_IMPORT_ADDR = 5;
+	private static final int MSG_EXPORT_ADDR = 6;
 
 	private ListAdapter adapter;
 	private ArrayList<String> bypassList;
@@ -95,7 +112,8 @@ public class BypassListActivity extends Activity implements OnClickListener,
 			String addr;
 			switch (msg.what) {
 			case MSG_ERR_ADDR:
-				Toast.makeText(BypassListActivity.this, R.string.err_addr, Toast.LENGTH_LONG).show();
+				Toast.makeText(BypassListActivity.this, R.string.err_addr,
+						Toast.LENGTH_LONG).show();
 				break;
 			case MSG_ADD_ADDR:
 				addr = (String) msg.obj;
@@ -108,6 +126,10 @@ public class BypassListActivity extends Activity implements OnClickListener,
 			case MSG_DEL_ADDR:
 				bypassList.remove(msg.arg1);
 				break;
+			case MSG_PRESET_ADDR:
+				String[] list = Constraints.PRESETS[msg.arg1];
+				reset(list);
+				return;
 			}
 			refreshList();
 			super.handleMessage(msg);
@@ -119,6 +141,15 @@ public class BypassListActivity extends Activity implements OnClickListener,
 		switch (arg0.getId()) {
 		case R.id.addBypassAddr:
 			editAddr(MSG_ADD_ADDR, -1);
+			break;
+		case R.id.presetBypassAddr:
+			presetAddr();
+			break;
+		case R.id.importBypassAddr:
+			importAddr();
+			break;
+		case R.id.exportBypassAddr:
+			exportAddr();
 			break;
 		}
 	}
@@ -134,6 +165,15 @@ public class BypassListActivity extends Activity implements OnClickListener,
 		setContentView(R.layout.bypass_list);
 		TextView addButton = (TextView) findViewById(R.id.addBypassAddr);
 		addButton.setOnClickListener(this);
+
+		TextView presetButton = (TextView) findViewById(R.id.presetBypassAddr);
+		presetButton.setOnClickListener(this);
+
+		TextView importButton = (TextView) findViewById(R.id.importBypassAddr);
+		importButton.setOnClickListener(this);
+
+		TextView exportButton = (TextView) findViewById(R.id.exportBypassAddr);
+		exportButton.setOnClickListener(this);
 
 		refreshList();
 	}
@@ -151,12 +191,165 @@ public class BypassListActivity extends Activity implements OnClickListener,
 		return true;
 	}
 
+	private void presetAddr() {
+		AlertDialog ad = new AlertDialog.Builder(this)
+				.setTitle(R.string.preset_button)
+				.setNegativeButton(R.string.alert_dialog_cancel,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int whichButton) {
+								/* User clicked Cancel so do some stuff */
+							}
+						})
+				.setSingleChoiceItems(R.array.presets_list, -1,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								if (which >= 0
+										&& which < Constraints.PRESETS.length) {
+									Message msg = new Message();
+									msg.what = MSG_PRESET_ADDR;
+									msg.arg1 = which;
+									handler.sendMessage(msg);
+								}
+								dialog.dismiss();
+							}
+						}).create();
+		ad.show();
+	}
+
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == Constraints.IMPORT_REQUEST) {
+			if (resultCode == RESULT_OK) {
+				if (data == null)
+					return;
+				final String path = data.getStringExtra(Constraints.FILE_PATH);
+				if (path == null || path.equals(""))
+					return;
+				
+				final ProgressDialog pd = ProgressDialog.show(this, "",
+						getString(R.string.importing), true, true);
+
+				final Handler h = new Handler() {
+					@Override
+					public void handleMessage(Message msg) {
+						refreshList();
+						if (pd != null) {
+							pd.dismiss();
+						}
+					}
+				};
+				
+				new Thread() {
+					public void run() {
+						FileInputStream input;
+						try {
+							input = new FileInputStream(path);
+							BufferedReader br = new BufferedReader(
+									new InputStreamReader(input));
+							bypassList.clear();
+							while (true) {
+								String line = br.readLine();
+								if (line == null)
+									break;
+								String addr = Profile.validateAddr(line);
+								if (addr != null)
+									bypassList.add(addr);
+							}
+							br.close();
+							input.close();
+						} catch (FileNotFoundException e) {
+							Log.e(TAG, "error to open file", e);
+						} catch (IOException e) {
+							Log.e(TAG, "error to read file", e);
+						}
+						h.sendEmptyMessage(MSG_IMPORT_ADDR);
+					}
+				}.start();
+			}
+		}
+	}
+
+	private void importAddr() {
+		startActivityForResult(new Intent(this, FileChooser.class),
+				Constraints.IMPORT_REQUEST);
+	}
+
+	private void exportAddr() {
+		if (profile == null)
+			return;
+
+		LayoutInflater factory = LayoutInflater.from(this);
+		final View textEntryView = factory.inflate(
+				R.layout.alert_dialog_text_entry, null);
+		final EditText path = (EditText) textEntryView
+				.findViewById(R.id.text_edit);
+
+		path.setText(Utils.getDataPath(this) + "/" + profile.getHost() + ".opt");
+
+		AlertDialog ad = new AlertDialog.Builder(this)
+				.setTitle(R.string.export_button)
+				.setView(textEntryView)
+				.setPositiveButton(R.string.alert_dialog_ok,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int whichButton) {
+								if (path.getText() == null
+										|| path.getText().toString() == null)
+									dialog.dismiss();
+								new Thread() {
+									public void run() {
+
+										FileOutputStream output;
+										try {
+											File file = new File(path.getText()
+													.toString());
+											if (!file.exists())
+												file.createNewFile();
+
+											output = new FileOutputStream(file);
+											BufferedOutputStream bw = new BufferedOutputStream(
+													output);
+											for (String addr : bypassList) {
+												addr = Profile
+														.validateAddr(addr);
+												if (addr != null)
+													bw.write((addr + "\n")
+															.getBytes());
+											}
+
+											bw.flush();
+											bw.close();
+											output.flush();
+											output.close();
+										} catch (FileNotFoundException e) {
+											Log.e(TAG, "error to open file", e);
+										} catch (IOException e) {
+											Log.e(TAG, "error to write file", e);
+										}
+
+										handler.sendEmptyMessage(MSG_EXPORT_ADDR);
+									}
+								}.start();
+
+							}
+						})
+				.setNegativeButton(R.string.alert_dialog_cancel,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int whichButton) {
+								/* User clicked cancel so do some stuff */
+							}
+						}).create();
+		ad.show();
+	}
+
 	private void delAddr(final int idx) {
-		
+
 		final String addr = bypassList.get(idx);
-		
-		AlertDialog ad = new AlertDialog
-				.Builder(this)
+
+		AlertDialog ad = new AlertDialog.Builder(this)
 				.setTitle(addr)
 				.setMessage(R.string.bypass_del_text)
 				.setPositiveButton(R.string.alert_dialog_ok,
@@ -175,7 +368,6 @@ public class BypassListActivity extends Activity implements OnClickListener,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
-
 								/* User clicked Cancel so do some stuff */
 							}
 						}).create();
@@ -236,6 +428,35 @@ public class BypassListActivity extends Activity implements OnClickListener,
 		ad.show();
 	}
 
+	private void reset(final String[] list) {
+
+		final ProgressDialog pd = ProgressDialog.show(this, "",
+				getString(R.string.reseting), true, true);
+
+		final Handler h = new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				refreshList();
+				if (pd != null) {
+					pd.dismiss();
+				}
+			}
+		};
+
+		new Thread() {
+			@Override
+			public void run() {
+				bypassList.clear();
+				for (String addr : list) {
+					addr = Profile.validateAddr(addr);
+					if (addr != null)
+						bypassList.add(addr);
+				}
+				h.sendEmptyMessage(0);
+			}
+		}.start();
+	}
+
 	private void refreshList() {
 
 		SharedPreferences settings = PreferenceManager
@@ -254,7 +475,7 @@ public class BypassListActivity extends Activity implements OnClickListener,
 
 		for (String addr : addrs) {
 			bypassList.add(addr);
-//			Log.d(TAG, addr);
+			// Log.d(TAG, addr);
 		}
 
 		final LayoutInflater inflater = getLayoutInflater();

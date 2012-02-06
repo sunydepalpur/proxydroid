@@ -2,3 +2,8 @@ syntax: glob
 bin
 gen
 local.properties
+
+syntax: regexp
+^obj$
+syntax: regexp
+^NUL$

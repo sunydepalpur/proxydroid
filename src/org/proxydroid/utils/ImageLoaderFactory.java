@@ -33,7 +33,7 @@
 //
 //                             HERE BE DRAGONS
 
-package org.proxydroid;
+package org.proxydroid.utils;
 
 import android.content.Context;
 
