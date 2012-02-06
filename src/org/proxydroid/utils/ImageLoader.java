@@ -1,10 +1,13 @@
-package org.proxydroid;
+package org.proxydroid.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Stack;
+
+import org.proxydroid.R;
+import org.proxydroid.R.drawable;
 
 import android.app.Activity;
 import android.content.Context;

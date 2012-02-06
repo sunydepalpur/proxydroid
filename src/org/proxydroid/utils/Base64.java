@@ -1,4 +1,4 @@
-package org.proxydroid;
+package org.proxydroid.utils;
 
 /**
  * <p>Encodes and decodes to and from Base64 notation.</p>

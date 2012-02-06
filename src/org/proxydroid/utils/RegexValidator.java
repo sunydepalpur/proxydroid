@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.proxydroid;
+package org.proxydroid.utils;
 
 import java.io.Serializable;
 import java.util.regex.Pattern;
