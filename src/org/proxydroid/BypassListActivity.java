@@ -1,51 +1,40 @@
-// Copyright 2009 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-// dbartists - Douban artists client for Android
-// Copyright (C) 2011 Max Lv <max.c.lv@gmail.com>
-//
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not
-// use this file except in compliance with the License.  You may obtain a copy
-// of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
-// License for the specific language governing permissions and limitations
-// under the License.
-//
-//
-//                           ___====-_  _-====___
-//                     _--^^^#####//      \\#####^^^--_
-//                  _-^##########// (    ) \\##########^-_
-//                 -############//  |\^^/|  \\############-
-//               _/############//   (@::@)   \\############\_
-//              /#############((     \\//     ))#############\
-//             -###############\\    (oo)    //###############-
-//            -#################\\  / VV \  //#################-
-//           -###################\\/      \//###################-
-//          _#/|##########/\######(   /\   )######/\##########|\#_
-//          |/ |#/\#/\#/\/  \#/\##\  |  |  /##/\#/  \/\#/\#/\#| \|
-//          `  |/  V  V  `   V  \#\| |  | |/#/  V   '  V  V  \|  '
-//             `   `  `      `   / | |  | | \   '      '  '   '
-//                              (  | |  | |  )
-//                             __\ | |  | | /__
-//                            (vvv(VVV)(VVV)vvv)
-//
-//                             HERE BE DRAGONS
+/* proxydroid - Global / Individual Proxy App for Android
+ * Copyright (C) 2011 Max Lv <max.c.lv@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * 
+ *                            ___====-_  _-====___
+ *                      _--^^^#####//      \\#####^^^--_
+ *                   _-^##########// (    ) \\##########^-_
+ *                  -############//  |\^^/|  \\############-
+ *                _/############//   (@::@)   \\############\_
+ *               /#############((     \\//     ))#############\
+ *              -###############\\    (oo)    //###############-
+ *             -#################\\  / VV \  //#################-
+ *            -###################\\/      \//###################-
+ *           _#/|##########/\######(   /\   )######/\##########|\#_
+ *           |/ |#/\#/\#/\/  \#/\##\  |  |  /##/\#/  \/\#/\#/\#| \|
+ *           `  |/  V  V  `   V  \#\| |  | |/#/  V   '  V  V  \|  '
+ *              `   `  `      `   / | |  | | \   '      '  '   '
+ *                               (  | |  | |  )
+ *                              __\ | |  | | /__
+ *                             (vvv(VVV)(VVV)vvv)
+ *
+ *                              HERE BE DRAGONS
+ *
+ */
 
 package org.proxydroid;
 
@@ -68,7 +57,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -116,10 +104,14 @@ public class BypassListActivity extends Activity implements OnClickListener,
 						Toast.LENGTH_LONG).show();
 				break;
 			case MSG_ADD_ADDR:
+				if (msg.obj == null)
+					return;
 				addr = (String) msg.obj;
 				bypassList.add(addr);
 				break;
 			case MSG_EDIT_ADDR:
+				if (msg.obj == null)
+					return;
 				addr = (String) msg.obj;
 				bypassList.set(msg.arg1, addr);
 				break;
@@ -129,6 +121,13 @@ public class BypassListActivity extends Activity implements OnClickListener,
 			case MSG_PRESET_ADDR:
 				String[] list = Constraints.PRESETS[msg.arg1];
 				reset(list);
+				return;
+			case MSG_EXPORT_ADDR:
+				if (msg.obj == null)
+					return;
+				Toast.makeText(BypassListActivity.this,
+						getString(R.string.exporting) + " " + (String) msg.obj,
+						Toast.LENGTH_LONG).show();
 				return;
 			}
 			refreshList();
@@ -227,7 +226,7 @@ public class BypassListActivity extends Activity implements OnClickListener,
 				final String path = data.getStringExtra(Constraints.FILE_PATH);
 				if (path == null || path.equals(""))
 					return;
-				
+
 				final ProgressDialog pd = ProgressDialog.show(this, "",
 						getString(R.string.importing), true, true);
 
@@ -240,7 +239,7 @@ public class BypassListActivity extends Activity implements OnClickListener,
 						}
 					}
 				};
-				
+
 				new Thread() {
 					public void run() {
 						FileInputStream input;
@@ -329,7 +328,10 @@ public class BypassListActivity extends Activity implements OnClickListener,
 											Log.e(TAG, "error to write file", e);
 										}
 
-										handler.sendEmptyMessage(MSG_EXPORT_ADDR);
+										Message msg = new Message();
+										msg.what = MSG_EXPORT_ADDR;
+										msg.obj = path.getText().toString();
+										handler.sendMessage(msg);
 									}
 								}.start();
 

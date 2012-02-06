@@ -154,6 +154,7 @@
     <string name="err_addr">unknown domain name or incorrect format of IP address</string>
     <string name="reseting">Reseting…</string>
     <string name="importing">Importing…</string>
+    <string name="exporting">Exported to:</string>
 
     <string-array name="presets_list">
         <item>Blank</item>
