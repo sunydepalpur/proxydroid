@@ -649,6 +649,8 @@ public class ProxyDroid extends PreferenceActivity implements
 		if (!settings.getString("bypassAddrs", "").equals(""))
 			bypassAddrs.setSummary(settings.getString("bypassAddrs",
 					getString(R.string.set_bypass_summary)).replace("|", ", "));
+		else
+			bypassAddrs.setSummary(R.string.set_bypass_summary);
 		if (!settings.getString("port", "-1").equals("-1")
 				&& !settings.getString("port", "-1").equals(""))
 			portText.setSummary(settings.getString("port",
