@@ -40,7 +40,7 @@
             android:label="@string/app_name" />
 
         <service
-            android:name="ProxyDroidService"
+            android:name=".ProxyDroidService"
             android:enabled="true" />
 
         <receiver android:name=".ConnectivityBroadcastReceiver" >
@@ -48,7 +48,7 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-        <receiver android:name="ProxyDroidWidgetProvider" >
+        <receiver android:name=".ProxyDroidWidgetProvider" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="org.proxydroid.ProxyDroidWidgetProvider.PROXY_SWITCH_ACTION" />

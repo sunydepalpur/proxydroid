@@ -305,8 +305,7 @@ public class ProxyDroidService extends Service {
 			StringBuffer cmd = new StringBuffer();
 
 			if (isDNSProxy) {
-				dnsServer = new DNSProxy("DNS Server", dnsPort);
-				dnsServer.setBasePath("/data/data/org.proxydroid/");
+				dnsServer = new DNSProxy(this, dnsPort);
 				dnsPort = dnsServer.init();
 
 				Thread dnsThread = new Thread(dnsServer);
