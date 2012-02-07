@@ -350,12 +350,12 @@ public class DNSProxy implements Runnable {
 				Log.d(TAG, "Resolving: " + questDomain);
 
 				DNSResponse resp = queryFromCache(questDomain);
+				
 				if (resp != null) {
-
+					
 					sendDns(resp.getDNSResponse(), dnsq, srvSocket);
-
 					Log.d(TAG, "DNS cache hit for " + questDomain);
-
+					
 				} else if (questDomain.toLowerCase().endsWith(".appspot.com")) {
 					// for appspot.com
 					byte[] ips = parseIPString(dnsRelay);
