@@ -243,8 +243,8 @@ public class DNSProxy implements Runnable {
 			Dao<DNSResponse, String> dnsCacheDao = helper.getDNSCacheDao();
 			List<DNSResponse> list = dnsCacheDao.queryForAll();
 			for (DNSResponse resp : list) {
-				// expire after 10 days
-				if ((System.currentTimeMillis() - resp.getTimestamp()) > 864000000L) {
+				// expire after 3 days
+				if ((System.currentTimeMillis() - resp.getTimestamp()) > 259200000L) {
 					Log.d(TAG, "deleted: " + resp.getRequest());
 					dnsCacheDao.delete(resp);
 				}

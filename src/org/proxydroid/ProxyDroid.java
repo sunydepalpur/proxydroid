@@ -46,6 +46,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.proxydroid.db.DNSResponse;
+import org.proxydroid.db.DatabaseHelper;
 import org.proxydroid.utils.Constraints;
 import org.proxydroid.utils.Utils;
 
@@ -53,6 +55,8 @@ import com.flurry.android.FlurryAgent;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
 import com.ksmaze.android.preference.ListPreferenceMultiSelect;
 
 import android.app.AlertDialog;
@@ -218,13 +222,13 @@ public class ProxyDroid extends PreferenceActivity implements
 		WifiManager wm = (WifiManager) this
 				.getSystemService(Context.WIFI_SERVICE);
 		List<WifiConfiguration> wcs = wm.getConfiguredNetworks();
-        
+
 		int n = 3;
 
 		String[] ssidEntries = new String[wcs.size() + n];
-        ssidEntries[0] = Constraints.WIFI_AND_3G;
-        ssidEntries[1] = Constraints.ONLY_WIFI;
-        ssidEntries[2] = Constraints.ONLY_3G;
+		ssidEntries[0] = Constraints.WIFI_AND_3G;
+		ssidEntries[1] = Constraints.ONLY_WIFI;
+		ssidEntries[2] = Constraints.ONLY_3G;
 
 		for (WifiConfiguration wc : wcs) {
 			if (wc != null && wc.SSID != null)
@@ -264,10 +268,10 @@ public class ProxyDroid extends PreferenceActivity implements
 		new Thread() {
 			public void run() {
 
-                loadProfileList();
-				
+				loadProfileList();
+
 				loadNetworkList();
-				
+
 				if (!Utils.isRoot()) {
 					handler.sendEmptyMessageDelayed(MSG_NO_ROOT, 1000);
 				}
@@ -360,7 +364,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isDNSProxyCheck = (CheckBoxPreference) findPreference("isDNSProxy");
 		isPACCheck = (CheckBoxPreference) findPreference("isPAC");
 		isAutoConnectCheck = (CheckBoxPreference) findPreference("isAutoConnect");
-        isBypassAppsCheck = (CheckBoxPreference) findPreference("isBypassApps");
+		isBypassAppsCheck = (CheckBoxPreference) findPreference("isBypassApps");
 
 	}
 
@@ -405,7 +409,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 			bundle.putString("proxyType", mProfile.getProxyType());
 			bundle.putBoolean("isAutoSetProxy", mProfile.isAutoSetProxy());
-            bundle.putBoolean("isBypassApps", mProfile.isBypassApps());
+			bundle.putBoolean("isBypassApps", mProfile.isBypassApps());
 			bundle.putBoolean("isAuth", mProfile.isAuth());
 			bundle.putBoolean("isNTLM", mProfile.isNTLM());
 			bundle.putBoolean("isDNSProxy", mProfile.isDNSProxy());
@@ -454,7 +458,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isNTLMCheck.setChecked(mProfile.isNTLM());
 		isAutoConnectCheck.setChecked(mProfile.isAutoConnect());
 		isAutoSetProxyCheck.setChecked(mProfile.isAutoSetProxy());
-        isBypassAppsCheck.setChecked(mProfile.isBypassApps());
+		isBypassAppsCheck.setChecked(mProfile.isBypassApps());
 		isDNSProxyCheck.setChecked(mProfile.isDNSProxy());
 		isPACCheck.setChecked(mProfile.isPAC());
 
@@ -467,19 +471,20 @@ public class ProxyDroid extends PreferenceActivity implements
 	}
 
 	private void showAToast(String msg) {
-        if (!isFinishing()) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(msg)
-                .setCancelable(false)
-                .setNegativeButton(getString(R.string.ok_iknow),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-            AlertDialog alert = builder.create();
-            alert.show();
-        }
+		if (!isFinishing()) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage(msg)
+					.setCancelable(false)
+					.setNegativeButton(getString(R.string.ok_iknow),
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int id) {
+									dialog.cancel();
+								}
+							});
+			AlertDialog alert = builder.create();
+			alert.show();
+		}
 	}
 
 	private void disableAll() {
@@ -500,7 +505,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		isAutoSetProxyCheck.setEnabled(false);
 		isAutoConnectCheck.setEnabled(false);
 		isPACCheck.setEnabled(false);
-        isBypassAppsCheck.setEnabled(false);
+		isBypassAppsCheck.setEnabled(false);
 	}
 
 	private void enableAll() {
@@ -522,8 +527,8 @@ public class ProxyDroid extends PreferenceActivity implements
 		}
 		if (!isAutoSetProxyCheck.isChecked()) {
 			proxyedApps.setEnabled(true);
-            isBypassAppsCheck.setEnabled(true);
-        }
+			isBypassAppsCheck.setEnabled(true);
+		}
 		if (isAutoConnectCheck.isChecked())
 			ssidList.setEnabled(true);
 
@@ -583,11 +588,11 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		if (settings.getBoolean("isAutoSetProxy", false)) {
 			proxyedApps.setEnabled(false);
-            isBypassAppsCheck.setEnabled(false);
-        } else {
+			isBypassAppsCheck.setEnabled(false);
+		} else {
 			proxyedApps.setEnabled(true);
-            isBypassAppsCheck.setEnabled(true);
-        }
+			isBypassAppsCheck.setEnabled(true);
+		}
 
 		if (settings.getBoolean("isAutoConnect", false))
 			ssidList.setEnabled(true);
@@ -795,11 +800,11 @@ public class ProxyDroid extends PreferenceActivity implements
 		if (key.equals("isAutoSetProxy")) {
 			if (settings.getBoolean("isAutoSetProxy", false)) {
 				proxyedApps.setEnabled(false);
-                isBypassAppsCheck.setEnabled(false);
-            } else {
+				isBypassAppsCheck.setEnabled(false);
+			} else {
 				proxyedApps.setEnabled(true);
-                isBypassAppsCheck.setEnabled(true);
-            }
+				isBypassAppsCheck.setEnabled(true);
+			}
 		}
 
 		if (key.equals("isRunning")) {
@@ -1054,10 +1059,14 @@ public class ProxyDroid extends PreferenceActivity implements
 				}
 
 				try {
-					File cache = new File(ProxyDroidService.BASE
-							+ "cache/dnscache");
-					if (cache.exists())
-						cache.delete();
+					DatabaseHelper helper = ((DatabaseHelper) OpenHelperManager
+							.getHelper(ProxyDroid.this, DatabaseHelper.class));
+					Dao<DNSResponse, String> dnsCacheDao = helper
+							.getDNSCacheDao();
+					List<DNSResponse> list = dnsCacheDao.queryForAll();
+					for (DNSResponse resp : list) {
+						dnsCacheDao.delete(resp);
+					}
 				} catch (Exception ignore) {
 					// Nothing
 				}
