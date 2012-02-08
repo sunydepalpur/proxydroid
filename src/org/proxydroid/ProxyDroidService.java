@@ -524,11 +524,12 @@ public class ProxyDroidService extends Service {
 			// Nothing
 		}
 
-		super.onDestroy();
-
 		markServiceStopped();
 		
 		Utils.setConnecting(false);
+		
+		super.onDestroy();
+
 	}
 
 	private void onDisconnect() {
