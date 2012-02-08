@@ -244,84 +244,6 @@ public class ProxyDroid extends PreferenceActivity implements
 	public void onStart() {
 		super.onStart();
 		FlurryAgent.onStartSession(this, "AV372I7R5YYD52NWPUPE");
-
-		SharedPreferences settings = PreferenceManager
-				.getDefaultSharedPreferences(this);
-
-		String profileValuesString = settings.getString("profileValues", "");
-
-		if (profileValuesString.equals("")) {
-			Editor ed = settings.edit();
-			profile = "1";
-			ed.putString("profileValues", "1|0");
-			ed.putString("profileEntries", getString(R.string.profile_default)
-					+ "|" + getString(R.string.profile_new));
-			ed.putString("profile", "1");
-			ed.commit();
-
-			profileList.setDefaultValue("1");
-		}
-
-		registerReceiver(ssidReceiver, new IntentFilter(
-				android.net.ConnectivityManager.CONNECTIVITY_ACTION));
-
-		new Thread() {
-			@Override
-			public void run() {
-
-				loadProfileList();
-
-				loadNetworkList();
-
-				if (!Utils.isRoot()) {
-					handler.sendEmptyMessageDelayed(MSG_NO_ROOT, 1000);
-				}
-			}
-		}.start();
-
-		String versionName;
-		try {
-			versionName = getPackageManager().getPackageInfo(getPackageName(),
-					0).versionName;
-		} catch (NameNotFoundException e) {
-			versionName = "NONE";
-		}
-
-		if (!settings.getBoolean(versionName, false)) {
-
-			new Thread() {
-				@Override
-				public void run() {
-
-					String version;
-					try {
-						version = getPackageManager().getPackageInfo(
-								getPackageName(), 0).versionName;
-					} catch (NameNotFoundException e) {
-						version = "NONE";
-					}
-
-					SharedPreferences settings = PreferenceManager
-							.getDefaultSharedPreferences(ProxyDroid.this);
-
-					CopyAssets();
-
-					Utils.runRootCommand("chmod 700 /data/data/org.proxydroid/iptables\n"
-							+ "chmod 700 /data/data/org.proxydroid/redsocks\n"
-							+ "chmod 700 /data/data/org.proxydroid/proxy.sh\n"
-							+ "chmod 700 /data/data/org.proxydroid/cntlm\n"
-							+ "chmod 700 /data/data/org.proxydroid/tproxy\n"
-							+ "chmod 700 /data/data/org.proxydroid/stunnel\n");
-					Editor edit = settings.edit();
-					edit.putBoolean(version, true);
-					edit.commit();
-
-					handler.sendEmptyMessage(MSG_UPDATE_FINISHED);
-				}
-			}.start();
-
-		}
-
 	}
 
 	@Override
@@ -368,14 +290,92 @@ public class ProxyDroid extends PreferenceActivity implements
 		isAutoConnectCheck = (CheckBoxPreference) findPreference("isAutoConnect");
 		isBypassAppsCheck = (CheckBoxPreference) findPreference("isBypassApps");
 
+		final SharedPreferences settings = PreferenceManager
+				.getDefaultSharedPreferences(this);
+
+		String profileValuesString = settings.getString("profileValues", "");
+
+		if (profileValuesString.equals("")) {
+			Editor ed = settings.edit();
+			profile = "1";
+			ed.putString("profileValues", "1|0");
+			ed.putString("profileEntries", getString(R.string.profile_default)
+					+ "|" + getString(R.string.profile_new));
+			ed.putString("profile", "1");
+			ed.commit();
+
+			profileList.setDefaultValue("1");
+		}
+
+		registerReceiver(ssidReceiver, new IntentFilter(
+				android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+
+		new Thread() {
+			@Override
+			public void run() {
+
+				try {
+					// Try not to block activity
+					Thread.sleep(2000);
+				} catch (InterruptedException ignore) {
+					// Nothing
+				}
+
+				loadProfileList();
+
+				loadNetworkList();
+
+				if (!Utils.isRoot()) {
+					handler.sendEmptyMessage(MSG_NO_ROOT);
+				}
+
+				String versionName;
+				try {
+					versionName = getPackageManager().getPackageInfo(
+							getPackageName(), 0).versionName;
+				} catch (NameNotFoundException e) {
+					versionName = "NONE";
+				}
+
+				if (!settings.getBoolean(versionName, false)) {
+
+					String version;
+					try {
+						version = getPackageManager().getPackageInfo(
+								getPackageName(), 0).versionName;
+					} catch (NameNotFoundException e) {
+						version = "NONE";
+					}
+
+					CopyAssets();
+
+					Utils.runRootCommand("chmod 700 /data/data/org.proxydroid/iptables\n"
+							+ "chmod 700 /data/data/org.proxydroid/redsocks\n"
+							+ "chmod 700 /data/data/org.proxydroid/proxy.sh\n"
+							+ "chmod 700 /data/data/org.proxydroid/cntlm\n"
+							+ "chmod 700 /data/data/org.proxydroid/tproxy\n"
+							+ "chmod 700 /data/data/org.proxydroid/stunnel\n");
+					Editor edit = settings.edit();
+					edit.putBoolean(version, true);
+					edit.commit();
+
+					handler.sendEmptyMessage(MSG_UPDATE_FINISHED);
+
+				}
+			}
+		}.start();
+
 	}
 
 	/** Called when the activity is closed. */
 	@Override
 	public void onDestroy() {
 
-		adView.destroy();
-		unregisterReceiver(ssidReceiver);
+		if (adView != null)
+			adView.destroy();
+		
+		if (ssidReceiver != null)
+			unregisterReceiver(ssidReceiver);
 
 		super.onDestroy();
 	}
@@ -1066,8 +1066,8 @@ public class ProxyDroid extends PreferenceActivity implements
 				}
 
 				try {
-					DatabaseHelper helper = OpenHelperManager
-							.getHelper(ProxyDroid.this, DatabaseHelper.class);
+					DatabaseHelper helper = OpenHelperManager.getHelper(
+							ProxyDroid.this, DatabaseHelper.class);
 					Dao<DNSResponse, String> dnsCacheDao = helper
 							.getDNSCacheDao();
 					List<DNSResponse> list = dnsCacheDao.queryForAll();
