@@ -131,36 +131,36 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
 			if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
 
-				// no last SSID, should give up here
-				if (lastSSID.equals("-1"))
-					return;
+				// if no last SSID, should give up here
+				if (!lastSSID.equals("-1")) {
 
-				// get WIFI info
-				WifiManager wm = (WifiManager) context
-						.getSystemService(Context.WIFI_SERVICE);
-				WifiInfo wInfo = wm.getConnectionInfo();
-				if (wInfo == null)
-					return;
+					// get WIFI info
+					WifiManager wm = (WifiManager) context
+							.getSystemService(Context.WIFI_SERVICE);
+					WifiInfo wInfo = wm.getConnectionInfo();
+					if (wInfo != null) {
 
-				// compare with the current SSID
-				String current = wInfo.getSSID();
-				if (current == null || current.equals(lastSSID))
-					return;
+						// compare with the current SSID
+						String current = wInfo.getSSID();
+						if (current != null && !current.equals(lastSSID)) {
 
-				// need to switch profile, so stop service first
-				if (Utils.isWorked())
-					context.stopService(new Intent(context,
-							ProxyDroidService.class));
+							// need to switch profile, so stop service first
+							if (Utils.isWorked())
+								context.stopService(new Intent(context,
+										ProxyDroidService.class));
+						}
+					}
+				}
 			} else {
 
 				// still statisfy the last triger
-				if (lastSSID.equals(Constraints.ONLY_3G)
-						|| lastSSID.equals(Constraints.WIFI_AND_3G))
-					return;
+				if (!lastSSID.equals(Constraints.ONLY_3G)
+						&& !lastSSID.equals(Constraints.WIFI_AND_3G)) {
 
-				if (Utils.isWorked())
-					context.stopService(new Intent(context,
-							ProxyDroidService.class));
+					if (Utils.isWorked())
+						context.stopService(new Intent(context,
+								ProxyDroidService.class));
+				}
 			}
 		}
 
