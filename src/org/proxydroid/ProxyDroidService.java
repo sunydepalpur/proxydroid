@@ -422,7 +422,7 @@ public class ProxyDroidService extends Service {
 	}
 
 	private void notifyAlert(String title, String info) {
-		notification.icon = R.drawable.stat;
+		notification.icon = R.drawable.ic_stat_proxydroid;
 		notification.tickerText = title;
 		notification.flags = Notification.FLAG_ONGOING_EVENT;
 		initSoundVibrateLights(notification);
@@ -433,7 +433,7 @@ public class ProxyDroidService extends Service {
 	}
 
 	private void notifyAlert(String title, String info, int flags) {
-		notification.icon = R.drawable.stat;
+		notification.icon = R.drawable.ic_stat_proxydroid;
 		notification.tickerText = title;
 		notification.flags = flags;
 		initSoundVibrateLights(notification);
