@@ -73,9 +73,13 @@ import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
+import android.preference.TwoStatePreference;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -373,26 +377,31 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		if (adView != null)
 			adView.destroy();
-		
+
 		if (ssidReceiver != null)
 			unregisterReceiver(ssidReceiver);
 
 		super.onDestroy();
 	}
-
-	/** Called when connect button is clicked. */
-	public boolean serviceStart() {
-
-		if (Utils.isWorked()) {
-
-			try {
-				stopService(new Intent(ProxyDroid.this, ProxyDroidService.class));
-			} catch (Exception e) {
-				// Nothing
-			}
-
+	
+	private boolean serviceStop() {
+		
+		if (!Utils.isWorked())
+			return false;
+		
+		try {
+			stopService(new Intent(ProxyDroid.this, ProxyDroidService.class));
+		} catch (Exception e) {
 			return false;
 		}
+		return true;
+	}
+
+	/** Called when connect button is clicked. */
+	private boolean serviceStart() {
+		
+		if (Utils.isWorked())
+			return false;
 
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(this);
@@ -555,24 +564,8 @@ public class ProxyDroid extends PreferenceActivity implements
 				&& preference.getKey().equals("proxyedApps")) {
 			Intent intent = new Intent(this, AppManager.class);
 			startActivity(intent);
-		} else if (preference.getKey() != null
-				&& preference.getKey().equals("isRunning")) {
-
-			if (!serviceStart()) {
-
-				SharedPreferences settings = PreferenceManager
-						.getDefaultSharedPreferences(ProxyDroid.this);
-
-				Editor edit = settings.edit();
-
-				edit.putBoolean("isRunning", false);
-
-				edit.commit();
-
-				enableAll();
-			}
-
 		}
+
 		return super.onPreferenceTreeClick(preferenceScreen, preference);
 	}
 
@@ -815,9 +808,13 @@ public class ProxyDroid extends PreferenceActivity implements
 			if (settings.getBoolean("isRunning", false)) {
 				disableAll();
 				isRunningCheck.setChecked(true);
+				if (!Utils.isConnecting())
+					serviceStart();
 			} else {
 				enableAll();
 				isRunningCheck.setChecked(false);
+				if (!Utils.isConnecting())
+					serviceStop();
 			}
 		}
 

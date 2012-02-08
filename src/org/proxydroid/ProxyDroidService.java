@@ -479,6 +479,8 @@ public class ProxyDroidService extends Service {
 	/** Called when the activity is closed. */
 	@Override
 	public void onDestroy() {
+		
+		Utils.setConnecting(true);
 
 		stopForegroundCompat(1);
 
@@ -516,8 +518,6 @@ public class ProxyDroidService extends Service {
 		ed.putBoolean("isRunning", false);
 		ed.commit();
 
-		Utils.setConnecting(false);
-
 		try {
 			notificationManager.cancel(0);
 		} catch (Exception ignore) {
@@ -527,6 +527,8 @@ public class ProxyDroidService extends Service {
 		super.onDestroy();
 
 		markServiceStopped();
+		
+		Utils.setConnecting(false);
 	}
 
 	private void onDisconnect() {
@@ -562,6 +564,7 @@ public class ProxyDroidService extends Service {
 			switch (msg.what) {
 			case MSG_CONNECT_START:
 				ed.putBoolean("isConnecting", true);
+				Utils.setConnecting(true);
 				break;
 			case MSG_CONNECT_FINISH:
 				ed.putBoolean("isConnecting", false);
@@ -744,8 +747,6 @@ public class ProxyDroidService extends Service {
 
 				} else {
 					// Connection or forward unsuccessful
-					notifyAlert(getString(R.string.forward_fail),
-							getString(R.string.service_failed));
 
 					stopSelf();
 					handler.sendEmptyMessage(MSG_CONNECT_FAIL);
