@@ -53,12 +53,6 @@ import java.util.List;
 
 import org.proxydroid.utils.Utils;
 
-import com.btr.proxy.selector.pac.PacProxySelector;
-import com.btr.proxy.selector.pac.PacScriptSource;
-import com.btr.proxy.selector.pac.Proxy;
-import com.btr.proxy.selector.pac.UrlPacScriptSource;
-import com.flurry.android.FlurryAgent;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -79,6 +73,12 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
+
+import com.btr.proxy.selector.pac.PacProxySelector;
+import com.btr.proxy.selector.pac.PacScriptSource;
+import com.btr.proxy.selector.pac.Proxy;
+import com.btr.proxy.selector.pac.UrlPacScriptSource;
+import com.flurry.android.FlurryAgent;
 
 public class ProxyDroidService extends Service {
 
@@ -133,8 +133,7 @@ public class ProxyDroidService extends Service {
 
 	private boolean hasRedirectSupport = true;
 	private boolean isAutoSetProxy = false;
-    private boolean isBypassApps = false;
-	private String localIp;
+	private boolean isBypassApps = false;
 
 	private ProxyedApp apps[];
 
@@ -258,9 +257,8 @@ public class ProxyDroidService extends Service {
 						+ "stunnel.conf");
 				String conf = "debug = 0\n" + "client = yes\n" + "pid = "
 						+ BASE + "stunnel.pid\n" + "[https]\n"
-                        + "sslVersion = all\n"
-						+ "accept = 127.0.0.1:8126\n" + "connect = " + host + ":" + port
-						+ "\n";
+						+ "sslVersion = all\n" + "accept = 127.0.0.1:8126\n"
+						+ "connect = " + host + ":" + port + "\n";
 				fs.write(conf.getBytes());
 				fs.flush();
 				fs.close();
@@ -337,7 +335,7 @@ public class ProxyDroidService extends Service {
 				dnatCmd = CMD_IPTABLES_DNAT_ADD_SOCKS;
 			}
 
-            if (isBypassApps) {
+			if (isBypassApps) {
 				// for host specified apps
 				if (apps == null || apps.length <= 0)
 					apps = AppManager.getProxyedApps(this, false);
@@ -345,14 +343,14 @@ public class ProxyDroidService extends Service {
 				for (int i = 0; i < apps.length; i++) {
 					if (apps[i] != null && apps[i].isProxyed()) {
 						cmd.append(CMD_IPTABLES_RETURN
-                                    .replace("-d 0.0.0.0", "")
-                                    .replace("-t nat",
-                                        "-t nat -m owner --uid-owner "
-                                        + apps[i].getUid()));
+								.replace("-d 0.0.0.0", "").replace(
+										"-t nat",
+										"-t nat -m owner --uid-owner "
+												+ apps[i].getUid()));
 					}
 				}
 
-            }
+			}
 
 			if (isAutoSetProxy || isBypassApps) {
 				cmd.append(hasRedirectSupport ? redirectCmd : dnatCmd);
@@ -389,12 +387,12 @@ public class ProxyDroidService extends Service {
 	/** Called when the activity is first created. */
 	public boolean handleCommand() {
 
-        Utils.runRootCommand("chmod 700 /data/data/org.proxydroid/iptables\n"
-                + "chmod 700 /data/data/org.proxydroid/redsocks\n"
-                + "chmod 700 /data/data/org.proxydroid/proxy.sh\n"
-                + "chmod 700 /data/data/org.proxydroid/cntlm\n"
-                + "chmod 700 /data/data/org.proxydroid/tproxy\n"
-                + "chmod 700 /data/data/org.proxydroid/stunnel\n");
+		Utils.runRootCommand("chmod 700 /data/data/org.proxydroid/iptables\n"
+				+ "chmod 700 /data/data/org.proxydroid/redsocks\n"
+				+ "chmod 700 /data/data/org.proxydroid/proxy.sh\n"
+				+ "chmod 700 /data/data/org.proxydroid/cntlm\n"
+				+ "chmod 700 /data/data/org.proxydroid/tproxy\n"
+				+ "chmod 700 /data/data/org.proxydroid/stunnel\n");
 
 		enableProxy();
 
@@ -532,7 +530,7 @@ public class ProxyDroidService extends Service {
 	}
 
 	private void onDisconnect() {
-		
+
 		final StringBuilder sb = new StringBuilder();
 
 		sb.append(Utils.getIptables() + " -t nat -F OUTPUT\n");
@@ -547,13 +545,14 @@ public class ProxyDroidService extends Service {
 		}
 
 		sb.append(BASE + "proxy.sh stop\n");
-		
+
 		new Thread() {
-			public void run () {
+			@Override
+			public void run() {
 				Utils.runRootCommand(sb.toString());
 			}
 		}.start();
-		
+
 	}
 
 	final Handler handler = new Handler() {
@@ -623,7 +622,8 @@ public class ProxyDroidService extends Service {
 					// No proxy means error
 					if (p.equals(Proxy.NO_PROXY) || p.host == null
 							|| p.port == 0 || p.type == null) {
-						handler.sendEmptyMessageDelayed(MSG_CONNECT_PAC_ERROR, 3000);
+						handler.sendEmptyMessageDelayed(MSG_CONNECT_PAC_ERROR,
+								3000);
 						return false;
 					}
 
@@ -675,9 +675,9 @@ public class ProxyDroidService extends Service {
 
 		super.onStart(intent, startId);
 
-        if (intent == null || intent.getExtras() == null) {
-            return;
-        }
+		if (intent == null || intent.getExtras() == null) {
+			return;
+		}
 
 		FlurryAgent.onStartSession(this, "AV372I7R5YYD52NWPUPE");
 
@@ -689,7 +689,7 @@ public class ProxyDroidService extends Service {
 		proxyType = bundle.getString("proxyType");
 		port = bundle.getInt("port");
 		isAutoSetProxy = bundle.getBoolean("isAutoSetProxy");
-        isBypassApps = bundle.getBoolean("isBypassApps");
+		isBypassApps = bundle.getBoolean("isBypassApps");
 		isAuth = bundle.getBoolean("isAuth");
 		isNTLM = bundle.getBoolean("isNTLM");
 		isDNSProxy = bundle.getBoolean("isDNSProxy");
@@ -710,9 +710,8 @@ public class ProxyDroidService extends Service {
 		else
 			domain = "";
 
-		localIp = getLocalIpAddress();
-
 		new Thread(new Runnable() {
+			@Override
 			public void run() {
 
 				handler.sendEmptyMessage(MSG_CONNECT_START);
