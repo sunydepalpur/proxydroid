@@ -86,8 +86,8 @@ public class DNSProxy implements Runnable {
 		OpenHelperManager.setOpenHelperClass(DatabaseHelper.class);
 
 		if (helper == null) {
-			helper = ((DatabaseHelper) OpenHelperManager.getHelper(ctx,
-					DatabaseHelper.class));
+			helper = OpenHelperManager.getHelper(ctx,
+					DatabaseHelper.class);
 		}
 
 		try {
@@ -350,12 +350,12 @@ public class DNSProxy implements Runnable {
 				Log.d(TAG, "Resolving: " + questDomain);
 
 				DNSResponse resp = queryFromCache(questDomain);
-				
+
 				if (resp != null) {
-					
+
 					sendDns(resp.getDNSResponse(), dnsq, srvSocket);
 					Log.d(TAG, "DNS cache hit for " + questDomain);
-					
+
 				} else if (questDomain.toLowerCase().endsWith(".appspot.com")) {
 					// for appspot.com
 					byte[] ips = parseIPString(dnsRelay);
@@ -379,6 +379,7 @@ public class DNSProxy implements Runnable {
 					threadNum++;
 
 					new Thread() {
+						@Override
 						public void run() {
 							long startTime = System.currentTimeMillis();
 							try {

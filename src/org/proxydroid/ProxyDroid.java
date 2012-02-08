@@ -51,14 +51,6 @@ import org.proxydroid.db.DatabaseHelper;
 import org.proxydroid.utils.Constraints;
 import org.proxydroid.utils.Utils;
 
-import com.flurry.android.FlurryAgent;
-import com.google.ads.AdRequest;
-import com.google.ads.AdSize;
-import com.google.ads.AdView;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.Dao;
-import com.ksmaze.android.preference.ListPreferenceMultiSelect;
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -93,6 +85,14 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import com.flurry.android.FlurryAgent;
+import com.google.ads.AdRequest;
+import com.google.ads.AdSize;
+import com.google.ads.AdView;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
+import com.ksmaze.android.preference.ListPreferenceMultiSelect;
 
 public class ProxyDroid extends PreferenceActivity implements
 		OnSharedPreferenceChangeListener {
@@ -266,6 +266,7 @@ public class ProxyDroid extends PreferenceActivity implements
 				android.net.ConnectivityManager.CONNECTIVITY_ACTION));
 
 		new Thread() {
+			@Override
 			public void run() {
 
 				loadProfileList();
@@ -289,6 +290,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		if (!settings.getBoolean(versionName, false)) {
 
 			new Thread() {
+				@Override
 				public void run() {
 
 					String version;
@@ -351,10 +353,10 @@ public class ProxyDroid extends PreferenceActivity implements
 		userText = (EditTextPreference) findPreference("user");
 		passwordText = (EditTextPreference) findPreference("password");
 		domainText = (EditTextPreference) findPreference("domain");
-		bypassAddrs = (Preference) findPreference("bypassAddrs");
+		bypassAddrs = findPreference("bypassAddrs");
 		ssidList = (ListPreferenceMultiSelect) findPreference("ssid");
 		proxyTypeList = (ListPreference) findPreference("proxyType");
-		proxyedApps = (Preference) findPreference("proxyedApps");
+		proxyedApps = findPreference("proxyedApps");
 		profileList = (ListPreference) findPreference("profile");
 
 		isRunningCheck = (CheckBoxPreference) findPreference("isRunning");
@@ -477,6 +479,7 @@ public class ProxyDroid extends PreferenceActivity implements
 					.setCancelable(false)
 					.setNegativeButton(getString(R.string.ok_iknow),
 							new DialogInterface.OnClickListener() {
+								@Override
 								public void onClick(DialogInterface dialog,
 										int id) {
 									dialog.cancel();
@@ -687,6 +690,7 @@ public class ProxyDroid extends PreferenceActivity implements
 				.unregisterOnSharedPreferenceChangeListener(this);
 	}
 
+	@Override
 	public void onSharedPreferenceChanged(SharedPreferences settings, String key) {
 		// Let's do something a preference value changes
 
@@ -950,6 +954,7 @@ public class ProxyDroid extends PreferenceActivity implements
 				.setView(textEntryView)
 				.setPositiveButton(R.string.alert_dialog_ok,
 						new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
 								EditText profileName = (EditText) textEntryView
@@ -1005,6 +1010,7 @@ public class ProxyDroid extends PreferenceActivity implements
 						})
 				.setNegativeButton(R.string.alert_dialog_cancel,
 						new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
 								/* User clicked cancel so do some stuff */
@@ -1050,6 +1056,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 	private void recovery() {
 		new Thread() {
+			@Override
 			public void run() {
 				try {
 					stopService(new Intent(ProxyDroid.this,
@@ -1059,8 +1066,8 @@ public class ProxyDroid extends PreferenceActivity implements
 				}
 
 				try {
-					DatabaseHelper helper = ((DatabaseHelper) OpenHelperManager
-							.getHelper(ProxyDroid.this, DatabaseHelper.class));
+					DatabaseHelper helper = OpenHelperManager
+							.getHelper(ProxyDroid.this, DatabaseHelper.class);
 					Dao<DNSResponse, String> dnsCacheDao = helper
 							.getDNSCacheDao();
 					List<DNSResponse> list = dnsCacheDao.queryForAll();

@@ -116,6 +116,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 		}
 	};
 
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -145,6 +146,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 
 		new Thread() {
 
+			@Override
 			public void run() {
 				handler.sendEmptyMessage(MSG_LOAD_START);
 
@@ -162,6 +164,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 		getApps(this);
 
 		Arrays.sort(apps, new Comparator<ProxyedApp>() {
+			@Override
 			public int compare(ProxyedApp o1, ProxyedApp o2) {
 				if (o1 == null || o2 == null || o1.getName() == null
 						|| o2.getName() == null)
@@ -178,6 +181,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 
 		adapter = new ArrayAdapter<ProxyedApp>(this, R.layout.layout_apps_item,
 				R.id.itemtext, apps) {
+			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
 				ListEntry entry;
 				if (convertView == null) {
@@ -289,16 +293,16 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 			// check if this application is allowed
 			if (aInfo.packageName != null
 					&& aInfo.packageName.equals("org.proxydroid")) {
-                if (self)
-    				app.setProxyed(true);
+				if (self)
+					app.setProxyed(true);
 			} else if (Arrays.binarySearch(tordApps, app.getUsername()) >= 0) {
 				app.setProxyed(true);
 			} else {
 				app.setProxyed(false);
 			}
 
-            if (app.isProxyed())
-    			vectorApps.add(app);
+			if (app.isProxyed())
+				vectorApps.add(app);
 
 		}
 
@@ -401,6 +405,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 	/**
 	 * Called an application is check/unchecked
 	 */
+	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		final ProxyedApp app = (ProxyedApp) buttonView.getTag();
 		if (app != null) {
