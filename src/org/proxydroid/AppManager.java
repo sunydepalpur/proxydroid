@@ -13,9 +13,13 @@ import java.util.Vector;
 import org.proxydroid.utils.ImageLoader;
 import org.proxydroid.utils.ImageLoaderFactory;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.MenuItem;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
@@ -42,7 +46,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class AppManager extends Activity implements OnCheckedChangeListener,
+public class AppManager extends SherlockActivity implements OnCheckedChangeListener,
 		OnClickListener {
 
 	private ProxyedApp[] apps = null;
@@ -115,10 +119,26 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 			super.handleMessage(msg);
 		}
 	};
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			// app icon in action bar clicked; go home
+			Intent intent = new Intent(this, ProxyDroid.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		this.setContentView(R.layout.layout_apps);
 
@@ -138,6 +158,15 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 
 		mAppManager = this;
 
+	}
+	
+	/** Called when the activity is closed. */
+	@Override
+	public void onDestroy() {
+		
+		getWindowManager().removeView(overlay);
+
+		super.onDestroy();
 	}
 
 	@Override

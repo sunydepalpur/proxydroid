@@ -66,6 +66,7 @@ import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -83,13 +84,14 @@ import android.preference.TwoStatePreference;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.flurry.android.FlurryAgent;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
@@ -98,7 +100,7 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.ksmaze.android.preference.ListPreferenceMultiSelect;
 
-public class ProxyDroid extends PreferenceActivity implements
+public class ProxyDroid extends SherlockPreferenceActivity implements
 		OnSharedPreferenceChangeListener {
 
 	private static final String TAG = "ProxyDroid";
@@ -124,7 +126,7 @@ public class ProxyDroid extends PreferenceActivity implements
 	private EditTextPreference domainText;
 	private ListPreferenceMultiSelect ssidList;
 	private ListPreference proxyTypeList;
-	private CheckBoxPreference isRunningCheck;
+	private Preference isRunningCheck;
 	private CheckBoxPreference isBypassAppsCheck;
 	private Preference proxyedApps;
 	private Preference bypassAddrs;
@@ -285,7 +287,7 @@ public class ProxyDroid extends PreferenceActivity implements
 		proxyedApps = findPreference("proxyedApps");
 		profileList = (ListPreference) findPreference("profile");
 
-		isRunningCheck = (CheckBoxPreference) findPreference("isRunning");
+		isRunningCheck = (Preference) findPreference("isRunning");
 		isAutoSetProxyCheck = (CheckBoxPreference) findPreference("isAutoSetProxy");
 		isAuthCheck = (CheckBoxPreference) findPreference("isAuth");
 		isNTLMCheck = (CheckBoxPreference) findPreference("isNTLM");
@@ -383,12 +385,12 @@ public class ProxyDroid extends PreferenceActivity implements
 
 		super.onDestroy();
 	}
-	
+
 	private boolean serviceStop() {
-		
+
 		if (!Utils.isWorked())
 			return false;
-		
+
 		try {
 			stopService(new Intent(ProxyDroid.this, ProxyDroidService.class));
 		} catch (Exception e) {
@@ -399,7 +401,7 @@ public class ProxyDroid extends PreferenceActivity implements
 
 	/** Called when connect button is clicked. */
 	private boolean serviceStart() {
-		
+
 		if (Utils.isWorked())
 			return false;
 
@@ -629,10 +631,16 @@ public class ProxyDroid extends PreferenceActivity implements
 		edit.commit();
 
 		if (settings.getBoolean("isRunning", false)) {
-			isRunningCheck.setChecked(true);
+			if (Build.VERSION.SDK_INT >= 14)
+				((SwitchPreference) isRunningCheck).setChecked(true);
+			else
+				((CheckBoxPreference) isRunningCheck).setChecked(true);
 			disableAll();
 		} else {
-			isRunningCheck.setChecked(false);
+			if (Build.VERSION.SDK_INT >= 14)
+				((SwitchPreference) isRunningCheck).setChecked(false);
+			else
+				((CheckBoxPreference) isRunningCheck).setChecked(false);
 			enableAll();
 		}
 
@@ -807,12 +815,18 @@ public class ProxyDroid extends PreferenceActivity implements
 		if (key.equals("isRunning")) {
 			if (settings.getBoolean("isRunning", false)) {
 				disableAll();
-				isRunningCheck.setChecked(true);
+				if (Build.VERSION.SDK_INT >= 14)
+					((SwitchPreference) isRunningCheck).setChecked(true);
+				else
+					((CheckBoxPreference) isRunningCheck).setChecked(true);
 				if (!Utils.isConnecting())
 					serviceStart();
 			} else {
 				enableAll();
-				isRunningCheck.setChecked(false);
+				if (Build.VERSION.SDK_INT >= 14)
+					((SwitchPreference) isRunningCheck).setChecked(false);
+				else
+					((CheckBoxPreference) isRunningCheck).setChecked(false);
 				if (!Utils.isConnecting())
 					serviceStop();
 			}
@@ -873,20 +887,31 @@ public class ProxyDroid extends PreferenceActivity implements
 		 * 2、Id，这个很重要，Android根据这个Id来确定不同的菜单 3、顺序，那个菜单现在在前面由这个参数的大小决定
 		 * 4、文本，菜单的显示文本
 		 */
-		menu.add(Menu.NONE, Menu.FIRST + 1, 2, getString(R.string.recovery))
-				.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-		menu.add(Menu.NONE, Menu.FIRST + 2, 3, getString(R.string.profile_del))
-				.setIcon(android.R.drawable.ic_menu_delete);
-		menu.add(Menu.NONE, Menu.FIRST + 3, 4, getString(R.string.about))
-				.setIcon(android.R.drawable.ic_menu_info_details);
-		menu.add(Menu.NONE, Menu.FIRST + 4, 5, getString(R.string.change_name))
-				.setIcon(android.R.drawable.ic_menu_edit);
-		menu.add(Menu.NONE, Menu.FIRST + 5, 1,
-				getString(R.string.use_system_iptables)).setIcon(
-				android.R.drawable.ic_menu_revert);
+		menu.add(Menu.NONE, Menu.FIRST + 1, 4, getString(R.string.recovery))
+				.setIcon(android.R.drawable.ic_menu_close_clear_cancel)
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+		menu.add(Menu.NONE, Menu.FIRST + 2, 2, getString(R.string.profile_del))
+				.setIcon(android.R.drawable.ic_menu_delete)
+				.setShowAsAction(
+						MenuItem.SHOW_AS_ACTION_IF_ROOM
+								| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		menu.add(Menu.NONE, Menu.FIRST + 3, 5, getString(R.string.about))
+				.setIcon(android.R.drawable.ic_menu_info_details)
+				.setShowAsAction(
+						MenuItem.SHOW_AS_ACTION_IF_ROOM
+								| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		menu.add(Menu.NONE, Menu.FIRST + 4, 1, getString(R.string.change_name))
+				.setIcon(android.R.drawable.ic_menu_edit)
+				.setShowAsAction(
+						MenuItem.SHOW_AS_ACTION_IF_ROOM
+								| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		menu.add(Menu.NONE, Menu.FIRST + 5, 3,
+				getString(R.string.use_system_iptables))
+				.setIcon(android.R.drawable.ic_menu_revert)
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 
 		// return true才会起作用
-		return true;
+		return super.onCreateOptionsMenu(menu);
 
 	}
 
@@ -896,10 +921,33 @@ public class ProxyDroid extends PreferenceActivity implements
 		switch (item.getItemId()) {
 		case Menu.FIRST + 1:
 			recovery();
-			break;
+			return true;
 		case Menu.FIRST + 2:
-			delProfile(profile);
-			break;
+			AlertDialog ad = new AlertDialog.Builder(this)
+					.setTitle(R.string.profile_del)
+					.setMessage(R.string.profile_del_confirm)
+					.setPositiveButton(R.string.alert_dialog_ok,
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,
+										int whichButton) {
+									/* User clicked OK so do some stuff */
+									delProfile(profile);
+								}
+							})
+					.setNegativeButton(R.string.alert_dialog_cancel,
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,
+										int whichButton) {
+									/* User clicked Cancel so do some stuff */
+									dialog.dismiss();
+								}
+							}).create();
+
+			ad.show();
+
+			return true;
 		case Menu.FIRST + 3:
 			String versionName = "";
 			try {
@@ -910,10 +958,10 @@ public class ProxyDroid extends PreferenceActivity implements
 			}
 			showAToast(getString(R.string.about) + " (" + versionName + ")"
 					+ getString(R.string.copy_rights));
-			break;
+			return true;
 		case Menu.FIRST + 4:
 			rename();
-			break;
+			return true;
 		case Menu.FIRST + 5:
 			// Use system's instead
 			File inFile = new File("/system/bin/iptables");
@@ -932,10 +980,10 @@ public class ProxyDroid extends PreferenceActivity implements
 					// Ignore
 				}
 			}
-			break;
+			return true;
 		}
 
-		return true;
+		return super.onOptionsItemSelected(item);
 	}
 
 	private void rename() {

@@ -51,6 +51,9 @@ import java.util.ArrayList;
 import org.proxydroid.utils.Constraints;
 import org.proxydroid.utils.Utils;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.MenuItem;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -77,8 +80,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class BypassListActivity extends Activity implements OnClickListener,
-		OnItemClickListener, OnItemLongClickListener {
+public class BypassListActivity extends SherlockActivity implements
+		OnClickListener, OnItemClickListener, OnItemLongClickListener {
 
 	private static final String TAG = BypassListActivity.class.getName();
 
@@ -154,12 +157,25 @@ public class BypassListActivity extends Activity implements OnClickListener,
 	}
 
 	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			// app icon in action bar clicked; go home
+			Intent intent = new Intent(this, ProxyDroid.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
-		// Remove title bar
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
 		super.onCreate(savedInstanceState);
+
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		setContentView(R.layout.bypass_list);
 		TextView addButton = (TextView) findViewById(R.id.addBypassAddr);
