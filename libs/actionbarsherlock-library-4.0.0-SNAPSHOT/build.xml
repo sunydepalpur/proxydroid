@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="proxydroid" default="all">
+<project name="actionbar" default="help">
 
     <!-- The local.properties file is created and updated by the 'android' tool.
          It contains the path to the SDK. It should *NOT* be checked into
@@ -37,7 +37,7 @@
 
          This file is an integral part of the build system for your
          application and should be checked into Version Control Systems. -->
-    <!--<loadproperties srcFile="project.properties" />-->
+    <loadproperties srcFile="project.properties" />
 
     <!-- quick check on sdk.dir -->
     <fail
@@ -45,13 +45,6 @@
             unless="sdk.dir"
     />
 
-    <target name="all" depends="clean,release">
-        <echo>Get a package with the version name ${version-name} </echo>
-        <exec executable="mv" failonerror="true">
-            <arg value="${out.final.file}" />
-            <arg value="bin/${ant.project.name}-${version-name}.apk" />
-        </exec>
-    </target>
 
 <!-- extension targets. Uncomment the ones where you want to do custom work
      in between standard targets -->
