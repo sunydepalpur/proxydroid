@@ -122,7 +122,8 @@
     <string name="profile_default">Profile 1</string>
     <string name="profile_new">New Profile</string>
     <string name="profile_base">Profile</string>
-    <string name="profile_del">Remove</string>
+    <string name="profile_del">Delete</string>
+    <string name="profile_del_confirm">Delete this profile?</string>
 
     <!-- proxy type -->
     <string name="proxy_type">Proxy Type</string>
