@@ -326,7 +326,7 @@ public class ProxyDroid extends SherlockPreferenceActivity implements
 
 				try {
 					// Try not to block activity
-					Thread.sleep(2000);
+					Thread.sleep(1000);
 				} catch (InterruptedException ignore) {
 					// Nothing
 				}
